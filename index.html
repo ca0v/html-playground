@@ -4,6 +4,7 @@
 <head>
     <link href="index.css" rel="stylesheet">
     </link>
+    <script src="https://apis.google.com/js/api.js"></script>
 </head>
 
 <body>
@@ -12,6 +13,10 @@
     </div>
     <div class="photos"></div>
     <input class="console" value="split 3" />
+
+    <!--Add buttons to initiate auth sequence and sign out-->
+    <button id="authorize-button" style="display: none;">Authorize</button>
+    <button id="signout-button" style="display: none;">Sign Out</button>
 
     <script src="./index.js"></script>
     <script>
