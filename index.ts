@@ -71,24 +71,51 @@ function rotate_node(node: HTMLElement, deg: string) {
     node.style.transform = `rotate(${deg}deg)`;
 }
 
-function startup() {
-    let cmd = document.querySelector(".console") as HTMLInputElement;
-    cmd.onkeydown = (event) => {
-        console.log(event);
-        if (event.key === "Enter") {
-            repl.eval(cmd.value);
-            cmd.value = "";
-        }
-    }
-    reindex();
+// create a canvas of the entire collage
+async function asCanvas() {
+    return new Promise<HTMLCanvasElement>((good, bad) => {
+        let imageCanvas = document.querySelector(".canvas")?.getBoundingClientRect();
+        if (!imageCanvas) return;
+        let canvas = document.createElement("canvas");
+        canvas.width = imageCanvas.width;
+        canvas.height = imageCanvas.height;
+
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+        let panels = getPanels();
+        let count = 0;
+        panels.forEach(p => {
+            let pos = p.getBoundingClientRect();
+            let img = document.createElement("img");
+            img.width = pos.width;
+            img.height = pos.height;
+            img.style.transform = p.style.transform;
+            img.onload = () => {
+                ctx.drawImage(img, pos.x, pos.y);
+                count++;
+                if (count === panels.length) {
+                    good(canvas);
+                }
+            }
+            // strip url();
+            let url = getComputedStyle(p).backgroundImage;
+            img.src = "./assets/ca0v.png";//url.substring(4, url.length - 1);
+        });
+    });
 }
 
-startup();
-
 class Repl {
-    eval(command: string) {
+    async eval(command: string) {
         let [verb, noun, noun2] = command.split(" ");
         switch (verb) {
+            case "export":
+                debugger;
+                let canvas = await asCanvas();
+                if (!canvas) return;
+                let img = document.createElement("img");
+                img.src = canvas.toDataURL();
+                document.body.appendChild(img);
+                break;
             case "b":
             case "border":
                 this.border(noun, noun2);
@@ -167,3 +194,18 @@ class Repl {
 }
 
 let repl = new Repl();
+
+function startup() {
+    let cmd = document.querySelector(".console") as HTMLInputElement;
+    cmd.onkeydown = (event) => {
+        console.log(event);
+        if (event.key === "Enter") {
+            repl.eval(cmd.value);
+            cmd.value = "";
+        }
+    }
+    reindex();
+}
+
+startup();
+
