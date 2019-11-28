@@ -1,0 +1,106 @@
+html, body {
+    background-color: black;
+    overflow: hidden;
+    position: absolute;
+    top: 1px;
+    bottom: 21px;
+    left: 1px;
+    right: 1px;
+    padding: 1px;
+    margin: 1px;
+}
+
+.canvas {
+    position: absolute;
+    top: 0;
+    bottom: 160px;
+    left: 0;
+    right: 0;
+}
+
+.photos {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 8em;
+    bottom: 2em;
+    background-color: rgba(255, 0, 0, 0.1);
+}
+
+.panel-container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.panel {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: inline-block;
+    background-image: url("./assets/ca0v.png");
+    background-repeat: no-repeat;
+    background-position-x: 0;
+    background-position-y: 0;
+    background-size: 100% 100%;
+    opacity: 1;
+}
+
+.q1 {
+    top: 0;
+    left: 0;
+    right: 50%;
+    bottom: 50%;
+}
+
+.q2 {
+    top: 0;
+    right: 0;
+    left: 50%;
+    bottom: 50%;
+}
+
+.q3 {
+    bottom: 0;
+    right: 0;
+    left: 50%;
+    top: 50%;
+}
+
+.q4 {
+    bottom: 0;
+    left: 0;
+    right: 50%;
+    top: 50%;
+}
+
+.console {
+    position: absolute;
+    bottom:0;
+    left: 0;
+    background-color: black;
+    color: white;
+    border: 1px solid white;
+    display:block;
+    height: 2em;
+    min-width: 30em;
+    font-family: monospace;
+}
+
+.overlay {
+    background-color: rgba(255,255,255, 0.5);
+    border-radius: 1em;
+    color: black;
+    text-align: center;
+    position: relative;
+    display:inline-block;
+    min-width: 2em;
+    min-height: 2em;
+    line-height: 2em;
+    font-size: 1em;
+    font-family: monospace;
+}

@@ -1,0 +1,23 @@
+{
+  "name": "html-playground",
+  "version": "1.0.0",
+  "description": "html-playground",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ca0v/html-playground.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ca0v/html-playground/issues"
+  },
+  "homepage": "https://github.com/ca0v/html-playground#readme",
+  "devDependencies": {
+    "typescript": "^3.7.2"
+  }
+}
