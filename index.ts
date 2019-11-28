@@ -31,18 +31,6 @@ function select(id: string) {
     return document.querySelector(`.panel[data-id="${id}"]`) as HTMLElement;
 }
 
-function split(id: string) {
-    let node = select(id);
-    if (!node) return;
-    split_node(node);
-}
-
-function merge(id1: string, id2: string) {
-    let node1 = select(id1);
-    let node2 = select(id2);
-    merge_nodes(node1, node2);
-}
-
 
 function split_node(node: HTMLElement) {
     let [topleft, topright, bottomleft, bottomright] = [1, 2, 3, 4].map(n => document.createElement("div"));
@@ -101,9 +89,19 @@ class Repl {
     eval(command: string) {
         let [verb, noun, noun2] = command.split(" ");
         switch (verb) {
+            case "b":
+            case "border":
+                this.border(noun, noun2);
+                break;
+            case "margin":
+                this.margin(noun, noun2);
+                break;
+            case "pad":
+                this.pad(noun, noun2);
+                break;
             case "m":
             case "merge":
-                merge(noun, noun2);
+                this.merge(noun, noun2);
                 break;
             case "r":
             case "rotate":
@@ -111,12 +109,36 @@ class Repl {
                 break;
             case "s":
             case "split":
-                split(noun);
+                this.split(noun);
                 break;
             case "scale":
                 this.scale(noun, noun2);
                 break;
         }
+    }
+
+    border(id: string, width: string) {
+        let node = select(id);
+        if (!node) return;
+        node.style.border = `${width}em solid white`;
+    }
+
+    pad(id: string, width: string) {
+        let node = select(id);
+        if (!node) return;
+        node.style.padding = `${width}em`;
+    }
+
+    margin(id: string, width: string) {
+        let node = select(id);
+        if (!node) return;
+        node.style.margin = `${width}em`;
+    }
+
+    merge(id1: string, id2: string) {
+        let node1 = select(id1);
+        let node2 = select(id2);
+        merge_nodes(node1, node2);
     }
 
     rotate(id: string, deg: string) {
@@ -129,6 +151,12 @@ class Repl {
         let node = select(id);
         if (!node) return;
         this.transform_node(node, `scale(${scale})`);
+    }
+
+    split(id: string) {
+        let node = select(id);
+        if (!node) return;
+        split_node(node);
     }
 
     transform_node(node: HTMLElement, v: string) {
