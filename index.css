@@ -78,6 +78,41 @@ html, body {
     top: 50%;
 }
 
+.q1.q2 {
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 50%;
+}
+
+.q1.q2.q3.q4 {
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+}
+
+.q1.q4 {
+    top: 0;
+    right: 50%;
+    left: 0;
+    bottom: 0;
+}
+
+.q2.q3 {
+    top: 0;
+    right: 0;
+    left: 50%;
+    bottom: 0;
+}
+
+.q3.q4 {
+    top: 50%;
+    right: 0;
+    left: 0;
+    bottom: 0;
+}
+
 .console {
     position: absolute;
     bottom:0;
