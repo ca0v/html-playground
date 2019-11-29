@@ -9,7 +9,14 @@ declare var gapi: {
   load: (type: string, cb: Function) => void;
   client: {
     init: (args: { apiKey: string; discoveryDocs: Array<string>; clientId: string; scope: string }) => Promise<any>;
-    photoslibrary: { albums: { list: Function } };
+    photoslibrary: {
+      albums: { list: Function };
+      mediaItems: {
+        search: (args: {
+          albumId: string;
+        }) => Promise<{ result: { nextPageToken?: string; mediaItems: Array<GoogleMediaItem> } }>;
+      };
+    };
   };
 };
 
@@ -75,16 +82,37 @@ class GooglePhotoSignin {
   }
 }
 
+interface GoogleMediaItem {
+  id: string;
+  description: string;
+  productUrl: string;
+  baseUrl: string;
+  mimeType: string;
+  mediaMetadata: any;
+  contributorInfo: any;
+  filename: string;
+}
+
+interface GoogleAlbum {
+  id: string;
+  title: string;
+  coverPhotoBaseUrl: string;
+}
+
 class GooglePhotos {
   async getAlbums() {
     let signin = new GooglePhotoSignin();
     await signin.handleClientLoad();
     let resp = await gapi.client.photoslibrary.albums.list();
     if (resp.status !== 200) throw `status: ${resp.status}`;
+    console.log({ resp });
 
-    return resp.result.albums as Array<{
-      coverPhotoBaseUrl: string;
-    }>;
+    return resp.result.albums as Array<GoogleAlbum>;
+  }
+
+  async getAlbum(album: GoogleAlbum) {
+    let data = await gapi.client.photoslibrary.mediaItems.search({ albumId: album.id });
+    return data.result.mediaItems;
   }
 }
 
@@ -104,23 +132,15 @@ class Animations {
   animate(type: string, cb: () => void) {
     this.animations.push({ type, handle: setInterval(cb, 100) });
   }
-
-  zoom(node: HTMLElement) {
-    let backgroundSize = getComputedStyle(node).backgroundSize;
-    let scale = parseFloat(backgroundSize) / 100;
-    this.animate("zoom", () => {
-      scale *= 1.01;
-      node.style.backgroundSize = `${100 * scale}%`;
-    });
-  }
 }
 
 class Repl {
   private commandHistory: Array<string> = [];
   private commandHistoryIndex = -1;
   private animations = new Animations();
+  private albumData = new Datahash<GoogleAlbum>();
 
-  private commands = ["aspect", "export", "border", "pad", "pan", "margin", "move", "rotate", "split", "stop"];
+  private commands = ["aspect", "export", "border", "margin", "move", "pan", "rotate", "split", "stop", "zoom"];
 
   private getCommand(command: string) {
     let [token] = command.split(" ", 2);
@@ -160,6 +180,9 @@ class Repl {
       case "move":
         this.move(noun, noun2);
         break;
+      case "open":
+        this.openAlbum(noun);
+        break;
       case "rotate":
         this.rotate(noun, noun2);
         break;
@@ -167,8 +190,6 @@ class Repl {
         this.split(noun);
         break;
       case "zoom":
-        this.animations.zoom(this.select(noun));
-        break;
       case "scale":
         this.scale(noun, noun2);
         break;
@@ -176,6 +197,24 @@ class Repl {
         this.animations.stop(noun);
         break;
     }
+  }
+
+  async openAlbum(id: string) {
+    const target = document.querySelector(".photos");
+    if (!target) return;
+    let photo = this.selectPhoto(id);
+    if (!photo) return;
+    let album = this.albumData.get(photo)?.data;
+    if (!album) return;
+    let photos = new GooglePhotos();
+    let data = await photos.getAlbum(album);
+    data.forEach(photo => {
+      let img = document.createElement("div");
+      img.classList.add("img");
+      img.style.backgroundImage = `url(${photo.baseUrl})`;
+      target.appendChild(img);
+    });
+    this.reindexPhotos();
   }
 
   setAspectRatio(w: string, h: string) {
@@ -336,7 +375,7 @@ class Repl {
     if (!dst) return;
 
     dst.style.backgroundImage = src.style.backgroundImage;
-    src.remove();
+    //src.remove();
   }
 
   rotate(id: string, deg: string) {
@@ -359,8 +398,16 @@ class Repl {
     let node = this.select(id);
     if (!node) return;
 
-    // this.transform_node(node, `scale(${scale})`);
-    node.style.backgroundSize = `auto ${100 * parseFloat(scale)}%`;
+    if (!scale) {
+      let backgroundSize = getComputedStyle(node).backgroundSize;
+      let scale = parseFloat(backgroundSize) / 100;
+      this.animations.animate("zoom", () => {
+        scale *= 1.01;
+        node.style.backgroundSize = `${100 * scale}%`;
+      });
+    } else {
+      node.style.backgroundSize = `auto ${100 * parseFloat(scale)}%`;
+    }
   }
 
   pan(id: string, x: string, y: string) {
@@ -417,7 +464,11 @@ class Repl {
 
   reindexPhotos() {
     let photos = Array.from(document.querySelectorAll(".photos .img")) as Array<HTMLImageElement>;
-    let overlays = photos.map(p => document.createElement("div"));
+    let overlays = photos.map(p => p.querySelector(".overlay") as HTMLElement).filter(v => !!v);
+    // remove original overlays
+    overlays.forEach(overlay => overlay.remove());
+
+    overlays = photos.map(p => document.createElement("div"));
     overlays.forEach((overlay, i) => {
       let panel = photos[i];
       panel.dataset["id"] = i + 1 + "";
@@ -444,7 +495,6 @@ class Repl {
   async startup() {
     let cmd = document.querySelector(".console") as HTMLInputElement;
     cmd.onkeydown = event => {
-      console.log(event);
       switch (event.key) {
         case "Enter":
           repl.eval(cmd.value);
@@ -469,12 +519,25 @@ class Repl {
         const img = document.createElement("div");
         img.classList.add("img");
         img.style.backgroundImage = `url(${album.coverPhotoBaseUrl})`;
+        img.title = album.title;
         target.appendChild(img);
+        this.albumData.add(img, album);
       });
       this.reindexPhotos();
     }
   }
 }
 
+class Datahash<T> {
+  private hash: Array<{ owner: HTMLElement; data: T }> = [];
+
+  add(owner: HTMLElement, data: T) {
+    this.hash.push({ owner, data });
+  }
+
+  get(owner: HTMLElement) {
+    return this.hash.find(v => v.owner === owner);
+  }
+}
 let repl = new Repl();
 repl.startup();
