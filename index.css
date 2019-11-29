@@ -16,6 +16,13 @@ html, body {
     bottom: 160px;
     left: 0;
     right: 0;
+    padding: 1em;
+}
+
+.window {
+    position: absolute;
+    border: 1em solid rgba(20, 20, 20, 0.9);
+    background-color:rgb(20, 20, 20);
 }
 
 .photos {
@@ -30,10 +37,18 @@ html, body {
     white-space: nowrap;
 }
 
-.photos img {
-    width: auto;
+.photos .img {
+    width: 7em;
     height: 7em;
+    background-repeat: no-repeat;
+    background-position-x: 0;
+    background-position-y: 0;
+    background-size: auto 7em;
+    display: inline-block;
+    background-color: black;
+    border: 1px solid white;
 }
+
 .panel-container {
     position: absolute;
     top: 0;
@@ -49,11 +64,11 @@ html, body {
     left: 0;
     right: 0;
     display: inline-block;
-    background-image: url("./assets/ca0v.png");
+    border:1px solid white;
     background-repeat: no-repeat;
     background-position-x: 0;
     background-position-y: 0;
-    background-size: 100% 100%;
+    background-size: 100%;
     opacity: 1;
 }
 

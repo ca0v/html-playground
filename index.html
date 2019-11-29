@@ -9,10 +9,12 @@
 
 <body>
     <div class="canvas">
-        <div class="panel" data-id="1"></div>
+        <div class="window">
+            <div class="panel" data-id="1"></div>
+        </div>
     </div>
     <div class="photos"></div>
-    <input class="console" value="split 3" />
+    <input class="console" value="move 3 4" />
 
     <!--Add buttons to initiate auth sequence and sign out-->
     <button id="authorize-button" style="display: none;">Authorize</button>
@@ -24,11 +26,12 @@
         repl.merge("2", "3");
         repl.rotate("3", "20");
         repl.split("1");
-        repl.scale("4", "0.5");
-        repl.border("4", "5");
-        repl.pad("5", "5");
-        repl.margin("5", "5");
-        repl.eval("export");
+        // repl.scale("4", "0.5");
+        // repl.border("3", "2");
+        // repl.margin("5", "5");
+        // //repl.eval("export");
+        // repl.pan("1", "1", "1");
+        repl.eval("aspect 7 5");
     </script>
 
 </body>
