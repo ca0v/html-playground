@@ -1,3 +1,7 @@
+interface Dictionary<T> {
+  [Key: string]: T;
+}
+
 declare var gapi: {
   auth2: {
     getAuthInstance: () => {
@@ -20,13 +24,126 @@ declare var gapi: {
   };
 };
 
+function setCommand(command: string) {
+  let cmd = document.querySelector(".console") as HTMLInputElement;
+  cmd.value = command;
+}
+
+function getData(element: HTMLElement, tag: string) {
+  let dataStr = element.dataset.data = element.dataset.data || "{}";
+  let data = JSON.parse(dataStr);
+  return data[tag];
+}
+
+function setData(element: HTMLElement, tag: string, value: any) {
+  let data = JSON.parse(element.dataset.data || "{}");
+  data[tag] = value;
+  element.dataset.data = JSON.stringify(data);
+}
+
+class DragAndDrop {
+
+  private source: HTMLElement | null = null;
+
+  constructor() {
+    window.addEventListener("wheel", (event) => {
+      let sources = Array.from(document.querySelectorAll(":hover"));
+      let source = sources.find(n => -1 < this.zoomables.indexOf(<HTMLElement>n)) as HTMLElement;
+      if (!source) return;
+      let from = source.innerHTML;
+
+      let currentZoom = getData(source, "zoom") || 1;
+      // -150 => 0.9, 150 => 1.1, so
+      let delta = 1 + event.deltaY / 1500;
+      let zoom = currentZoom * delta;
+      console.log(delta, zoom);
+      repl.executeCommand(`zoom ${from} ${zoom}`);
+      setData(source, "zoom", zoom);
+    });
+
+    window.addEventListener("keydown", event => {
+      let sources = Array.from(document.querySelectorAll(":hover"));
+      let source = sources.find(n => -1 < this.zoomables.indexOf(<HTMLElement>n)) as HTMLElement;
+      if (!source) return;
+      let from = source.innerHTML;
+
+      switch (event.key) {
+        case "ArrowDown":
+          repl.executeCommand(`pan ${from} 0 10`);
+          break;
+        case "ArrowUp":
+          repl.executeCommand(`pan ${from} 0 -10`);
+          break;
+        case "ArrowLeft":
+          repl.executeCommand(`pan ${from} -10 0`);
+          break;
+        case "ArrowRight":
+          repl.executeCommand(`pan ${from} 10 0`);
+          break;
+      }
+    });
+  }
+
+  /**
+   * Make an element a drag source
+   * @param div element to make draggable
+   */
+  draggable(draggable: HTMLElement) {
+    draggable.draggable = true;
+    draggable.addEventListener("dragstart", event => this.ondragstart(draggable, event.target as HTMLElement))
+  }
+
+  /**
+   * Make an element a drop target
+   * @param target element to make into a drop target (draggable are droppable, bad name)
+   */
+  droppable(target: HTMLElement) {
+    target.addEventListener("dragover", (event) => {
+      if (!this.source) return;
+      event.preventDefault();
+      this.ondragover(target, this.source);
+    });
+
+    target.addEventListener("drop", (event) => {
+      if (!this.source) return;
+      event.preventDefault();
+      this.ondrop(target, this.source);
+    });
+  }
+
+  /**
+   * 
+   * @param source listen for wheel events
+   */
+  zoomable(source: HTMLElement) {
+    this.zoomables.push(source);
+  }
+
+  private zoomables: Array<HTMLElement> = [];
+
+  ondragstart(target: HTMLElement, source: HTMLElement) {
+    this.source = source;
+  }
+
+  ondragover(target: HTMLElement, source: HTMLElement) {
+    // nothing to do?
+  }
+
+  ondrop(target: HTMLElement, source: HTMLElement) {
+    let from = source.innerHTML;
+    let to = target.innerHTML;
+    let command = `move ${from} ${to}`;
+    repl.executeCommand(command);
+  }
+}
+
 class GooglePhotoSignin {
   private peopleApiDiscovery = "";
   // where to store these values?
   private scopes = "https://www.googleapis.com/auth/photoslibrary.readonly";
   private authorizeButton = document.getElementById("authorize-button") as HTMLButtonElement;
   private signoutButton = document.getElementById("signout-button") as HTMLButtonElement;
-  private ready = () => {};
+  private ready = () => { };
 
   async handleClientLoad() {
     // Load the API client and auth2 library.
@@ -140,7 +257,7 @@ class Repl {
   private animations = new Animations();
   private albumData = new Datahash<GoogleAlbum>();
 
-  private commands = ["aspect", "export", "border", "margin", "move", "pan", "rotate", "split", "stop", "zoom"];
+  private commands = ["aspect", "export", "border", "margin", "move", "open", "pan", "rotate", "scale", "split", "stop", "zoom"];
 
   private getCommand(command: string) {
     let [token] = command.split(" ", 2);
@@ -272,9 +389,16 @@ class Repl {
     return panels;
   }
 
+  getCollageOverlays() {
+    return Array.from(document.querySelectorAll(`.panel[data-id] .overlay`)) as HTMLElement[];
+  }
+
+  getPhotoOverlays() {
+    return Array.from(document.querySelectorAll(`.photos .img[data-id] .overlay`)) as HTMLElement[];
+  }
+
   removeOverlays() {
-    let overlays = Array.from(document.querySelectorAll(`.panel[data-id] .overlay`)) as HTMLElement[];
-    overlays.forEach(o => o.remove());
+    this.getCollageOverlays().forEach(o => o.remove());
   }
 
   showOverlays() {
@@ -497,8 +621,7 @@ class Repl {
     cmd.onkeydown = event => {
       switch (event.key) {
         case "Enter":
-          repl.eval(cmd.value);
-          this.commandHistoryIndex = this.commandHistory.push(cmd.value);
+          this.executeCommand(cmd.value);
           cmd.value = "";
           break;
         case "ArrowUp":
@@ -526,6 +649,11 @@ class Repl {
       this.reindexPhotos();
     }
   }
+
+  public executeCommand(cmd: string) {
+    repl.eval(cmd);
+    this.commandHistoryIndex = this.commandHistory.push(cmd);
+  }
 }
 
 class Datahash<T> {
@@ -539,5 +667,91 @@ class Datahash<T> {
     return this.hash.find(v => v.owner === owner);
   }
 }
+
+/**
+ * Google speech recognition
+ */
+class Listener {
+  recognition: SpeechRecognition;
+  stopped: boolean = true;
+  autostart: boolean = true;
+
+  constructor() {
+    this.recognition = new (<any>window)["webkitSpeechRecognition"]();
+    let recognition = this.recognition;
+    recognition.interimResults = false;
+    recognition.continuous = false;
+    recognition.lang = "es";
+    recognition.maxAlternatives = 5;
+
+    recognition.addEventListener("start", e => {
+      this.stopped = false;
+    });
+
+    recognition.addEventListener("end", e => {
+      this.stopped = false;
+      if (this.autostart) recognition.start();
+    });
+
+    recognition.addEventListener("result", e => {
+      for (let i = 0; i < e.results.length; i++) {
+        let result = e.results[i];
+        if (result.isFinal) {
+          for (let j = 0; j < result.length; j++) {
+            let transcript = result[j].transcript;
+            console.log(transcript, result[j]);
+            let confidence = result[j].confidence;
+            this.trigger("speech-detected", {
+              result: transcript,
+              power: confidence * 100
+            });
+            return;
+          }
+        }
+      }
+    });
+  }
+
+  private _callbacks: Dictionary<Array<(value: { result: string, power: number }) => void>> = {};
+
+  private callbacks(topic: string) {
+    return this._callbacks[topic] = this._callbacks[topic] ?? [];
+  }
+
+  on(topic: string, cb: (value: { result: string, power: number }) => void) {
+    this.callbacks(topic).push(cb);
+  }
+
+  trigger(topic: string, value: { result: string, power: number }) {
+    this.callbacks(topic).forEach(cb => cb(value));
+  }
+
+  listen() {
+    if (this.stopped) this.recognition.start();
+  }
+}
+
 let repl = new Repl();
-repl.startup();
+
+async function start() {
+  let listener = new Listener();
+  await repl.startup();
+  listener.listen();
+  listener.on("speech-detected", value => { console.log(value); alert("hereiam"); })
+
+  let dnd = new DragAndDrop();
+  repl.getCollageOverlays().forEach(overlay => {
+    dnd.zoomable(overlay);
+    console.log(`${overlay.innerHTML} is zoomable`);
+    dnd.droppable(overlay);
+    console.log(`${overlay.innerHTML} is droppable`);
+  });
+
+  repl.getPhotoOverlays().forEach(overlay => {
+    dnd.draggable(overlay);
+    console.log(`${overlay.innerHTML} is draggable`);
+  });
+
+}
+
+start();
