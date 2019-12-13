@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="collage">
 
 <head>
     <link href="index.css" rel="stylesheet">
@@ -23,15 +23,17 @@
     <script src="./index.js"></script>
     <script>
         repl.eval("split 1");
+        repl.eval("rotate 2 -20");
+        repl.eval("border 2 0.25");
         repl.eval("split 1");
         repl.eval("merge 2 3");
-        repl.eval("border 3 0.5");
-        // repl.scale(  4", "0.5");
-        // repl.border("3", "2");
-        // repl.margin("5", "5");
-        // //repl.eval("export");
-        // repl.pan("1", "1", "1");
         repl.eval("aspect 7 5");
+        repl.eval("goto 1");
+        setTimeout(() => {
+            for (let i = 1; i <= 6; i++) {
+                repl.eval("move " + (1 + Math.floor(15 * Math.random())) + " " + i);
+            }
+        }, 3000);
     </script>
 
 </body>

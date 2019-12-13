@@ -1,3 +1,9 @@
+/**
+ * One big happy family of classes to avoid loading
+ * and concatination
+ */
+
+/** Interfaces  */
 interface Dictionary<T> {
   [Key: string]: T;
 }
@@ -24,6 +30,24 @@ declare var gapi: {
   };
 };
 
+/** Global Functions */
+function gotoCommandEditor() {
+  let editor = document.querySelector(".console") as HTMLElement;
+  if (!editor) {
+    console.log("no command editor found");
+    return;
+  }
+  editor.focus();
+}
+
+function getActiveOverlay() {
+  let activePanel = document.activeElement;
+  if (!activePanel) {
+    console.log("no active panel");
+    return;
+  }
+  return activePanel.querySelector(".overlay") as HTMLElement;
+}
 function setCommand(command: string) {
   let cmd = document.querySelector(".console") as HTMLInputElement;
   cmd.value = command;
@@ -41,15 +65,60 @@ function setData(element: HTMLElement, tag: string, value: any) {
   element.dataset.data = JSON.stringify(data);
 }
 
+function unPanel(node: HTMLElement) {
+  node.classList.remove("panel");
+}
+
+/** Global Classes */
+
+/**
+ * Try to turn a spoken phrase into a command grammar
+ */
+class CommandParser {
+  parsePhrase(phrase: string) {
+    phrase = phrase.toLowerCase();
+    let map = <any>{
+      "zoom in": "zoom",
+      "zoom out": "zoom",
+      "drag": "pan",
+      "number for": "4",
+      "number": "",
+      "frame": "",
+      "photo": "",
+      "one": "1",
+      "two": "2",
+      "three": "3",
+      "four": "4",
+      "five": "5",
+      "six": "6",
+      "seven": "7",
+      "eight": "8",
+      "nine": "9",
+      "into": "",
+      "on": "",
+      "and": "",
+      "picture": "",
+      "go to": "goto",
+      "-": " ", // "move 7-6"
+    }
+    Object.keys(map).forEach(v => phrase = phrase.replace(v, map[v]));
+    let tokens = phrase.split(" ");
+    tokens = tokens.map(v => map[v] ?? v).filter(v => !!v);
+    return tokens.join(" ");
+  }
+}
+
 class DragAndDrop {
 
   private source: HTMLElement | null = null;
 
   constructor() {
     window.addEventListener("wheel", (event) => {
-      let sources = Array.from(document.querySelectorAll(":hover"));
-      let source = sources.find(n => -1 < this.zoomables.indexOf(<HTMLElement>n)) as HTMLElement;
-      if (!source) return;
+      let source = getActiveOverlay();
+      if (!source) {
+        console.log("no active overlay found");
+        return;
+      }
       let from = source.innerHTML;
 
       let currentZoom = getData(source, "zoom") || 1;
@@ -62,24 +131,55 @@ class DragAndDrop {
     });
 
     window.addEventListener("keydown", event => {
-      let sources = Array.from(document.querySelectorAll(":hover"));
-      let source = sources.find(n => -1 < this.zoomables.indexOf(<HTMLElement>n)) as HTMLElement;
-      if (!source) return;
+      let source = getActiveOverlay();
+      if (!source) {
+        console.log("no active overlay found");
+        return;
+      }
       let from = source.innerHTML;
+      let currentZoom = getData(source, "zoom") || 1;
 
       switch (event.key) {
         case "ArrowDown":
-          repl.executeCommand(`pan ${from} 0 10`);
+          repl.executeCommand(`pan ${from} 0 1`);
           break;
         case "ArrowUp":
-          repl.executeCommand(`pan ${from} 0 -10`);
+          repl.executeCommand(`pan ${from} 0 -1`);
           break;
         case "ArrowLeft":
-          repl.executeCommand(`pan ${from} -10 0`);
+          repl.executeCommand(`pan ${from} -1 0`);
           break;
         case "ArrowRight":
-          repl.executeCommand(`pan ${from} 10 0`);
+          repl.executeCommand(`pan ${from} 1 0`);
           break;
+        case "(":
+        case "<":
+          repl.executeCommand(`rotate ${from} -1`);
+          break;
+        case ")":
+        case ">":
+          repl.executeCommand(`rotate ${from} 1`);
+          break;
+        case "+":
+          currentZoom *= 1.01;
+          repl.executeCommand(`zoom ${from} ${currentZoom}`);
+          setData(source, "zoom", currentZoom);
+          break;
+        case "-":
+          currentZoom *= 0.99;
+          repl.executeCommand(`zoom ${from} ${currentZoom}`);
+          setData(source, "zoom", currentZoom);
+          break;
+        case "c":
+          event.preventDefault();
+          gotoCommandEditor();
+          break;
+        case "Enter":
+        case " ":
+          repl.executeCommand("stop");
+          break;
+        default:
+          console.log(`${event.key} not handled`);
       }
     });
   }
@@ -89,8 +189,9 @@ class DragAndDrop {
    * @param div element to make draggable
    */
   draggable(draggable: HTMLElement) {
+    draggable.classList.add("draggable");
     draggable.draggable = true;
-    draggable.addEventListener("dragstart", event => this.ondragstart(draggable, event.target as HTMLElement))
+    draggable.addEventListener("dragstart", event => this.ondragstart(draggable))
   }
 
   /**
@@ -116,12 +217,9 @@ class DragAndDrop {
    * @param source listen for wheel events
    */
   zoomable(source: HTMLElement) {
-    this.zoomables.push(source);
   }
 
-  private zoomables: Array<HTMLElement> = [];
-
-  ondragstart(target: HTMLElement, source: HTMLElement) {
+  ondragstart(source: HTMLElement) {
     this.source = source;
   }
 
@@ -135,6 +233,24 @@ class DragAndDrop {
     let command = `move ${from} ${to}`;
     repl.executeCommand(command);
   }
+}
+
+class CollagePanel {
+
+  constructor(public panel: HTMLDivElement) {
+    this.asPanel(this.panel);
+  }
+
+  setBackgroundImage(backgroundImage: string): void {
+    this.panel.style.backgroundImage = backgroundImage;
+  }
+  
+  private asPanel(element: HTMLDivElement) {
+    element.classList.add("panel");
+    element.tabIndex = 1;
+    element.dataset["id"] = "dontcare";
+  }
+
 }
 
 class GooglePhotoSignin {
@@ -265,6 +381,7 @@ class Repl {
   }
 
   async eval(command: string) {
+    console.log(`executing: ${command}`);
     let [verb, noun, noun2, noun3] = command.split(" ");
     verb = this.getCommand(verb) || verb;
     switch (verb) {
@@ -281,6 +398,9 @@ class Repl {
         break;
       case "border":
         this.border(noun, noun2);
+        break;
+      case "goto":
+        this.goto(noun);
         break;
       case "pad":
         this.pad(noun, noun2);
@@ -403,13 +523,7 @@ class Repl {
 
   showOverlays() {
     let panels = this.getPanels();
-    let overlays = panels.map(p => document.createElement("div"));
-    overlays.forEach((overlay, i) => {
-      let panel = panels[i];
-      overlay.classList.add("overlay");
-      overlay.innerText = panel.dataset["id"] + "";
-      panel.appendChild(overlay);
-    });
+    createOverlays(panels);
   }
 
   select(id: string) {
@@ -422,19 +536,17 @@ class Repl {
 
   split_node(node: HTMLElement) {
     let [topleft, topright, bottomleft, bottomright] = [1, 2, 3, 4].map(n => document.createElement("div"));
-    let children = [topleft, topright, bottomleft, bottomright];
-    children.forEach(c => c.classList.add("panel"));
-    children.forEach(c => (c.dataset["id"] = "dontcare"));
+    let children = [topleft, topright, bottomleft, bottomright].map(v => new CollagePanel(v));
     topleft.classList.add("q1");
     topright.classList.add("q2");
     bottomleft.classList.add("q3");
     bottomright.classList.add("q4");
-    children.forEach(c => (c.style.backgroundImage = node.style.backgroundImage));
+    children.forEach(c => c.setBackgroundImage(node.style.backgroundImage));
     node.style.backgroundImage = "";
-    node.classList.remove("panel");
+    unPanel(node);
     node.classList.add("panel-container");
     node.dataset["id"] = "";
-    children.forEach(c => node.appendChild(c));
+    children.forEach(c => node.appendChild(c.panel));
     this.reindex();
   }
 
@@ -469,6 +581,12 @@ class Repl {
     if (!node) return;
 
     node.style.border = `${width}em solid white`;
+  }
+
+  goto(id: string) {
+    let node = this.select(id);
+    if (!node) return;
+    node.focus();
   }
 
   pad(id: string, width: string) {
@@ -592,14 +710,7 @@ class Repl {
     // remove original overlays
     overlays.forEach(overlay => overlay.remove());
 
-    overlays = photos.map(p => document.createElement("div"));
-    overlays.forEach((overlay, i) => {
-      let panel = photos[i];
-      panel.dataset["id"] = i + 1 + "";
-      overlay.classList.add("overlay");
-      overlay.innerText = panel.dataset["id"];
-      panel.appendChild(overlay);
-    });
+    overlays = createOverlays(photos);
   }
 
   priorCommand() {
@@ -651,8 +762,13 @@ class Repl {
   }
 
   public executeCommand(cmd: string) {
-    repl.eval(cmd);
+    this.eval(cmd);
     this.commandHistoryIndex = this.commandHistory.push(cmd);
+  }
+
+  public parseCommand(command: string) {
+    let ai = new CommandParser();
+    return ai.parsePhrase(command);
   }
 }
 
@@ -681,8 +797,9 @@ class Listener {
     let recognition = this.recognition;
     recognition.interimResults = false;
     recognition.continuous = false;
-    recognition.lang = "es";
+    recognition.lang = "en-PH";
     recognition.maxAlternatives = 5;
+
 
     recognition.addEventListener("start", e => {
       this.stopped = false;
@@ -733,16 +850,30 @@ class Listener {
 
 let repl = new Repl();
 
+function createOverlays(photos: HTMLElement[]) {
+  let overlays = photos.map(p => document.createElement("div"));
+  overlays.forEach((overlay, i) => {
+    let panel = photos[i];
+    panel.dataset["id"] = i + 1 + "";
+    overlay.classList.add("overlay");
+    overlay.innerText = panel.dataset["id"];
+    panel.appendChild(overlay);
+  });
+  return overlays;
+}
+
 async function start() {
   let listener = new Listener();
   await repl.startup();
   listener.listen();
-  listener.on("speech-detected", value => { console.log(value); alert("hereiam"); })
+  listener.on("speech-detected", value => { repl.executeCommand(repl.parseCommand(value.result)) });
 
   let dnd = new DragAndDrop();
   repl.getCollageOverlays().forEach(overlay => {
     dnd.zoomable(overlay);
     console.log(`${overlay.innerHTML} is zoomable`);
+    dnd.draggable(overlay);
+    console.log(`${overlay.innerHTML} is draggable`);
     dnd.droppable(overlay);
     console.log(`${overlay.innerHTML} is droppable`);
   });
