@@ -104,6 +104,9 @@ class CommandParser {
   }
 }
 
+/**
+ * manages user interactions for keyboard shortcuts, wheel, drag, click events
+ */
 class DragAndDrop {
 
   private source: HTMLElement | null = null;
@@ -307,6 +310,44 @@ class CollagePanel {
     animate && animations.animate("pan", op);
   }
 
+  rotate(deg: string) {
+    let node = this.panel;
+    if (!node) return;
+
+    if (!!deg) {
+      this.transform_node(node, `rotate(${deg}deg)`);
+    } else {
+      let angle = 0;
+      let transform = node.style.transform;
+      animations.animate("rotate", () => {
+        angle += 1;
+        node.style.transform = transform + ` rotate(${angle}deg)`;
+      });
+    }
+  }
+
+  scale(scale: string) {
+    let node = this.panel;
+    if (!node) return;
+
+    if (!scale) {
+      let backgroundSize = getComputedStyle(node).backgroundSize;
+      let scale = parseFloat(backgroundSize) / 100;
+      animations.animate("zoom", () => {
+        scale *= 1.01;
+        node.style.backgroundSize = `${100 * scale}%`;
+      });
+    } else {
+      node.style.backgroundSize = `auto ${100 * parseFloat(scale)}%`;
+    }
+  }
+
+  private transform_node(node: HTMLElement, v: string) {
+    let transform = (node.style.transform || "").split(" ");
+    transform.unshift(v);
+    node.style.transform = transform.join(" ");
+  }
+
   private asPanel(element: HTMLDivElement) {
     element.classList.add("panel");
     element.tabIndex = 1;
@@ -484,14 +525,14 @@ class Repl {
         this.openAlbum(noun);
         break;
       case "rotate":
-        this.rotate(noun, noun2);
+        this.selectPanel(noun)?.rotate(noun2);
         break;
       case "split":
         this.split(noun);
         break;
       case "zoom":
       case "scale":
-        this.scale(noun, noun2);
+        this.selectPanel(noun)?.scale(noun2);
         break;
       case "stop":
         animations.stop(noun);
@@ -673,38 +714,6 @@ class Repl {
     //src.remove();
   }
 
-  rotate(id: string, deg: string) {
-    let node = this.select(id);
-    if (!node) return;
-
-    if (!!deg) {
-      this.transform_node(node, `rotate(${deg}deg)`);
-    } else {
-      let angle = 0;
-      let transform = node.style.transform;
-      animations.animate("rotate", () => {
-        angle += 1;
-        node.style.transform = transform + ` rotate(${angle}deg)`;
-      });
-    }
-  }
-
-  scale(id: string, scale: string) {
-    let node = this.select(id);
-    if (!node) return;
-
-    if (!scale) {
-      let backgroundSize = getComputedStyle(node).backgroundSize;
-      let scale = parseFloat(backgroundSize) / 100;
-      animations.animate("zoom", () => {
-        scale *= 1.01;
-        node.style.backgroundSize = `${100 * scale}%`;
-      });
-    } else {
-      node.style.backgroundSize = `auto ${100 * parseFloat(scale)}%`;
-    }
-  }
-
   /**
    * Splits the panel into 4 new child panels
    * @param id panel identifier
@@ -723,12 +732,6 @@ class Repl {
     }
     this.panels.push(...panel.split());
     this.reindex();
-  }
-
-  transform_node(node: HTMLElement, v: string) {
-    let transform = (node.style.transform || "").split(" ");
-    transform.unshift(v);
-    node.style.transform = transform.join(" ");
   }
 
   reindexPhotos() {
