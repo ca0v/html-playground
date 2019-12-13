@@ -231,6 +231,9 @@ class DragAndDrop {
   }
 }
 
+/**
+ * Manages a single image on the collage
+ */
 class CollagePanel {
 
   constructor(public panel: HTMLDivElement) {
@@ -238,6 +241,7 @@ class CollagePanel {
   }
 
   destroy() {
+    this.panel.remove();
   }
 
   split() {
@@ -258,6 +262,49 @@ class CollagePanel {
 
   setBackgroundImage(backgroundImage: string): void {
     this.panel.style.backgroundImage = backgroundImage;
+  }
+
+  border(width: string) {
+    this.panel.style.border = `${width}em solid white`;
+  }
+
+  pan(x: string, y: string) {
+    let node = this.panel;
+    if (!node) return;
+
+    let [dx, dy] = [0, 0];
+    let animate = true;
+    let pixelSize = 1 / 16;
+    switch (x) {
+      case "up":
+        dy = -pixelSize;
+        break;
+      case "down":
+        dy = pixelSize;
+        break;
+      case "left":
+        dx = -pixelSize;
+        break;
+      case "right":
+        dx = pixelSize;
+        break;
+      default:
+        animate = false;
+        dx = pixelSize * parseFloat(x);
+        dy = pixelSize * parseFloat(y);
+        break;
+    }
+    let op = () => {
+      let x0 = parseFloat(node.style.backgroundPositionX || "0");
+      let y0 = parseFloat(node.style.backgroundPositionY || "0");
+      x0 += dx;
+      y0 += dy;
+      node.style.backgroundPositionX = `${x0}em`;
+      node.style.backgroundPositionY = `${y0}em`;
+    };
+
+    op();
+    animate && animations.animate("pan", op);
   }
 
   private asPanel(element: HTMLDivElement) {
@@ -382,10 +429,11 @@ class Animations {
   }
 }
 
+let animations = new Animations();
+
 class Repl {
   private commandHistory: Array<string> = [];
   private commandHistoryIndex = -1;
-  private animations = new Animations();
   private albumData = new Datahash<GoogleAlbum>();
 
   private commands = ["aspect", "export", "border", "margin", "move", "open", "pan", "rotate", "scale", "split", "stop", "zoom"];
@@ -421,7 +469,7 @@ class Repl {
         this.pad(noun, noun2);
         break;
       case "pan":
-        this.pan(noun, noun2, noun3 || "0");
+        this.selectPanel(noun)?.pan(noun2, noun3 || "0");
         break;
       case "margin":
         this.margin(noun, noun2);
@@ -446,7 +494,7 @@ class Repl {
         this.scale(noun, noun2);
         break;
       case "stop":
-        this.animations.stop(noun);
+        animations.stop(noun);
         break;
     }
   }
@@ -545,6 +593,15 @@ class Repl {
     return document.querySelector(`.panel[data-id="${id}"]`) as HTMLElement;
   }
 
+  selectPanel(id: string) {
+    let node = this.select(id);
+    if (!node) {
+      console.log("no node found");
+      return null;
+    }
+    return this.panels.find(p => p.panel === node);
+  }
+
   selectPhoto(id: string) {
     return document.querySelector(`.photos .img[data-id="${id}"]`) as HTMLElement;
   }
@@ -576,10 +633,7 @@ class Repl {
   }
 
   border(id: string, width: string) {
-    let node = this.select(id);
-    if (!node) return;
-
-    node.style.border = `${width}em solid white`;
+    this.selectPanel(id)?.border(width);
   }
 
   goto(id: string) {
@@ -628,7 +682,7 @@ class Repl {
     } else {
       let angle = 0;
       let transform = node.style.transform;
-      this.animations.animate("rotate", () => {
+      animations.animate("rotate", () => {
         angle += 1;
         node.style.transform = transform + ` rotate(${angle}deg)`;
       });
@@ -642,7 +696,7 @@ class Repl {
     if (!scale) {
       let backgroundSize = getComputedStyle(node).backgroundSize;
       let scale = parseFloat(backgroundSize) / 100;
-      this.animations.animate("zoom", () => {
+      animations.animate("zoom", () => {
         scale *= 1.01;
         node.style.backgroundSize = `${100 * scale}%`;
       });
@@ -651,45 +705,10 @@ class Repl {
     }
   }
 
-  pan(id: string, x: string, y: string) {
-    let node = this.select(id);
-    if (!node) return;
-
-    let [dx, dy] = [0, 0];
-    let animate = true;
-    let pixelSize = 1 / 16;
-    switch (x) {
-      case "up":
-        dy = -pixelSize;
-        break;
-      case "down":
-        dy = pixelSize;
-        break;
-      case "left":
-        dx = -pixelSize;
-        break;
-      case "right":
-        dx = pixelSize;
-        break;
-      default:
-        animate = false;
-        dx = pixelSize * parseFloat(x);
-        dy = pixelSize * parseFloat(y);
-        break;
-    }
-    let op = () => {
-      let x0 = parseFloat(node.style.backgroundPositionX || "0");
-      let y0 = parseFloat(node.style.backgroundPositionY || "0");
-      x0 += dx;
-      y0 += dy;
-      node.style.backgroundPositionX = `${x0}em`;
-      node.style.backgroundPositionY = `${y0}em`;
-    };
-
-    op();
-    animate && this.animations.animate("pan", op);
-  }
-
+  /**
+   * Splits the panel into 4 new child panels
+   * @param id panel identifier
+   */
   split(id: string) {
     let node = this.select(id);
     if (!node) {
