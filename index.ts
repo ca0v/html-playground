@@ -65,10 +65,6 @@ function setData(element: HTMLElement, tag: string, value: any) {
   element.dataset.data = JSON.stringify(data);
 }
 
-function unPanel(node: HTMLElement) {
-  node.classList.remove("panel");
-}
-
 /** Global Classes */
 
 /**
@@ -241,10 +237,29 @@ class CollagePanel {
     this.asPanel(this.panel);
   }
 
+  destroy() {
+  }
+
+  split() {
+    let [topleft, topright, bottomleft, bottomright] = [1, 2, 3, 4].map(n => document.createElement("div"));
+    let children = [topleft, topright, bottomleft, bottomright].map(v => new CollagePanel(v));
+    topleft.classList.add("q1");
+    topright.classList.add("q2");
+    bottomleft.classList.add("q3");
+    bottomright.classList.add("q4");
+    children.forEach(c => c.setBackgroundImage(this.panel.style.backgroundImage));
+    this.panel.classList.remove("panel");
+    this.panel.style.backgroundImage = "";
+    this.panel.classList.add("panel-container");
+    this.panel.dataset["id"] = "";
+    children.forEach(c => this.panel.appendChild(c.panel));
+    return children;
+  }
+
   setBackgroundImage(backgroundImage: string): void {
     this.panel.style.backgroundImage = backgroundImage;
   }
-  
+
   private asPanel(element: HTMLDivElement) {
     element.classList.add("panel");
     element.tabIndex = 1;
@@ -534,22 +549,6 @@ class Repl {
     return document.querySelector(`.photos .img[data-id="${id}"]`) as HTMLElement;
   }
 
-  split_node(node: HTMLElement) {
-    let [topleft, topright, bottomleft, bottomright] = [1, 2, 3, 4].map(n => document.createElement("div"));
-    let children = [topleft, topright, bottomleft, bottomright].map(v => new CollagePanel(v));
-    topleft.classList.add("q1");
-    topright.classList.add("q2");
-    bottomleft.classList.add("q3");
-    bottomright.classList.add("q4");
-    children.forEach(c => c.setBackgroundImage(node.style.backgroundImage));
-    node.style.backgroundImage = "";
-    unPanel(node);
-    node.classList.add("panel-container");
-    node.dataset["id"] = "";
-    children.forEach(c => node.appendChild(c.panel));
-    this.reindex();
-  }
-
   merge_nodes(node1: HTMLElement, node2: HTMLElement) {
     node2.classList.forEach(c => node1.classList.add(c));
     node2.remove();
@@ -693,9 +692,18 @@ class Repl {
 
   split(id: string) {
     let node = this.select(id);
-    if (!node) return;
+    if (!node) {
+      console.log("no node found");
+      return;
+    }
 
-    this.split_node(node);
+    let panel = this.panels.find(p => p.panel === node);
+    if (!panel) {
+      console.log("no panel found");
+      return;
+    }
+    this.panels.push(...panel.split());
+    this.reindex();
   }
 
   transform_node(node: HTMLElement, v: string) {
@@ -727,7 +735,9 @@ class Repl {
     return "";
   }
 
+  private panels: Array<CollagePanel> = [];
   async startup() {
+    this.panels.push(...Array.from(document.querySelectorAll(".panel")).map(p => new CollagePanel(<HTMLDivElement>p)));
     let cmd = document.querySelector(".console") as HTMLInputElement;
     cmd.onkeydown = event => {
       switch (event.key) {
