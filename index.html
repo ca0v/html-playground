@@ -22,18 +22,22 @@
 
     <script src="./index.js"></script>
     <script>
-        repl.eval("split 1");
-        repl.eval("rotate 2 -20");
-        repl.eval("border 2 3");
-        repl.eval("split 1");
-        repl.eval("merge 2 3");
         repl.eval("aspect 7 5");
-        repl.eval("goto 1");
-        setTimeout(() => {
-            for (let i = 1; i <= 6; i++) {
-                repl.eval("move " + (1 + Math.floor(15 * Math.random())) + " " + i);
-            }
-        }, 3000);
+        if (globals.debug) {
+            repl.eval("split 1");
+            repl.eval("rotate 2 -20");
+            repl.eval("border 2 3");
+            repl.eval("scale 2 0.75");
+            repl.eval("zoom 2 1");
+            repl.eval("split 1");
+            repl.eval("merge 2 3");
+            repl.eval("goto 1");
+            setTimeout(() => {
+                for (let i = 1; i <= 6; i++) {
+                    repl.eval("move " + (1 + Math.floor(15 * Math.random())) + " " + i);
+                }
+            }, 3000);
+        }
     </script>
 
 </body>

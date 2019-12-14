@@ -30,6 +30,12 @@ declare var gapi: {
   };
 };
 
+/** global variables */
+let globals = {
+  allowSpeechRecognition: false,
+  debug: true,
+}
+
 /** Global Functions */
 function gotoCommandEditor() {
   let editor = document.querySelector(".console") as HTMLElement;
@@ -51,18 +57,6 @@ function getActiveOverlay() {
 function setCommand(command: string) {
   let cmd = document.querySelector(".console") as HTMLInputElement;
   cmd.value = command;
-}
-
-function getData(element: HTMLElement, tag: string) {
-  let dataStr = element.dataset.data = element.dataset.data || "{}";
-  let data = JSON.parse(dataStr);
-  return data[tag];
-}
-
-function setData(element: HTMLElement, tag: string, value: any) {
-  let data = JSON.parse(element.dataset.data || "{}");
-  data[tag] = value;
-  element.dataset.data = JSON.stringify(data);
 }
 
 /** Global Classes */
@@ -120,13 +114,9 @@ class DragAndDrop {
       }
       let from = source.innerHTML;
 
-      let currentZoom = getData(source, "zoom") || 1;
       // -150 => 0.9, 150 => 1.1, so
       let delta = 1 + event.deltaY / 1500;
-      let zoom = currentZoom * delta;
-      console.log(delta, zoom);
-      repl.executeCommand(`zoom ${from} ${zoom}`);
-      setData(source, "zoom", zoom);
+      repl.executeCommand(`zoom ${from} ${delta}`);
     });
 
     window.addEventListener("keydown", event => {
@@ -136,7 +126,6 @@ class DragAndDrop {
         return;
       }
       let from = source.innerHTML;
-      let currentZoom = getData(source, "zoom") || 1;
 
       switch (event.key) {
         case "ArrowDown":
@@ -160,14 +149,10 @@ class DragAndDrop {
           repl.executeCommand(`rotate ${from} 1`);
           break;
         case "+":
-          currentZoom *= 1.01;
-          repl.executeCommand(`zoom ${from} ${currentZoom}`);
-          setData(source, "zoom", currentZoom);
+          repl.executeCommand(`zoom ${from} ${1.01}`);
           break;
         case "-":
-          currentZoom *= 0.99;
-          repl.executeCommand(`zoom ${from} ${currentZoom}`);
-          setData(source, "zoom", currentZoom);
+          repl.executeCommand(`zoom ${from} ${0.99}`);
           break;
         case "c":
           event.preventDefault();
@@ -243,6 +228,10 @@ class CollagePanel {
     this.asPanel(this.panel);
   }
 
+  get overlay() {
+    return this.panel.querySelector(".overlay") as HTMLDivElement;
+  }
+
   destroy() {
     this.panel.remove();
   }
@@ -256,6 +245,7 @@ class CollagePanel {
     bottomright.classList.add("q4");
     children.forEach(c => c.setBackgroundImage(this.panel.style.backgroundImage));
     this.panel.classList.remove("panel");
+    this.overlay.remove();
     this.panel.style.backgroundImage = "";
     this.panel.classList.add("panel-container");
     this.panel.dataset["id"] = "";
@@ -267,10 +257,19 @@ class CollagePanel {
     this.panel.style.backgroundImage = backgroundImage;
   }
 
+  /**
+   * style the frame
+   * @param width border width in "em"
+   */
   border(width: string) {
     this.panel.style.border = `${width}em solid white`;
   }
 
+  /**
+   * Move the image inside the frame
+   * @param x horizontal offset in pixels
+   * @param y vertical offset in pixels
+   */
   pan(x: string, y: string) {
     let node = this.panel;
     if (!node) return;
@@ -310,12 +309,16 @@ class CollagePanel {
     animate && animations.animate("pan", op);
   }
 
-  rotate(deg: string) {
+  /**
+   * Rotate the actual frame
+   * @param angle angle in degrees
+   */
+  rotateFrame(angle: string) {
     let node = this.panel;
     if (!node) return;
 
-    if (!!deg) {
-      this.transform_node(node, `rotate(${deg}deg)`);
+    if (!!angle) {
+      this.transform_node(`rotate(${angle}deg)`);
     } else {
       let angle = 0;
       let transform = node.style.transform;
@@ -326,6 +329,14 @@ class CollagePanel {
     }
   }
 
+  scaleFrame(scale: string) {
+    this.transform_node(`scale(${scale}, ${scale})`)
+  }
+
+  /**
+   * Scale the image
+   * @param scale percentage delta from current scale
+   */
   scale(scale: string) {
     let node = this.panel;
     if (!node) return;
@@ -338,11 +349,14 @@ class CollagePanel {
         node.style.backgroundSize = `${100 * scale}%`;
       });
     } else {
-      node.style.backgroundSize = `auto ${100 * parseFloat(scale)}%`;
+      let effectiveScale = parseFloat(scale) * (this.getData("scale") || 1.0);
+      node.style.backgroundSize = `auto ${100 * effectiveScale}%`;
+      this.setData("scale", effectiveScale);
     }
   }
 
-  private transform_node(node: HTMLElement, v: string) {
+  private transform_node(v: string) {
+    let node = this.panel;
     let transform = (node.style.transform || "").split(" ");
     transform.unshift(v);
     node.style.transform = transform.join(" ");
@@ -351,7 +365,23 @@ class CollagePanel {
   private asPanel(element: HTMLDivElement) {
     element.classList.add("panel");
     element.tabIndex = 1;
-    element.dataset["id"] = "dontcare";
+    let overlay = document.createElement("div");
+    overlay.classList.add("overlay");
+    this.panel.appendChild(overlay);
+  }
+
+  private getData(tag: string) {
+    let element = this.panel;
+    let dataStr = element.dataset.data = element.dataset.data || "{}";
+    let data = JSON.parse(dataStr);
+    return data[tag];
+  }
+
+  private setData(tag: string, value: any) {
+    let element = this.panel;
+    let data = JSON.parse(element.dataset.data || "{}");
+    data[tag] = value;
+    element.dataset.data = JSON.stringify(data);
   }
 
 }
@@ -509,6 +539,7 @@ class Repl {
       case "pad":
         this.pad(noun, noun2);
         break;
+      case "translate":
       case "pan":
         this.selectPanel(noun)?.pan(noun2, noun3 || "0");
         break;
@@ -525,14 +556,16 @@ class Repl {
         this.openAlbum(noun);
         break;
       case "rotate":
-        this.selectPanel(noun)?.rotate(noun2);
+        this.selectPanel(noun)?.rotateFrame(noun2);
         break;
       case "split":
         this.split(noun);
         break;
       case "zoom":
-      case "scale":
         this.selectPanel(noun)?.scale(noun2);
+        break;
+      case "scale":
+        this.selectPanel(noun)?.scaleFrame(noun2);
         break;
       case "stop":
         animations.stop(noun);
@@ -586,7 +619,7 @@ class Repl {
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
 
-      let panels = this.getPanels();
+      let panels = Array.from(document.querySelectorAll(".panel")) as HTMLElement[];
       let count = 0;
       panels.forEach(p => {
         let pos = p.getBoundingClientRect();
@@ -607,44 +640,26 @@ class Repl {
       });
     });
   }
-  getPanels() {
-    let panels = Array.from(document.querySelectorAll(`.panel[data-id]`)) as HTMLElement[];
-    console.log(panels.map(p => p.dataset["id"]).join(","));
-    return panels;
-  }
 
   getCollageOverlays() {
     return Array.from(document.querySelectorAll(`.panel[data-id] .overlay`)) as HTMLElement[];
   }
 
   getPhotoOverlays() {
-    return Array.from(document.querySelectorAll(`.photos .img[data-id] .overlay`)) as HTMLElement[];
-  }
-
-  removeOverlays() {
-    this.getCollageOverlays().forEach(o => o.remove());
-  }
-
-  showOverlays() {
-    let panels = this.getPanels();
-    createOverlays(panels);
+    return Array.from(document.querySelectorAll(`.photos .img .overlay[data-id]`)) as HTMLElement[];
   }
 
   select(id: string) {
-    return document.querySelector(`.panel[data-id="${id}"]`) as HTMLElement;
+    return this.selectPanel(id)?.panel;
   }
 
   selectPanel(id: string) {
-    let node = this.select(id);
-    if (!node) {
-      console.log("no node found");
-      return null;
-    }
-    return this.panels.find(p => p.panel === node);
+    return this.panels.find(p => p.overlay.dataset.id === id);
   }
 
   selectPhoto(id: string) {
-    return document.querySelector(`.photos .img[data-id="${id}"]`) as HTMLElement;
+    let photoOverlay = document.querySelector(`.photos .img .overlay[data-id="${id}"]`) as HTMLElement;
+    return photoOverlay?.parentElement;
   }
 
   merge_nodes(node1: HTMLElement, node2: HTMLElement) {
@@ -667,10 +682,7 @@ class Repl {
   }
 
   reindex() {
-    this.removeOverlays();
-    let items = this.getPanels();
-    items.forEach((item, i) => (item.dataset["id"] = i + 1 + ""));
-    this.showOverlays();
+    this.panels.forEach((p, i) => p.overlay.dataset.id = p.overlay.innerText = i + 1 + "");
   }
 
   border(id: string, width: string) {
@@ -700,7 +712,7 @@ class Repl {
   merge(id1: string, id2: string) {
     let node1 = this.select(id1);
     let node2 = this.select(id2);
-    this.merge_nodes(node1, node2);
+    node1 && node2 && this.merge_nodes(node1, node2);
   }
 
   move(id1: string, id2: string) {
@@ -730,8 +742,28 @@ class Repl {
       console.log("no panel found");
       return;
     }
-    this.panels.push(...panel.split());
+
+    let originalIndex = this.panels.indexOf(panel);
+    let childPanels = panel.split();
+    // remove since it is no longer a panel
+    this.panels.splice(originalIndex, 1, ...childPanels);
+    childPanels.forEach(c => this.addBehaviors(c));
+    //this.panels.push(...childPanels);
     this.reindex();
+  }
+
+  /**
+   * Adds zoom and drag capabilities to a panel
+   * @param panel make this panel interactive
+   */
+  addBehaviors(panel: CollagePanel) {
+    let overlay = panel.overlay;
+    dnd.zoomable(overlay);
+    console.log(`${overlay.innerHTML} is zoomable`);
+    dnd.draggable(overlay);
+    console.log(`${overlay.innerHTML} is draggable`);
+    dnd.droppable(overlay);
+    console.log(`${overlay.innerHTML} is droppable`);
   }
 
   reindexPhotos() {
@@ -739,8 +771,12 @@ class Repl {
     let overlays = photos.map(p => p.querySelector(".overlay") as HTMLElement).filter(v => !!v);
     // remove original overlays
     overlays.forEach(overlay => overlay.remove());
-
-    overlays = createOverlays(photos);
+    photos.forEach((p,i) => {
+      let overlay = document.createElement("div");
+      overlay.classList.add("overlay");
+      overlay.dataset.id = overlay.innerText = 1 + i + "";
+      p.appendChild(overlay);
+    })
   }
 
   priorCommand() {
@@ -759,7 +795,9 @@ class Repl {
 
   private panels: Array<CollagePanel> = [];
   async startup() {
-    this.panels.push(...Array.from(document.querySelectorAll(".panel")).map(p => new CollagePanel(<HTMLDivElement>p)));
+    let childPanels = Array.from(document.querySelectorAll(".panel")).map(p => new CollagePanel(<HTMLDivElement>p));
+    childPanels.forEach(c => this.addBehaviors(c));
+    this.panels.push(...childPanels);
     let cmd = document.querySelector(".console") as HTMLInputElement;
     cmd.onkeydown = event => {
       switch (event.key) {
@@ -881,34 +919,16 @@ class Listener {
 }
 
 let repl = new Repl();
-
-function createOverlays(photos: HTMLElement[]) {
-  let overlays = photos.map(p => document.createElement("div"));
-  overlays.forEach((overlay, i) => {
-    let panel = photos[i];
-    panel.dataset["id"] = i + 1 + "";
-    overlay.classList.add("overlay");
-    overlay.innerText = panel.dataset["id"];
-    panel.appendChild(overlay);
-  });
-  return overlays;
-}
+let dnd = new DragAndDrop();
 
 async function start() {
-  let listener = new Listener();
   await repl.startup();
-  listener.listen();
-  listener.on("speech-detected", value => { repl.executeCommand(repl.parseCommand(value.result)) });
 
-  let dnd = new DragAndDrop();
-  repl.getCollageOverlays().forEach(overlay => {
-    dnd.zoomable(overlay);
-    console.log(`${overlay.innerHTML} is zoomable`);
-    dnd.draggable(overlay);
-    console.log(`${overlay.innerHTML} is draggable`);
-    dnd.droppable(overlay);
-    console.log(`${overlay.innerHTML} is droppable`);
-  });
+  if (globals.allowSpeechRecognition) {
+    let listener = new Listener();
+    listener.listen();
+    listener.on("speech-detected", value => { repl.executeCommand(repl.parseCommand(value.result)) });
+  }
 
   repl.getPhotoOverlays().forEach(overlay => {
     dnd.draggable(overlay);
