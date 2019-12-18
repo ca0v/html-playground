@@ -527,8 +527,9 @@ class Repl {
         if (!canvas) return;
 
         let img = document.createElement("img");
+        img.classList.add("export-result");
         img.src = canvas.toDataURL();
-        document.body.appendChild(img);
+        document.body.insertBefore(img, document.body.firstElementChild);
         break;
       case "border":
         this.border(noun, noun2);
@@ -619,24 +620,30 @@ class Repl {
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
 
-      let panels = Array.from(document.querySelectorAll(".panel")) as HTMLElement[];
       let count = 0;
+      let panels = this.panels.filter(p => 0 === getComputedStyle(p.panel).backgroundImage.indexOf(`url("`));
+      console.log("loading", panels.length);
       panels.forEach(p => {
-        let pos = p.getBoundingClientRect();
+        let pos = p.panel.getBoundingClientRect();
         let img = document.createElement("img");
+        img.crossOrigin = "anonymous";
         img.width = pos.width;
         img.height = pos.height;
-        img.style.transform = p.style.transform;
+        img.style.transform = p.panel.style.transform;
         img.onload = () => {
           ctx.drawImage(img, pos.x, pos.y);
           count++;
+          console.log("loaded:", count);
           if (count === panels.length) {
             good(canvas);
           }
         };
-        // strip url();
-        let url = getComputedStyle(p).backgroundImage;
-        img.src = "./assets/ca0v.png"; // url.substring(4, url.length - 1);
+        // strip url("");
+        let url = getComputedStyle(p.panel).backgroundImage;
+        console.log("url", url);
+        url = url.substring(5, url.length - 2);
+        console.log("url", url);
+        img.src = url;
       });
     });
   }
@@ -768,14 +775,16 @@ class Repl {
 
   reindexPhotos() {
     let photos = Array.from(document.querySelectorAll(".photos .img")) as Array<HTMLImageElement>;
-    let overlays = photos.map(p => p.querySelector(".overlay") as HTMLElement).filter(v => !!v);
-    // remove original overlays
-    overlays.forEach(overlay => overlay.remove());
-    photos.forEach((p,i) => {
-      let overlay = document.createElement("div");
-      overlay.classList.add("overlay");
-      overlay.dataset.id = overlay.innerText = 1 + i + "";
-      p.appendChild(overlay);
+    photos.forEach((p, i) => {
+      let overlay = p.querySelector(".overlay") as HTMLElement;
+      if (!overlay) {
+        overlay = document.createElement("div");
+        overlay.classList.add("overlay");
+        overlay.dataset.id = overlay.innerText = 1 + i + "";
+        p.appendChild(overlay);
+        dnd.draggable(overlay);
+        console.log(`${overlay.innerHTML} is draggable`);
+      }
     })
   }
 

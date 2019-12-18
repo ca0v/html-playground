@@ -170,3 +170,8 @@ html.collage, .collage body {
     user-select: none;
     cursor: grabbing;
 }
+
+.collage .export-result {
+    z-index: 1;
+    position: absolute;
+}
