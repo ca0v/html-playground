@@ -25,6 +25,7 @@ declare var gapi: {
         search: (args: {
           albumId: string;
         }) => Promise<{ result: { nextPageToken?: string; mediaItems: Array<GoogleMediaItem> } }>;
+        get: (mediaItemId: any) => Promise<{result: GoogleMediaItem}>;
       };
     };
   };
@@ -206,7 +207,7 @@ class DragAndDrop {
       draggable.style.backgroundPositionX = `${x}px`;
       draggable.style.backgroundPositionY = `${y}px`;
       event.stopPropagation();
-    };    
+    };
   }
 
   moveable(draggable: HTMLElement) {
@@ -293,8 +294,23 @@ class DragAndDrop {
  */
 class CollagePanel {
 
+  public photo: GoogleCollagePhoto | null;
+
   constructor(public panel: HTMLDivElement) {
+    this.photo = null;
     this.asPanel(this.panel);
+  }
+
+  addPhoto(photo: GoogleCollagePhoto) {
+    this.photo = photo;
+    this.setBackgroundImage(photo.img.style.backgroundImage);
+  }
+
+  async hires() {
+    if (!this.photo) return;
+    let photos = new GooglePhotos();
+    let photo = await photos.getPhoto(this.photo.mediaInfo.id);
+    this.setBackgroundImage(`url("${photo.baseUrl}")`);
   }
 
   get overlay() {
@@ -466,6 +482,28 @@ class CollagePanel {
 
 }
 
+/**
+ * Keeps the google media info and has helper functions
+ * to upgrade the lo-res to hi-res version
+ */
+class CollagePhoto<TMediaInfo> {
+}
+
+class GoogleCollagePhoto extends CollagePhoto<GoogleMediaItem> {
+  public img: HTMLDivElement;
+  constructor(public mediaInfo: GoogleMediaItem) {
+    super();
+    let img = this.img = document.createElement("div");
+    img.classList.add("img");
+    img.style.backgroundImage = `url(${this.mediaInfo.baseUrl})`;
+  }
+
+  renderInto(target: HTMLElement) {
+    target.appendChild(this.img);
+  }
+}
+
+
 class GooglePhotoSignin {
   private peopleApiDiscovery = "";
   // where to store these values?
@@ -560,6 +598,11 @@ class GooglePhotos {
     let data = await gapi.client.photoslibrary.mediaItems.search({ albumId: album.id });
     return data.result.mediaItems;
   }
+
+  async getPhoto(mediaItemId: string) {
+    let data = await gapi.client.photoslibrary.mediaItems.get({mediaItemId})
+    return (data.result) as GoogleMediaItem
+  }
 }
 
 class Animations {
@@ -583,6 +626,8 @@ class Animations {
 let animations = new Animations();
 
 class Repl {
+  private panels: Array<CollagePanel> = [];
+  private photos: Array<GoogleCollagePhoto> = [];
   private commandHistory: Array<string> = [];
   private commandHistoryIndex = -1;
   private albumData = new Datahash<GoogleAlbum>();
@@ -633,11 +678,11 @@ class Repl {
       case "merge":
         this.merge(noun, noun2);
         break;
+      case "hires":
+        this.hires(noun);
+        break;
       case "move":
         this.move(noun, noun2);
-        break;
-      case "open":
-        this.openAlbum(noun);
         break;
       case "rotate":
         this.selectPanel(noun)?.rotateFrame(noun2);
@@ -655,24 +700,6 @@ class Repl {
         animations.stop(noun);
         break;
     }
-  }
-
-  async openAlbum(id: string) {
-    const target = document.querySelector(".photos");
-    if (!target) return;
-    let photo = this.selectPhoto(id);
-    if (!photo) return;
-    let album = this.albumData.get(photo)?.data;
-    if (!album) return;
-    let photos = new GooglePhotos();
-    let data = await photos.getAlbum(album);
-    data.forEach(photo => {
-      let img = document.createElement("div");
-      img.classList.add("img");
-      img.style.backgroundImage = `url(${photo.baseUrl})`;
-      target.appendChild(img);
-    });
-    this.reindexPhotos();
   }
 
   setAspectRatio(w: string, h: string) {
@@ -748,8 +775,7 @@ class Repl {
   }
 
   selectPhoto(id: string) {
-    let photoOverlay = document.querySelector(`.photos .img .overlay[data-id="${id}"]`) as HTMLElement;
-    return photoOverlay?.parentElement;
+    return this.photos[parseInt(id) - 1];
   }
 
   merge_nodes(node1: HTMLElement, node2: HTMLElement) {
@@ -810,15 +836,21 @@ class Repl {
     node1 && node2 && this.merge_nodes(node1, node2);
   }
 
+  hires(id: string) {
+    let panel = this.selectPanel(id);
+    if (!panel) return;
+    panel.hires();
+  }
+
   move(id1: string, id2: string) {
-    let src = this.selectPhoto(id1);
-    if (!src) return;
+    let photo = this.selectPhoto(id1);
+    if (!photo) return;
 
-    let dst = this.select(id2);
-    if (!dst) return;
 
-    dst.style.backgroundImage = src.style.backgroundImage;
-    //src.remove();
+    let panel = this.selectPanel(id2);
+    if (!panel) return;
+
+    panel.addPhoto(photo);
   }
 
   /**
@@ -863,8 +895,8 @@ class Repl {
   }
 
   reindexPhotos() {
-    let photos = Array.from(document.querySelectorAll(".photos .img")) as Array<HTMLImageElement>;
-    photos.forEach((p, i) => {
+    this.photos.forEach((photo, i) => {
+      let p = photo.img;
       let overlay = p.querySelector(".overlay") as HTMLElement;
       if (!overlay) {
         overlay = document.createElement("div");
@@ -891,7 +923,6 @@ class Repl {
     return "";
   }
 
-  private panels: Array<CollagePanel> = [];
   async startup() {
     let childPanels = Array.from(document.querySelectorAll(".panel")).map(p => new CollagePanel(<HTMLDivElement>p));
     childPanels.forEach(c => this.addBehaviors(c));
@@ -914,18 +945,18 @@ class Repl {
     this.reindex();
 
     let photos = new GooglePhotos();
-    const target = document.querySelector(".photos");
+    const target = document.querySelector(".photos") as HTMLElement;
     if (target) {
       const albums = await photos.getAlbums();
-      albums.forEach(album => {
-        const img = document.createElement("div");
-        img.classList.add("img");
-        img.style.backgroundImage = `url(${album.coverPhotoBaseUrl})`;
-        img.title = album.title;
-        target.appendChild(img);
-        this.albumData.add(img, album);
+      albums.forEach(async album => {
+        let mediaItems = await photos.getAlbum(album);
+        mediaItems.forEach(mediaItem => {
+          let photo = new GoogleCollagePhoto(mediaItem);
+          this.photos.push(photo);
+          photo.renderInto(target);
+          this.reindexPhotos();
+        });
       });
-      this.reindexPhotos();
     }
   }
 

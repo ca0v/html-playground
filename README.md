@@ -26,6 +26,7 @@ photo - the icon representing a picture to bring into the collage
 * show a focal point for rotation and scale actions
 
 # reference
+* https://developers.google.com/photos/library/reference/rest
 * https://www.w3schools.com/howto/howto_js_image_magnifier_glass.asp
 * https://www.sitepoint.com/css3-transform-background-image/
 * https://www.quackit.com/css/functions/css_matrix_function.cfm
