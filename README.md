@@ -4,6 +4,8 @@ html-playground
 # tasks
 2019.12.11 - drag/drop images, generate resulting command (draggable, droppable, action-handler)
 2019.12.12 - dnd panel-to-panel
+2019.18.12 - drag photo to re-position within frame, overlay text
+2019.18.13 - +/- text overlay
 
 # definitions
 collage - a collection of frames
@@ -11,8 +13,21 @@ frame - the panel containing a background image
 image - the background image of a frame
 photo - the icon representing a picture to bring into the collage
 
+# commands
+* border all # changes the border of all the frames
+* save - todo
+
+# ideas
+* undo/redo
+* overlay text
+* border to match edges of photo
+* zoom about a point
+* rotate about a point
+* show a focal point for rotation and scale actions
+
 # reference
 * https://www.w3schools.com/howto/howto_js_image_magnifier_glass.asp
 * https://www.sitepoint.com/css3-transform-background-image/
 * https://www.quackit.com/css/functions/css_matrix_function.cfm
 * https://dev.to/morinoko/debugging-google-cloud-storage-cors-errors-in-rails-6-action-text-direct-upload-of-images-2445
+* https://developer.mozilla.org/en-US/docs/Web/API/Element/setPointerCapture

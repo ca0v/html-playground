@@ -37,6 +37,12 @@ let globals = {
 }
 
 /** Global Functions */
+function tail(value: string) {
+  let list = value.split(" ");
+  list.shift();
+  return list.join(" ");
+}
+
 function gotoCommandEditor() {
   let editor = document.querySelector(".console") as HTMLElement;
   if (!editor) {
@@ -112,6 +118,9 @@ class DragAndDrop {
         console.log("no active overlay found");
         return;
       }
+
+      // TODO would be nice to only perform when mouse is over the element
+      // document.elementsFromPoint(event.screenX, event.screenY);
       let from = source.innerHTML;
 
       // -150 => 0.9, 150 => 1.1, so
@@ -166,6 +175,66 @@ class DragAndDrop {
           console.log(`${event.key} not handled`);
       }
     });
+  }
+
+  /**
+   * Move the background image on the panel
+   * @param panel Invoke pan on the panel so that it follows the mouse
+   */
+  panable(panel: CollagePanel) {
+    let draggable = panel.panel;
+    let startPosition = [0, 0];
+    draggable.classList.add("draggable");
+
+    draggable.addEventListener("pointerdown", event => {
+      let left = parseFloat(draggable.style.backgroundPositionX || "0");
+      let top = parseFloat(draggable.style.backgroundPositionY || "0");
+      startPosition = [left - event.screenX, top - event.screenY];
+      draggable.setPointerCapture(event.pointerId);
+      draggable.addEventListener("pointermove", pointermove);
+      event.stopPropagation();
+    });
+
+    draggable.addEventListener("pointerup", event => {
+      draggable.releasePointerCapture(event.pointerId);
+      draggable.removeEventListener("pointermove", pointermove);
+      event.stopPropagation();
+    });
+
+    let pointermove = (event: MouseEvent) => {
+      let [x, y] = [startPosition[0] + event.screenX, startPosition[1] + event.screenY];
+      draggable.style.backgroundPositionX = `${x}px`;
+      draggable.style.backgroundPositionY = `${y}px`;
+      event.stopPropagation();
+    };    
+  }
+
+  moveable(draggable: HTMLElement) {
+    let startPosition = [0, 0];
+    draggable.classList.add("draggable");
+
+    draggable.addEventListener("pointerdown", event => {
+      let top = parseFloat(draggable.style.top);
+      let left = parseFloat(draggable.style.left);
+      startPosition = [left - event.screenX, top - event.screenY];
+      draggable.setPointerCapture(event.pointerId);
+      draggable.addEventListener("pointermove", pointermove);
+      event.stopPropagation();
+    });
+
+    draggable.addEventListener("pointerup", event => {
+      draggable.releasePointerCapture(event.pointerId);
+      draggable.removeEventListener("pointermove", pointermove);
+      event.stopPropagation();
+    });
+
+    let pointermove = (event: MouseEvent) => {
+      let [left, top] = [startPosition[0] + event.screenX, startPosition[1] + event.screenY];
+      draggable.style.top = top + "px";
+      draggable.style.left = left + "px";
+      event.stopPropagation();
+    };
+
   }
 
   /**
@@ -230,6 +299,17 @@ class CollagePanel {
 
   get overlay() {
     return this.panel.querySelector(".overlay") as HTMLDivElement;
+  }
+
+  set text(value: string) {
+    let label = document.createElement("textarea");
+    label.readOnly = true;
+    label.title = "1";
+    label.style.top = label.style.left = "0";
+    label.classList.add("label");
+    this.panel.appendChild(label);
+    label.value = value;
+    dnd.moveable(label);
   }
 
   destroy() {
@@ -540,6 +620,9 @@ class Repl {
       case "pad":
         this.pad(noun, noun2);
         break;
+      case "text":
+        this.text(noun, tail(tail(command)));
+        break;
       case "translate":
       case "pan":
         this.selectPanel(noun)?.pan(noun2, noun3 || "0");
@@ -705,8 +788,13 @@ class Repl {
   pad(id: string, width: string) {
     let node = this.select(id);
     if (!node) return;
-
     node.style.padding = `${width}em`;
+  }
+
+  text(id: string, value: string) {
+    let panel = this.selectPanel(id);
+    if (!panel) return;
+    panel.text = value;
   }
 
   margin(id: string, width: string) {
@@ -768,6 +856,7 @@ class Repl {
     dnd.zoomable(overlay);
     console.log(`${overlay.innerHTML} is zoomable`);
     dnd.draggable(overlay);
+    dnd.panable(panel);
     console.log(`${overlay.innerHTML} is draggable`);
     dnd.droppable(overlay);
     console.log(`${overlay.innerHTML} is droppable`);

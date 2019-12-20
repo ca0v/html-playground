@@ -175,3 +175,14 @@ html.collage, .collage body {
     z-index: 1;
     position: absolute;
 }
+
+.collage .panel .label {
+    background-color: transparent;
+    border: none;
+    color: white;
+    position: absolute;
+    z-index: 1;
+    cursor: move;
+    resize: none;
+    overflow: visible;
+}

@@ -32,6 +32,7 @@
             repl.eval("split 1");
             repl.eval("merge 2 3");
             repl.eval("goto 1");
+            repl.eval("text 1 Summer 2019")
             setTimeout(() => {
                 for (let i = 1; i <= 6; i++) {
                     repl.eval("move " + (1 + Math.floor(15 * Math.random())) + " " + i);
