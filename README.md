@@ -8,7 +8,7 @@ html-playground
 2019.12.20 - refactor into modules, "hires" command to improve resolution
 2019.12.20 - refactor into commands
 2019.12.20 - rotate the actual background image and not the panel
-2019.12.21 - +/- text overlay
+2019.12.21 - +/- text overlay, "esc" on a panel should focus parent panel
 
 # definitions
 collage - a collection of frames
@@ -34,3 +34,5 @@ photo - the icon representing a picture to bring into the collage
 * https://www.quackit.com/css/functions/css_matrix_function.cfm
 * https://dev.to/morinoko/debugging-google-cloud-storage-cors-errors-in-rails-6-action-text-direct-upload-of-images-2445
 * https://developer.mozilla.org/en-US/docs/Web/API/Element/setPointerCapture
+* https://css-tricks.com/snippets/css/multiple-borders/
+

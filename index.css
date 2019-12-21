@@ -72,8 +72,10 @@ html.collage, .collage body {
     overflow: hidden;
 }
 
+.collage .panel-container:focus,
 .collage .panel:focus {
-    border-style:ridge !important;
+    outline: 2px solid red;
+    z-index: 1;
 }
 
 .collage .panel .img {

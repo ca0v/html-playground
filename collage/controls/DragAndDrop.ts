@@ -3,12 +3,37 @@ import { getActiveOverlay } from "../fun/getActiveOverlay";
 import { CollagePanel } from "./CollagePanel";
 import { Repl } from "./Repl";
 
+function isPanel(element: Element | null) {
+  if (!element) return false;
+  return element.classList.contains("panel") || element.classList.contains("panel-container");
+}
+
+function isLabel(element: Element | null) {
+  if (!element) return false;
+  return element.classList.contains("label");
+}
+
+function selectParentPanel() {
+  let currentPanel = document.activeElement as HTMLElement | null;
+  if (!currentPanel) return;
+  while (currentPanel) {
+    currentPanel = currentPanel.parentElement;
+    if (!currentPanel) return;
+    if (isPanel(currentPanel)) {
+      currentPanel.focus();
+      return;
+    }
+  }
+}
+
 /**
  * manages user interactions for keyboard shortcuts, wheel, drag, click events
  */
 export class DragAndDrop {
   private source: HTMLElement | null = null;
+
   constructor(public repl: Repl) {
+
     window.addEventListener("wheel", (event) => {
       let source = getActiveOverlay();
       if (!source) {
@@ -22,6 +47,7 @@ export class DragAndDrop {
       let delta = 1 + event.deltaY / 1500;
       repl.executeCommand(`zoom ${from} ${delta}`);
     });
+
     window.addEventListener("keydown", event => {
       let source = getActiveOverlay();
       if (!source) {
@@ -64,11 +90,15 @@ export class DragAndDrop {
         case " ":
           repl.executeCommand("stop");
           break;
+        case "Escape":
+          selectParentPanel();
+          break;
         default:
           console.log(`${event.key} not handled`);
       }
     });
   }
+
   /**
    * Move the background image on the panel
    * @param panel Invoke pan on the panel so that it follows the mouse
@@ -100,6 +130,7 @@ export class DragAndDrop {
       event.stopPropagation();
     };
   }
+
   moveable(draggable: HTMLElement) {
     let startPosition = [0, 0];
     draggable.classList.add("draggable");
@@ -123,6 +154,7 @@ export class DragAndDrop {
       event.stopPropagation();
     };
   }
+
   /**
    * Make an element a drag source
    * @param div element to make draggable
@@ -132,6 +164,7 @@ export class DragAndDrop {
     draggable.draggable = true;
     draggable.addEventListener("dragstart", event => this.ondragstart(draggable));
   }
+
   /**
    * Make an element a drop target
    * @param target element to make into a drop target (draggable are droppable, bad name)
@@ -150,6 +183,7 @@ export class DragAndDrop {
       this.ondrop(target, this.source);
     });
   }
+
   /**
    *
    * @param source listen for wheel events
@@ -159,9 +193,11 @@ export class DragAndDrop {
   ondragstart(source: HTMLElement) {
     this.source = source;
   }
+
   ondragover(target: HTMLElement, source: HTMLElement) {
     // nothing to do?
   }
+
   ondrop(target: HTMLElement, source: HTMLElement) {
     let from = source.innerHTML;
     let to = target.innerHTML;
