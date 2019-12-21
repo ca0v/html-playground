@@ -1,3 +1,7 @@
+/**
+ * runs an animation on an interval, returns stop()
+ * Used for panning, zooming, rotating
+ */
 export class Animations {
   animations: Array<{
     type: string;

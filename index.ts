@@ -18,7 +18,7 @@ if (globals.debug) {
     repl.eval("text 1 Summer 2019");
     setTimeout(() => {
         let photoCount = document.querySelectorAll(".photos .img").length;
-        for (let i = 1; i <= 6; i++) {
+        for (let i = 1; i <= 7; i++) {
             repl.eval("move " + (1 + Math.floor(photoCount * Math.random())) + " " + i);
         }
         // repl.eval("open 1");

@@ -1,8 +1,10 @@
 import { GooglePhotos } from "./GooglePhotos";
 import { GoogleCollagePhoto } from "./GoogleCollagePhoto";
 import { globals } from "./globals";
+
 /**
- * Manages a single image on the collage
+ * Manages a single image on the collage, 
+ * not to be confused with an Photo on the album
  */
 export class CollagePanel {
   public photo: GoogleCollagePhoto | null;
@@ -10,16 +12,44 @@ export class CollagePanel {
     this.photo = null;
     this.asPanel(this.panel);
   }
+
+  /**
+   * @param photo renders this photo onto the panel
+   */
   addPhoto(photo: GoogleCollagePhoto) {
     this.photo = photo;
     this.setBackgroundImage(photo.img.style.backgroundImage);
   }
+
+  get photoWidth() {
+    return parseInt(window.getComputedStyle(this.panel).width);
+  }
+
+  get photoHeight() {
+    return parseInt(window.getComputedStyle(this.panel).height);
+  }
+
+  get photoScale() {
+    let scale = window.getComputedStyle(this.panel).backgroundSize;
+    if (scale === "auto") return 1.0;
+    scale = scale.split(" ").pop() ?? "1";
+    return parseFloat(scale) / 100.0;
+  }
+
+  /**
+   * replaces the current photo with one of higher quality
+   */
   async hires() {
     if (!this.photo)
       return;
-    let photos = new GooglePhotos();
-    let photo = await photos.getPhoto(this.photo.mediaInfo.id);
-    this.setBackgroundImage(`url("${photo.baseUrl}")`);
+
+    let w = this.photoWidth;
+    let h = this.photoHeight;
+    let scale = this.photoScale;
+    if (scale < 1) return;
+    w *= scale;
+    h *= scale;
+    this.setBackgroundImage(`url("${this.photo.mediaInfo.baseUrl}=w${Math.floor(w)}-h${Math.floor(h)}")`);
   }
   get overlay() {
     return this.panel.querySelector(".overlay") as HTMLDivElement;
@@ -55,6 +85,7 @@ export class CollagePanel {
   }
   setBackgroundImage(backgroundImage: string): void {
     this.panel.style.backgroundImage = backgroundImage;
+    this.panel.style.backgroundSize = "auto auto";
   }
   /**
    * style the frame
@@ -141,7 +172,7 @@ export class CollagePanel {
       let scale = parseFloat(backgroundSize) / 100;
       globals.animations.animate("zoom", () => {
         scale *= 1.01;
-        node.style.backgroundSize = `${100 * scale}%`;
+        node.style.backgroundSize = `auto ${100 * scale}%`;
       });
     }
     else {
