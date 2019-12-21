@@ -1,7 +1,7 @@
 import { Repl } from "../controls/Repl";
 import { Command } from "../models/Command";
 
-export class ChangeFontSize implements Command {
+export class ChangeFontSizeCommand implements Command {
 
     constructor(public delta: number) {
     }
@@ -20,13 +20,13 @@ export class ChangeFontSize implements Command {
     }
 }
 
-export class DecreaseFontSize extends ChangeFontSize {
+export class DecreaseFontSize extends ChangeFontSizeCommand {
     constructor() {
         super(-1);
     }
 }
 
-export class IncreaseFontSize extends ChangeFontSize {
+export class IncreaseFontSize extends ChangeFontSizeCommand {
     constructor() {
         super(1);
     }

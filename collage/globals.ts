@@ -13,13 +13,13 @@ import { MarginCommand } from "./commands/MarginCommand";
 import { MergeCommand } from "./commands/MergeCommand";
 import { HiResCommand } from "./commands/HiResCommand";
 import { MoveCommand } from "./commands/MoveCommand";
-import { RotateCommand } from "./commands/RotateCommand";
+import { RotateCommand, ChangeRotationCommand } from "./commands/RotateCommand";
 import { ZoomCommand } from "./commands/ZoomCommand";
 import { ScaleCommand } from "./commands/ScaleCommand";
 import { StopCommand } from "./commands/StopCommand";
 import { KeyboardHandlers } from "./controls/KeyboardHandlers";
 import { EscapeCommand } from "./commands/EscapeCommand";
-import { IncreaseFontSize, DecreaseFontSize } from "./commands/ChangeFontSize";
+import { IncreaseFontSize, DecreaseFontSize } from "./commands/ChangeFontSizeCommand";
 
 /** global variables */
 const animations = new Animations();
@@ -30,6 +30,10 @@ const keyboardHandlers = new KeyboardHandlers();
 keyboardHandlers.addEventHandler(new EscapeCommand(), { key: "Escape" });
 keyboardHandlers.addEventHandler(new IncreaseFontSize(), { key: "+" });
 keyboardHandlers.addEventHandler(new DecreaseFontSize(), { key: "-" });
+keyboardHandlers.addEventHandler(new ChangeRotationCommand(1), { key: "." });
+keyboardHandlers.addEventHandler(new ChangeRotationCommand(-1), { key: "," });
+keyboardHandlers.addEventHandler(new ChangeRotationCommand(10), { shiftKey: true, key: ">" });
+keyboardHandlers.addEventHandler(new ChangeRotationCommand(-10), { shiftKey: true, key: "<" });
 
 const dnd = new DragAndDrop(repl, keyboardHandlers);
 repl.dnd = dnd;
