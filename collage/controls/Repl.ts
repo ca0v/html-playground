@@ -4,8 +4,8 @@ import { CollagePanel } from "./CollagePanel";
 import { GoogleCollagePhoto } from "./GoogleCollagePhoto";
 import { GooglePhotos } from "./GooglePhotos";
 import { Animations } from "./Animations";
-import { DragAndDrop } from "./DragAndDrop";
 import { Commands } from "./Commands";
+import { DragAndDrop } from "./DragAndDrop";
 
 export class Repl {
   // public so split command can operate on them

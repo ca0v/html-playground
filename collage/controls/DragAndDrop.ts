@@ -2,28 +2,69 @@ import { gotoCommandEditor } from "../fun/gotoCommandEditor";
 import { getActiveOverlay } from "../fun/getActiveOverlay";
 import { CollagePanel } from "./CollagePanel";
 import { Repl } from "./Repl";
+import { Command } from "../models/Command";
 
-function isPanel(element: Element | null) {
-  if (!element) return false;
-  return element.classList.contains("panel") || element.classList.contains("panel-container");
+interface KeyboardHandler {
+  altKey: boolean;
+  shiftKey: boolean;
+  ctrlKey: boolean;
+  key: string;
 }
 
-function isLabel(element: Element | null) {
-  if (!element) return false;
-  return element.classList.contains("label");
+class KeyboardHandlers {
+  private keyboardHandlers: Array<{match: KeyboardHandler; command: Command}> = [];
+
+  getEventHandler(event: KeyboardEvent) {
+    let handler = this.keyboardHandlers.find(handler => {
+      let match = handler.match;
+      if (event.altKey !== match.altKey) return false;
+      if (event.shiftKey !== match.shiftKey) return false;
+      if (event.ctrlKey !== match.ctrlKey) return false;
+      if (!!match.key && event.key !== match.key) return false;
+      return true;
+    });
+    return handler?.command;
+  }
+
+  addEventHandler(match: Partial<KeyboardHandler>, command: Command) {
+    let fullMatch: KeyboardHandler = {
+      altKey: match.altKey ?? false,
+      ctrlKey: match.ctrlKey ?? false,
+      shiftKey: match.shiftKey ?? false,
+      key: match.key ?? ""
+    };
+    this.keyboardHandlers.push({match: fullMatch, command});
+  }
 }
 
-function selectParentPanel() {
-  let currentPanel = document.activeElement as HTMLElement | null;
-  if (!currentPanel) return;
-  while (currentPanel) {
-    currentPanel = currentPanel.parentElement;
+class EscapeCommand implements Command {
+  private isPanel(element: Element | null) {
+    if (!element) return false;
+    return element.classList.contains("panel") || element.classList.contains("panel-container");
+  }
+
+  private isLabel(element: Element | null) {
+    if (!element) return false;
+    return element.classList.contains("label");
+  }
+
+  private selectParentPanel() {
+    let currentPanel = document.activeElement as HTMLElement | null;
     if (!currentPanel) return;
-    if (isPanel(currentPanel)) {
-      currentPanel.focus();
-      return;
+    while (currentPanel) {
+      currentPanel = currentPanel.parentElement;
+      if (!currentPanel) return;
+      if (this.isPanel(currentPanel)) {
+        currentPanel.focus();
+        return;
+      }
     }
   }
+
+  execute(repl: Repl, args: string): void {
+    this.selectParentPanel();
+  }
+
 }
 
 /**
@@ -33,6 +74,9 @@ export class DragAndDrop {
   private source: HTMLElement | null = null;
 
   constructor(public repl: Repl) {
+
+    let keyboardHandlers = new KeyboardHandlers();
+    keyboardHandlers.addEventHandler({ key: "Escape" }, new EscapeCommand());
 
     window.addEventListener("wheel", (event) => {
       let source = getActiveOverlay();
@@ -49,6 +93,13 @@ export class DragAndDrop {
     });
 
     window.addEventListener("keydown", event => {
+
+      let handler = keyboardHandlers.getEventHandler(event);
+      if (handler) {
+        handler.execute(repl);
+        return;
+      }
+
       let source = getActiveOverlay();
       if (!source) {
         console.log("no active overlay found");
@@ -89,9 +140,6 @@ export class DragAndDrop {
         case "Enter":
         case " ":
           repl.executeCommand("stop");
-          break;
-        case "Escape":
-          selectParentPanel();
           break;
         default:
           console.log(`${event.key} not handled`);
