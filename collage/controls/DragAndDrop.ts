@@ -2,70 +2,8 @@ import { gotoCommandEditor } from "../fun/gotoCommandEditor";
 import { getActiveOverlay } from "../fun/getActiveOverlay";
 import { CollagePanel } from "./CollagePanel";
 import { Repl } from "./Repl";
-import { Command } from "../models/Command";
-
-interface KeyboardHandler {
-  altKey: boolean;
-  shiftKey: boolean;
-  ctrlKey: boolean;
-  key: string;
-}
-
-class KeyboardHandlers {
-  private keyboardHandlers: Array<{match: KeyboardHandler; command: Command}> = [];
-
-  getEventHandler(event: KeyboardEvent) {
-    let handler = this.keyboardHandlers.find(handler => {
-      let match = handler.match;
-      if (event.altKey !== match.altKey) return false;
-      if (event.shiftKey !== match.shiftKey) return false;
-      if (event.ctrlKey !== match.ctrlKey) return false;
-      if (!!match.key && event.key !== match.key) return false;
-      return true;
-    });
-    return handler?.command;
-  }
-
-  addEventHandler(match: Partial<KeyboardHandler>, command: Command) {
-    let fullMatch: KeyboardHandler = {
-      altKey: match.altKey ?? false,
-      ctrlKey: match.ctrlKey ?? false,
-      shiftKey: match.shiftKey ?? false,
-      key: match.key ?? ""
-    };
-    this.keyboardHandlers.push({match: fullMatch, command});
-  }
-}
-
-class EscapeCommand implements Command {
-  private isPanel(element: Element | null) {
-    if (!element) return false;
-    return element.classList.contains("panel") || element.classList.contains("panel-container");
-  }
-
-  private isLabel(element: Element | null) {
-    if (!element) return false;
-    return element.classList.contains("label");
-  }
-
-  private selectParentPanel() {
-    let currentPanel = document.activeElement as HTMLElement | null;
-    if (!currentPanel) return;
-    while (currentPanel) {
-      currentPanel = currentPanel.parentElement;
-      if (!currentPanel) return;
-      if (this.isPanel(currentPanel)) {
-        currentPanel.focus();
-        return;
-      }
-    }
-  }
-
-  execute(repl: Repl, args: string): void {
-    this.selectParentPanel();
-  }
-
-}
+import { EscapeCommand } from "../commands/EscapeCommand";
+import { KeyboardHandlers } from "./KeyboardHandlers";
 
 /**
  * manages user interactions for keyboard shortcuts, wheel, drag, click events
