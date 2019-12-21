@@ -1,16 +1,13 @@
 import { Repl } from "../controls/Repl";
 import { Command } from "../models/Command";
 export class EscapeCommand implements Command {
+  
   private isPanel(element: Element | null) {
     if (!element)
       return false;
     return element.classList.contains("panel") || element.classList.contains("panel-container");
   }
-  private isLabel(element: Element | null) {
-    if (!element)
-      return false;
-    return element.classList.contains("label");
-  }
+
   private selectParentPanel() {
     let currentPanel = document.activeElement as HTMLElement | null;
     if (!currentPanel)
@@ -25,6 +22,7 @@ export class EscapeCommand implements Command {
       }
     }
   }
+  
   execute(repl: Repl, args: string): void {
     this.selectParentPanel();
   }

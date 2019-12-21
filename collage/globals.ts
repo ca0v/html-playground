@@ -19,14 +19,17 @@ import { ScaleCommand } from "./commands/ScaleCommand";
 import { StopCommand } from "./commands/StopCommand";
 import { KeyboardHandlers } from "./controls/KeyboardHandlers";
 import { EscapeCommand } from "./commands/EscapeCommand";
+import { IncreaseFontSize, DecreaseFontSize } from "./commands/ChangeFontSize";
 
 /** global variables */
 const animations = new Animations();
 const commands = new Commands();
 const repl = new Repl(animations, commands);
 const keyboardHandlers = new KeyboardHandlers();
-keyboardHandlers.addEventHandler({ key: "Escape" }, new EscapeCommand());
 
+keyboardHandlers.addEventHandler(new EscapeCommand(), { key: "Escape" });
+keyboardHandlers.addEventHandler(new IncreaseFontSize(), { key: "+" });
+keyboardHandlers.addEventHandler(new DecreaseFontSize(), { key: "-" });
 
 const dnd = new DragAndDrop(repl, keyboardHandlers);
 repl.dnd = dnd;
@@ -56,5 +59,3 @@ export let globals = {
     dnd,
 
 }
-
-

@@ -29,10 +29,7 @@ export class DragAndDrop {
     window.addEventListener("keydown", event => {
 
       let handler = this.keydownHandlers.getEventHandler(event);
-      if (handler) {
-        handler.execute(repl);
-        return;
-      }
+      if (handler && false !== handler.execute(repl)) return;
 
       let source = getActiveOverlay();
       if (!source) {

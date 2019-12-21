@@ -16,7 +16,7 @@ export class KeyboardHandlers {
     return handler?.command;
   }
 
-  addEventHandler(match: Partial<KeyboardHandler>, command: Command) {
+  addEventHandler(command: Command, match: Partial<KeyboardHandler>) {
     let fullMatch: KeyboardHandler = {
       altKey: match.altKey ?? false,
       ctrlKey: match.ctrlKey ?? false,
