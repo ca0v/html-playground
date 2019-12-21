@@ -225,7 +225,7 @@ export class Repl {
   hires(id: string) {
     let panel = this.selectPanel(id);
     if (!panel) return;
-    panel.hires();
+    panel.upgradeResolution();
   }
 
   move(id1: string, id2: string) {

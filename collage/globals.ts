@@ -10,7 +10,7 @@ repl.dnd = dnd;
 
 export let globals = {
     allowSpeechRecognition: false,
-    debug: true,
+    debug: false,
     animations,
     repl,
     dnd,

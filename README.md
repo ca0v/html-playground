@@ -4,8 +4,10 @@ html-playground
 # tasks
 2019.12.11 - drag/drop images, generate resulting command (draggable, droppable, action-handler)
 2019.12.12 - dnd panel-to-panel
-2019.18.12 - drag photo to re-position within frame, overlay text
-2019.18.13 - +/- text overlay
+2019.12.18 - drag photo to re-position within frame, overlay text
+2019.12.20 - refactor into modules, "hires" command to improve resolution
+2019.12.21 - refactor into commands
+2019.12.21 - +/- text overlay
 
 # definitions
 collage - a collection of frames
@@ -19,7 +21,6 @@ photo - the icon representing a picture to bring into the collage
 
 # ideas
 * undo/redo
-* overlay text
 * border to match edges of photo
 * zoom about a point
 * rotate about a point

@@ -152,7 +152,8 @@ html.collage, .collage body {
 }
 
 .collage .overlay {
-    background-color: rgba(255,255,255, 0.5);
+    background-color: silver;
+    opacity: 0.1;
     border-radius: 1em;
     color: black;
     text-align: center;
@@ -161,8 +162,17 @@ html.collage, .collage body {
     min-width: 2em;
     min-height: 2em;
     line-height: 2em;
-    font-size: 1em;
+    font-size: 2em;
     font-family: monospace;
+}
+
+.collage .overlay:hover {
+    opacity: 1;
+}
+
+.collage .photos .overlay {
+    opacity: 0.5;
+    font-size: 1.5em;
 }
 
 .collage .overlay.draggable {

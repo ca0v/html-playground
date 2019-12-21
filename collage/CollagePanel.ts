@@ -1,4 +1,3 @@
-import { GooglePhotos } from "./GooglePhotos";
 import { GoogleCollagePhoto } from "./GoogleCollagePhoto";
 import { globals } from "./globals";
 
@@ -7,7 +6,16 @@ import { globals } from "./globals";
  * not to be confused with an Photo on the album
  */
 export class CollagePanel {
+
+  /**
+   * A panel contains a single photo (this one)
+   */
   public photo: GoogleCollagePhoto | null;
+
+  /**
+   * 
+   * @param panel dom element to control
+   */
   constructor(public panel: HTMLDivElement) {
     this.photo = null;
     this.asPanel(this.panel);
@@ -21,14 +29,23 @@ export class CollagePanel {
     this.setBackgroundImage(photo.img.style.backgroundImage);
   }
 
+  /**
+   * computes the width of the photo display area
+   */
   get photoWidth() {
     return parseInt(window.getComputedStyle(this.panel).width);
   }
 
+  /**
+   * computes the height of the photo display area
+   */
   get photoHeight() {
     return parseInt(window.getComputedStyle(this.panel).height);
   }
 
+  /**
+   * computes the scale of the photo, assumes aspect ratio is preserved (at least the width or height is 'auto')
+   */
   get photoScale() {
     let scale = window.getComputedStyle(this.panel).backgroundSize;
     if (scale === "auto") return 1.0;
@@ -39,7 +56,7 @@ export class CollagePanel {
   /**
    * replaces the current photo with one of higher quality
    */
-  async hires() {
+  async upgradeResolution() {
     if (!this.photo)
       return;
 
@@ -51,9 +68,19 @@ export class CollagePanel {
     h *= scale;
     this.setBackgroundImage(`url("${this.photo.mediaInfo.baseUrl}=w${Math.floor(w)}-h${Math.floor(h)}")`);
   }
+
+  /**
+   * return the panel overlay (does not belong here)
+   */
   get overlay() {
     return this.panel.querySelector(".overlay") as HTMLDivElement;
   }
+
+  /**
+   * Adds text as an input control on the panel
+   * Label is absolutely positioned and can move outside the bounds of this panel
+   * so probably doesn't belong here
+   */
   set text(value: string) {
     let label = document.createElement("textarea");
     label.readOnly = true;
@@ -64,9 +91,18 @@ export class CollagePanel {
     label.value = value;
     globals.dnd.moveable(label);
   }
+
+  /**
+   * Remove the panel from the dom
+   */
   destroy() {
     this.panel.remove();
   }
+
+  /**
+   * Splits the current panel into 4 equal size panels
+   * This panel then takes on the role of a panel container
+   */
   split() {
     let [topleft, topright, bottomleft, bottomright] = [1, 2, 3, 4].map(n => document.createElement("div"));
     let children = [topleft, topright, bottomleft, bottomright].map(v => new CollagePanel(v));
@@ -74,7 +110,11 @@ export class CollagePanel {
     topright.classList.add("q2");
     bottomleft.classList.add("q3");
     bottomright.classList.add("q4");
-    children.forEach(c => c.setBackgroundImage(this.panel.style.backgroundImage));
+    // photo contains no state so not cloning
+    const photo = this.photo;
+    if (photo) {
+      children.forEach(c => c.addPhoto(photo.clone()));
+    }
     this.panel.classList.remove("panel");
     this.overlay.remove();
     this.panel.style.backgroundImage = "";
@@ -83,10 +123,17 @@ export class CollagePanel {
     children.forEach(c => this.panel.appendChild(c.panel));
     return children;
   }
-  setBackgroundImage(backgroundImage: string): void {
+
+  /**
+   * 
+   * @param backgroundImage the url of the image to display in this panel
+   */
+  private setBackgroundImage(backgroundImage: string): void {
     this.panel.style.backgroundImage = backgroundImage;
-    this.panel.style.backgroundSize = "auto auto";
+    this.panel.style.backgroundSize = "auto 100%";
+    this.panel.style.backgroundPosition = "0 0";
   }
+  
   /**
    * style the frame
    * @param width border width in "em"
