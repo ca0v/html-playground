@@ -6,29 +6,28 @@ import { GooglePhotos } from "./GooglePhotos";
 import { GooglePhotoAPI } from "./GooglePhotoAPI";
 import { Animations } from "./Animations";
 import { DragAndDrop } from "./DragAndDrop";
+import { Commands } from "./Commands";
 
 export class Repl {
-  private panels: Array<CollagePanel> = [];
+  // public so split command can operate on them
+  public panels: Array<CollagePanel> = []; 
   private photos: Array<GoogleCollagePhoto> = [];
   private commandHistory: Array<string> = [];
   private commandHistoryIndex = -1;
   public dnd: DragAndDrop | null = null;
 
-  constructor(public animations: Animations) {
+  constructor(public animations: Animations, public commands: Commands) {
     // cannot set dnd because dnd needs repl (for now)
-  }
-
-  private commands = ["aspect", "export", "border", "margin", "move", "open", "pan", "rotate", "scale", "split", "stop", "zoom"];
-
-  private getCommand(command: string) {
-    let [token] = command.split(" ", 2);
-    return this.commands.find(v => v.startsWith(token));
   }
 
   async eval(command: string) {
     console.log(`executing: ${command}`);
     let [verb, noun, noun2, noun3] = command.split(" ");
-    verb = this.getCommand(verb) || verb;
+    let handler = this.commands.getCommand(verb);
+    if (handler) {
+      handler.execute(tail(command));
+      return;
+    }
     switch (verb) {
       case "aspect":
         this.setAspectRatio(noun, noun2);
@@ -72,9 +71,6 @@ export class Repl {
         break;
       case "rotate":
         this.selectPanel(noun)?.rotateFrame(noun2);
-        break;
-      case "split":
-        this.split(noun);
         break;
       case "zoom":
         this.selectPanel(noun)?.scale(noun2);
@@ -237,32 +233,6 @@ export class Repl {
     if (!panel) return;
 
     panel.addPhoto(photo);
-  }
-
-  /**
-   * Splits the panel into 4 new child panels
-   * @param id panel identifier
-   */
-  split(id: string) {
-    let node = this.select(id);
-    if (!node) {
-      console.log("no node found");
-      return;
-    }
-
-    let panel = this.panels.find(p => p.panel === node);
-    if (!panel) {
-      console.log("no panel found");
-      return;
-    }
-
-    let originalIndex = this.panels.indexOf(panel);
-    let childPanels = panel.split();
-    // remove since it is no longer a panel
-    this.panels.splice(originalIndex, 1, ...childPanels);
-    childPanels.forEach(c => this.addBehaviors(c));
-    //this.panels.push(...childPanels);
-    this.reindex();
   }
 
   /**
