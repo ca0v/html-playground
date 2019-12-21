@@ -1,5 +1,5 @@
-import { gotoCommandEditor } from "./gotoCommandEditor";
-import { getActiveOverlay } from "./getActiveOverlay";
+import { gotoCommandEditor } from "../fun/gotoCommandEditor";
+import { getActiveOverlay } from "../fun/getActiveOverlay";
 import { CollagePanel } from "./CollagePanel";
 import { Repl } from "./Repl";
 

@@ -1,5 +1,5 @@
-import { Listener } from "./Listener";
-import { globals } from "./globals";
+import { Listener } from "../controls/Listener";
+import { globals } from "../globals";
 
 export async function start() {
   let repl = globals.repl;

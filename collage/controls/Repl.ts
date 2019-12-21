@@ -1,4 +1,4 @@
-import { tail } from "./tail";
+import { tail } from "../fun/tail";
 import { CommandParser } from "./CommandParser";
 import { CollagePanel } from "./CollagePanel";
 import { GoogleCollagePhoto } from "./GoogleCollagePhoto";
@@ -22,7 +22,7 @@ export class Repl {
   async eval(command: string) {
     console.log(`executing: ${command}`);
     let [verb, noun, noun2, noun3] = command.split(" ");
-    let handler = this.commands.getCommand(verb);
+    let handler = this.commands.get(verb);
     if (handler) {
       handler.execute(this, tail(command));
       return;

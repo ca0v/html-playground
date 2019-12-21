@@ -1,4 +1,4 @@
-import { start } from "./collage/start";
+import { start } from "./collage/fun/start";
 import { globals } from "./collage/globals";
 
 start();

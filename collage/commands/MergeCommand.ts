@@ -1,5 +1,5 @@
-import { Command } from "./Command";
-import { Repl } from "../Repl";
+import { Command } from "../models/Command";
+import { Repl } from "../controls/Repl";
 export class MergeCommand implements Command {
   execute(repl: Repl, args: string): void {
     let [id1, id2] = args.split(" ");

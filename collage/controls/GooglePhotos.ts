@@ -1,7 +1,7 @@
 import { GooglePhotoSignin } from "./GooglePhotoSignin";
-import { GoogleMediaItem } from "./GoogleMediaItem";
-import { GoogleAlbum } from "./GoogleAlbum";
-import { GooglePhotoAPI } from "./GooglePhotoAPI";
+import { GoogleMediaItem } from "../models/GoogleMediaItem";
+import { GoogleAlbum } from "../models/GoogleAlbum";
+import { GooglePhotoAPI } from "../models/GooglePhotoAPI";
 
 declare var gapi: GooglePhotoAPI;
 

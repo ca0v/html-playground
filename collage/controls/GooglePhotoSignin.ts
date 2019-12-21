@@ -1,4 +1,4 @@
-import { GooglePhotoAPI } from "./GooglePhotoAPI";
+import { GooglePhotoAPI } from "../models/GooglePhotoAPI";
 
 declare var gapi: GooglePhotoAPI;
 

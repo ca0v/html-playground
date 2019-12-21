@@ -1,7 +1,7 @@
-import { Animations } from "./Animations";
-import { Repl } from "./Repl";
-import { DragAndDrop } from "./DragAndDrop";
-import { Commands } from "./Commands";
+import { Animations } from "./controls/Animations";
+import { Repl } from "./controls/Repl";
+import { DragAndDrop } from "./controls/DragAndDrop";
+import { Commands } from "./controls/Commands";
 import { SplitCommand } from "./commands/SplitCommand";
 import { AspectRatioCommand } from "./commands/AspectRatioCommand";
 import { BorderCommand } from "./commands/BorderCommand";

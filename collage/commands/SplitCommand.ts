@@ -1,5 +1,5 @@
-import { Command } from "./Command";
-import { Repl } from "../Repl";
+import { Command } from "../models/Command";
+import { Repl } from "../controls/Repl";
 
   /**
    * Splits the panel into 4 new child panels

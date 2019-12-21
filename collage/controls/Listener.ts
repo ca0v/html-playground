@@ -1,4 +1,4 @@
-import { Dictionary } from "./Dictionary";
+import { Dictionary } from "../models/Dictionary";
 /**
  * Google speech recognition
  */

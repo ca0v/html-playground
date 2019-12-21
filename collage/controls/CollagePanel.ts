@@ -1,5 +1,5 @@
 import { GoogleCollagePhoto } from "./GoogleCollagePhoto";
-import { globals } from "./globals";
+import { globals } from "../globals";
 
 /**
  * Manages a single image on the collage, 

@@ -1,5 +1,5 @@
 import { CollagePhoto } from "./CollagePhoto";
-import { GoogleMediaItem } from "./GoogleMediaItem";
+import { GoogleMediaItem } from "../models/GoogleMediaItem";
 
 export class GoogleCollagePhoto extends CollagePhoto<GoogleMediaItem> {
   public img: HTMLDivElement;
