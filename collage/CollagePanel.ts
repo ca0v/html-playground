@@ -152,12 +152,12 @@ export class CollagePanel {
    * @param y vertical offset in pixels
    */
   pan(x: string, y: string) {
-    let node = this.panel;
+    let node = this.image;
     if (!node)
       return;
     let [dx, dy] = [0, 0];
     let animate = true;
-    let pixelSize = 1 / 16;
+    let pixelSize = 1;
     switch (x) {
       case "up":
         dy = -pixelSize;
@@ -178,12 +178,12 @@ export class CollagePanel {
         break;
     }
     let op = () => {
-      let x0 = parseFloat(node.style.backgroundPositionX || "0");
-      let y0 = parseFloat(node.style.backgroundPositionY || "0");
+      let x0 = parseFloat(node.style.left || "0");
+      let y0 = parseFloat(node.style.top || "0");
       x0 += dx;
       y0 += dy;
-      node.style.backgroundPositionX = `${x0}em`;
-      node.style.backgroundPositionY = `${y0}em`;
+      node.style.left = `${x0}px`;
+      node.style.top = `${y0}px`;
     };
     op();
     animate && globals.animations.animate("pan", op);
@@ -216,20 +216,20 @@ export class CollagePanel {
    * @param scale percentage delta from current scale
    */
   scale(scale: string) {
-    let node = this.panel;
+    let node = this.image;
     if (!node)
       return;
     if (!scale) {
-      let backgroundSize = getComputedStyle(node).backgroundSize;
-      let scale = parseFloat(backgroundSize) / 100;
+      let width = getComputedStyle(node).width;
+      let scale = parseFloat(width) / 100;
       globals.animations.animate("zoom", () => {
         scale *= 1.01;
-        node.style.backgroundSize = `auto ${100 * scale}%`;
+        node.style.width = `${100 * scale}%`;
       });
     }
     else {
       let effectiveScale = parseFloat(scale) * (this.getData("scale") || 1.0);
-      node.style.backgroundSize = `auto ${100 * effectiveScale}%`;
+      node.style.width = `${100 * effectiveScale}%`;
       this.setData("scale", effectiveScale);
     }
   }
