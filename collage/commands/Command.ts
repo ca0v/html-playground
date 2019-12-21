@@ -1,3 +1,5 @@
+import { Repl } from "../Repl";
+
 export interface Command {
-  execute(args: string): void;
+  execute(repl: Repl, args: string): void;
 }

@@ -2,7 +2,21 @@ import { Animations } from "./Animations";
 import { Repl } from "./Repl";
 import { DragAndDrop } from "./DragAndDrop";
 import { Commands } from "./Commands";
-import { SplitCommand } from "./commands/split";
+import { SplitCommand } from "./commands/SplitCommand";
+import { AspectRatioCommand } from "./commands/AspectRatioCommand";
+import { BorderCommand } from "./commands/BorderCommand";
+import { GotoCommand } from "./commands/GotoCommand";
+import { TextCommand } from "./commands/TextCommand";
+import { PadCommand } from "./commands/PadCommand";
+import { TranslateCommand } from "./commands/TranslateCommand";
+import { MarginCommand } from "./commands/MarginCommand";
+import { MergeCommand } from "./commands/MergeCommand";
+import { HiResCommand } from "./commands/HiResCommand";
+import { MoveCommand } from "./commands/MoveCommand";
+import { RotateCommand } from "./commands/RotateCommand";
+import { ZoomCommand } from "./commands/ZoomCommand";
+import { ScaleCommand } from "./commands/ScaleCommand";
+import { StopCommand } from "./commands/StopCommand";
 
 /** global variables */
 const animations = new Animations();
@@ -11,7 +25,22 @@ const repl = new Repl(animations, commands);
 const dnd = new DragAndDrop(repl);
 repl.dnd = dnd;
 
+commands.add(new AspectRatioCommand(), "aspect");
+commands.add(new BorderCommand(), "border");
+commands.add(new GotoCommand(), "goto");
+commands.add(new HiResCommand(), "hires");
+commands.add(new MarginCommand(), "margin");
+commands.add(new MergeCommand(), "merge");
+commands.add(new MoveCommand(), "move");
+commands.add(new PadCommand(), "pad");
+commands.add(new RotateCommand(), "rotate");
+commands.add(new ScaleCommand(), "scale");
 commands.add(new SplitCommand(), "split");
+commands.add(new StopCommand(), "stop");
+commands.add(new TextCommand(), "text");
+commands.add(new TranslateCommand(), "translate");
+commands.add(new TranslateCommand(), "pan");
+commands.add(new ZoomCommand(), "zoom");
 
 export let globals = {
     allowSpeechRecognition: false,

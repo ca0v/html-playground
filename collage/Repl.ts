@@ -3,7 +3,6 @@ import { CommandParser } from "./CommandParser";
 import { CollagePanel } from "./CollagePanel";
 import { GoogleCollagePhoto } from "./GoogleCollagePhoto";
 import { GooglePhotos } from "./GooglePhotos";
-import { GooglePhotoAPI } from "./GooglePhotoAPI";
 import { Animations } from "./Animations";
 import { DragAndDrop } from "./DragAndDrop";
 import { Commands } from "./Commands";
@@ -25,13 +24,10 @@ export class Repl {
     let [verb, noun, noun2, noun3] = command.split(" ");
     let handler = this.commands.getCommand(verb);
     if (handler) {
-      handler.execute(tail(command));
+      handler.execute(this, tail(command));
       return;
     }
     switch (verb) {
-      case "aspect":
-        this.setAspectRatio(noun, noun2);
-        break;
       case "export":
         let canvas = await this.asCanvas();
         if (!canvas) return;
@@ -41,64 +37,9 @@ export class Repl {
         img.src = canvas.toDataURL();
         document.body.insertBefore(img, document.body.firstElementChild);
         break;
-      case "border":
-        this.border(noun, noun2);
-        break;
-      case "goto":
-        this.goto(noun);
-        break;
-      case "pad":
-        this.pad(noun, noun2);
-        break;
-      case "text":
-        this.text(noun, tail(tail(command)));
-        break;
-      case "translate":
-      case "pan":
-        this.selectPanel(noun)?.pan(noun2, noun3 || "0");
-        break;
-      case "margin":
-        this.margin(noun, noun2);
-        break;
-      case "merge":
-        this.merge(noun, noun2);
-        break;
-      case "hires":
-        this.hires(noun);
-        break;
-      case "move":
-        this.move(noun, noun2);
-        break;
-      case "rotate":
-        this.selectPanel(noun)?.rotateFrame(noun2);
-        break;
-      case "zoom":
-        this.selectPanel(noun)?.scale(noun2);
-        break;
-      case "scale":
-        this.selectPanel(noun)?.scaleFrame(noun2);
-        break;
-      case "stop":
-        this.animations.stop(noun);
-        break;
     }
   }
 
-  setAspectRatio(w: string, h: string) {
-    let width = parseFloat(w);
-    let height = parseFloat(h);
-    let window = document.querySelector(".window") as HTMLElement;
-    let canvas = window.parentElement as HTMLElement;
-    let currentWidth = parseFloat(getComputedStyle(canvas).width);
-    let currentHeight = parseFloat(getComputedStyle(canvas).height);
-    // multiple width and height by maximum scale such that
-    // width * scale <= currentWidth and height * scale <= currentHeight
-    let sx = currentWidth / width;
-    let sy = currentHeight / height;
-    let scale = Math.min(sx, sy);
-    window.style.width = `${Math.round(width * scale)}px`;
-    window.style.height = `${Math.round(height * scale)}px`;
-  }
   // create a canvas of the entire collage
   async asCanvas() {
     return new Promise<HTMLCanvasElement>((good, bad) => {
@@ -181,58 +122,6 @@ export class Repl {
 
   reindex() {
     this.panels.forEach((p, i) => p.overlay.dataset.id = p.overlay.innerText = i + 1 + "");
-  }
-
-  border(id: string, width: string) {
-    this.selectPanel(id)?.border(width);
-  }
-
-  goto(id: string) {
-    let node = this.select(id);
-    if (!node) return;
-    node.focus();
-  }
-
-  pad(id: string, width: string) {
-    let node = this.select(id);
-    if (!node) return;
-    node.style.padding = `${width}em`;
-  }
-
-  text(id: string, value: string) {
-    let panel = this.selectPanel(id);
-    if (!panel) return;
-    panel.text = value;
-  }
-
-  margin(id: string, width: string) {
-    let node = this.select(id);
-    if (!node) return;
-
-    node.style.margin = `${width}em`;
-  }
-
-  merge(id1: string, id2: string) {
-    let node1 = this.select(id1);
-    let node2 = this.select(id2);
-    node1 && node2 && this.merge_nodes(node1, node2);
-  }
-
-  hires(id: string) {
-    let panel = this.selectPanel(id);
-    if (!panel) return;
-    panel.upgradeResolution();
-  }
-
-  move(id1: string, id2: string) {
-    let photo = this.selectPhoto(id1);
-    if (!photo) return;
-
-
-    let panel = this.selectPanel(id2);
-    if (!panel) return;
-
-    panel.addPhoto(photo);
   }
 
   /**

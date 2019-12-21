@@ -1,14 +1,13 @@
 import { Command } from "./Command";
-import { globals } from "../globals";
+import { Repl } from "../Repl";
 
   /**
    * Splits the panel into 4 new child panels
    */
   export class SplitCommand implements Command {
 
-    execute(commandArgs: string): void {
+    execute(repl: Repl, commandArgs: string): void {
         let id = commandArgs;
-        let repl = globals.repl;
 
         let node = repl.select(id);
         if (!node) {
@@ -32,3 +31,5 @@ import { globals } from "../globals";
         }
     
 }
+
+
