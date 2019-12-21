@@ -208,6 +208,26 @@ export class CollagePanel {
       });
     }
   }
+
+  rotateImage(angle: string) {
+    let node = this.image;
+    if (!node)
+      return;
+
+    if (!!angle) {
+      node.style.transform += `rotate(${angle}deg)`;
+    }
+    else {
+      let angle = 0;
+      let transform = node.style.transform;
+      globals.animations.animate("rotate", () => {
+        angle += 1;
+        node.style.transform = transform + ` rotate(${angle}deg)`;
+      });
+    }
+
+  }
+
   scaleFrame(scale: string) {
     this.transform_node(`scale(${scale}, ${scale})`);
   }
