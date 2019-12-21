@@ -8,7 +8,7 @@ const repl = globals.repl;
 repl.eval("aspect 1 1");
 if (globals.debug) {
     repl.eval("scale 1 0.75");
-    repl.eval("border 1 3");
+    repl.eval("border 1 3 silver");
     repl.eval("rotate 1 -2");
     repl.eval("split 1");
     repl.eval("zoom 2 1");
@@ -19,6 +19,7 @@ if (globals.debug) {
     setTimeout(() => {
         let photoCount = document.querySelectorAll(".photos .img").length;
         for (let i = 1; i <= 7; i++) {
+            repl.eval(`border ${i} 1`);
             repl.eval("move " + (1 + Math.floor(photoCount * Math.random())) + " " + i);
         }
         // repl.eval("open 1");

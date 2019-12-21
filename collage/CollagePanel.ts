@@ -143,8 +143,8 @@ export class CollagePanel {
    * style the frame
    * @param width border width in "em"
    */
-  border(width: string) {
-    this.panel.style.border = `${width}em solid white`;
+  border(width: string, color = "white") {
+    this.panel.style.border = `${width}em solid ${color}`;
   }
   /**
    * Move the image inside the frame
