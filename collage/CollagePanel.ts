@@ -67,13 +67,14 @@ export class CollagePanel {
     if (!this.photo)
       return;
 
+    // 512 is the maximum width/height of the placeholder image
+    // 512 * scale = actual size
     let w = this.photoWidth;
     let h = this.photoHeight;
-    let scale = this.photoScale;
+    let isPortrait = h > w;
+    let scale = (isPortrait ? h : w) / 512.0;
     if (scale < 1) return;
-    w *= scale;
-    h *= scale;
-    this.setBackgroundImage(`${this.photo.mediaInfo.baseUrl}=w${Math.floor(w)}-h${Math.floor(h)}`);
+    this.setBackgroundImage(`${this.photo.mediaInfo.baseUrl}=w${Math.floor(w * scale)}`);
   }
 
   /**
@@ -138,7 +139,7 @@ export class CollagePanel {
   private setBackgroundImage(backgroundImage: string): void {
     this.image.src = backgroundImage;
   }
-  
+
   /**
    * style the frame
    * @param width border width in "em"

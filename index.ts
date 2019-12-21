@@ -5,7 +5,7 @@ start();
 
 const repl = globals.repl;
 
-repl.eval("aspect 1 1");
+repl.eval("aspect 6 4");
 if (globals.debug) {
     repl.eval("scale 1 0.75");
     repl.eval("border 1 3 silver");
