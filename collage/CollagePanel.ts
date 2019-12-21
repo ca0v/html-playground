@@ -12,12 +12,19 @@ export class CollagePanel {
    */
   public photo: GoogleCollagePhoto | null;
 
+  // the actual image rendered on the panel
+  public image: HTMLImageElement;
+
   /**
    * 
    * @param panel dom element to control
    */
   constructor(public panel: HTMLDivElement) {
     this.photo = null;
+    this.image = document.createElement("img");
+    this.image.classList.add("img");
+    this.image.draggable = false;
+    this.panel.appendChild(this.image);
     this.asPanel(this.panel);
   }
 
@@ -26,30 +33,30 @@ export class CollagePanel {
    */
   addPhoto(photo: GoogleCollagePhoto) {
     this.photo = photo;
-    this.setBackgroundImage(photo.img.style.backgroundImage);
+    this.setBackgroundImage(photo.mediaInfo.baseUrl);
   }
 
   /**
    * computes the width of the photo display area
    */
   get photoWidth() {
-    return parseInt(window.getComputedStyle(this.panel).width);
+    return parseInt(window.getComputedStyle(this.image).width);
   }
 
   /**
    * computes the height of the photo display area
    */
   get photoHeight() {
-    return parseInt(window.getComputedStyle(this.panel).height);
+    return parseInt(window.getComputedStyle(this.image).height);
   }
 
   /**
    * computes the scale of the photo, assumes aspect ratio is preserved (at least the width or height is 'auto')
    */
   get photoScale() {
-    let scale = window.getComputedStyle(this.panel).backgroundSize;
+    let style = window.getComputedStyle(this.image);
+    let scale = style.height;
     if (scale === "auto") return 1.0;
-    scale = scale.split(" ").pop() ?? "1";
     return parseFloat(scale) / 100.0;
   }
 
@@ -66,7 +73,7 @@ export class CollagePanel {
     if (scale < 1) return;
     w *= scale;
     h *= scale;
-    this.setBackgroundImage(`url("${this.photo.mediaInfo.baseUrl}=w${Math.floor(w)}-h${Math.floor(h)}")`);
+    this.setBackgroundImage(`${this.photo.mediaInfo.baseUrl}=w${Math.floor(w)}-h${Math.floor(h)}`);
   }
 
   /**
@@ -117,7 +124,7 @@ export class CollagePanel {
     }
     this.panel.classList.remove("panel");
     this.overlay.remove();
-    this.panel.style.backgroundImage = "";
+    this.image.src = "";
     this.panel.classList.add("panel-container");
     this.panel.dataset["id"] = "";
     children.forEach(c => this.panel.appendChild(c.panel));
@@ -129,9 +136,7 @@ export class CollagePanel {
    * @param backgroundImage the url of the image to display in this panel
    */
   private setBackgroundImage(backgroundImage: string): void {
-    this.panel.style.backgroundImage = backgroundImage;
-    this.panel.style.backgroundSize = "auto 100%";
-    this.panel.style.backgroundPosition = "0 0";
+    this.image.src = backgroundImage;
   }
   
   /**

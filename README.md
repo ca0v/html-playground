@@ -6,7 +6,8 @@ html-playground
 2019.12.12 - dnd panel-to-panel
 2019.12.18 - drag photo to re-position within frame, overlay text
 2019.12.20 - refactor into modules, "hires" command to improve resolution
-2019.12.21 - refactor into commands
+2019.12.20 - refactor into commands
+2019.12.20 - rotate the actual background image and not the panel
 2019.12.21 - +/- text overlay
 
 # definitions

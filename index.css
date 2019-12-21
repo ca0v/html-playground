@@ -69,10 +69,19 @@ html.collage, .collage body {
     background-position-x: 0;
     background-position-y: 0;
     opacity: 1;
+    overflow: hidden;
 }
 
 .collage .panel:focus {
     border-color:crimson !important;
+}
+
+.collage .panel .img {
+    position: relative;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: auto;
 }
 
 .collage .q1 {

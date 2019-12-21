@@ -74,26 +74,29 @@ export class DragAndDrop {
    * @param panel Invoke pan on the panel so that it follows the mouse
    */
   panable(panel: CollagePanel) {
-    let draggable = panel.panel;
+    let draggable = panel.image;
     let startPosition = [0, 0];
     draggable.classList.add("draggable");
+
     draggable.addEventListener("pointerdown", event => {
-      let left = parseFloat(draggable.style.backgroundPositionX || "0");
-      let top = parseFloat(draggable.style.backgroundPositionY || "0");
+      let left = parseFloat(draggable.style.left || "0");
+      let top = parseFloat(draggable.style.top || "0");
       startPosition = [left - event.screenX, top - event.screenY];
       draggable.setPointerCapture(event.pointerId);
       draggable.addEventListener("pointermove", pointermove);
       event.stopPropagation();
+
     });
     draggable.addEventListener("pointerup", event => {
       draggable.releasePointerCapture(event.pointerId);
       draggable.removeEventListener("pointermove", pointermove);
       event.stopPropagation();
     });
+
     let pointermove = (event: MouseEvent) => {
       let [x, y] = [startPosition[0] + event.screenX, startPosition[1] + event.screenY];
-      draggable.style.backgroundPositionX = `${x}px`;
-      draggable.style.backgroundPositionY = `${y}px`;
+      draggable.style.left = `${x}px`;
+      draggable.style.top = `${y}px`;
       event.stopPropagation();
     };
   }
