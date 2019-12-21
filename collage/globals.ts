@@ -17,12 +17,18 @@ import { RotateCommand } from "./commands/RotateCommand";
 import { ZoomCommand } from "./commands/ZoomCommand";
 import { ScaleCommand } from "./commands/ScaleCommand";
 import { StopCommand } from "./commands/StopCommand";
+import { KeyboardHandlers } from "./controls/KeyboardHandlers";
+import { EscapeCommand } from "./commands/EscapeCommand";
 
 /** global variables */
 const animations = new Animations();
 const commands = new Commands();
 const repl = new Repl(animations, commands);
-const dnd = new DragAndDrop(repl);
+const keyboardHandlers = new KeyboardHandlers();
+keyboardHandlers.addEventHandler({ key: "Escape" }, new EscapeCommand());
+
+
+const dnd = new DragAndDrop(repl, keyboardHandlers);
 repl.dnd = dnd;
 
 commands.add(new AspectRatioCommand(), "aspect");

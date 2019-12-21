@@ -8,7 +8,8 @@ html-playground
 2019.12.20 - refactor into modules, "hires" command to improve resolution
 2019.12.20 - refactor into commands
 2019.12.20 - rotate the actual background image and not the panel
-2019.12.21 - +/- text overlay, "esc" on a panel should focus parent panel
+2019.12.21 - +/- text overlay, "esc" on a panel should focus parent panel, 
+2019.12.22 - "shift+click" to group/ungroup (think sketchup)
 
 # definitions
 collage - a collection of frames

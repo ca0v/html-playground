@@ -2,7 +2,6 @@ import { gotoCommandEditor } from "../fun/gotoCommandEditor";
 import { getActiveOverlay } from "../fun/getActiveOverlay";
 import { CollagePanel } from "./CollagePanel";
 import { Repl } from "./Repl";
-import { EscapeCommand } from "../commands/EscapeCommand";
 import { KeyboardHandlers } from "./KeyboardHandlers";
 
 /**
@@ -11,10 +10,7 @@ import { KeyboardHandlers } from "./KeyboardHandlers";
 export class DragAndDrop {
   private source: HTMLElement | null = null;
 
-  constructor(public repl: Repl) {
-
-    let keyboardHandlers = new KeyboardHandlers();
-    keyboardHandlers.addEventHandler({ key: "Escape" }, new EscapeCommand());
+  constructor(public repl: Repl, public keydownHandlers: KeyboardHandlers) {
 
     window.addEventListener("wheel", (event) => {
       let source = getActiveOverlay();
@@ -32,7 +28,7 @@ export class DragAndDrop {
 
     window.addEventListener("keydown", event => {
 
-      let handler = keyboardHandlers.getEventHandler(event);
+      let handler = this.keydownHandlers.getEventHandler(event);
       if (handler) {
         handler.execute(repl);
         return;
