@@ -61,23 +61,6 @@ export class CollagePanel {
   }
 
   /**
-   * replaces the current photo with one of higher quality
-   */
-  async upgradeResolution() {
-    if (!this.photo)
-      return;
-
-    // 512 is the maximum width/height of the placeholder image
-    // 512 * scale = actual size
-    let w = this.photoWidth;
-    let h = this.photoHeight;
-    let isPortrait = h > w;
-    let scale = (isPortrait ? h : w) / 512.0;
-    if (scale < 1) return;
-    this.setBackgroundImage(`${this.photo.mediaInfo.baseUrl}=w${Math.floor(w * scale)}`);
-  }
-
-  /**
    * return the panel overlay (does not belong here)
    */
   get overlay() {
@@ -111,7 +94,7 @@ export class CollagePanel {
    * 
    * @param backgroundImage the url of the image to display in this panel
    */
-  private setBackgroundImage(backgroundImage: string): void {
+  setBackgroundImage(backgroundImage: string): void {
     this.image.src = backgroundImage;
   }
 

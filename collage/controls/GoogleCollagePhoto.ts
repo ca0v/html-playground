@@ -9,6 +9,7 @@ export class GoogleCollagePhoto extends CollagePhoto<GoogleMediaItem> {
     let img = this.img = document.createElement("div");
     img.classList.add("img");
     img.style.backgroundImage = `url(${this.mediaInfo.baseUrl})`;
+    img.title = mediaInfo.filename;
   }
   
   renderInto(target: HTMLElement) {

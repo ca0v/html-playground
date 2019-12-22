@@ -24,6 +24,7 @@ import { StopCommand } from "./commands/StopCommand";
 import { KeyboardHandlers } from "./controls/KeyboardHandlers";
 import { EscapeCommand } from "./commands/EscapeCommand";
 import { IncreaseFontSize, DecreaseFontSize } from "./commands/ChangeFontSizeCommand";
+import { OpenAlbumsCommand } from "./commands/OpenAlbumsCommand";
 
 /** global variables */
 const animations = new Animations();
@@ -67,6 +68,8 @@ keyboardHandlers.addEventHandler(new ChangeStyleCommand("height", { delta: -1, u
 
 const dnd = new DragAndDrop(repl, keyboardHandlers);
 repl.dnd = dnd;
+
+commands.add(new OpenAlbumsCommand(), "open");
 
 commands.add(new AspectRatioCommand(), "aspect");
 commands.add(new BorderCommand(), "border");

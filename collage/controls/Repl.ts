@@ -10,7 +10,8 @@ import { DragAndDrop } from "./DragAndDrop";
 export class Repl {
   // public so split command can operate on them
   public panels: Array<CollagePanel> = [];
-  private photos: Array<GoogleCollagePhoto> = [];
+  // public so openAlbums command can operation on them
+  public photos: Array<GoogleCollagePhoto> = [];
   private commandHistory: Array<string> = [];
   private commandHistoryIndex = -1;
   public dnd: DragAndDrop | null = null;
@@ -24,7 +25,7 @@ export class Repl {
     let [verb, noun, noun2, noun3] = command.split(" ");
     let handler = this.commands.get(verb);
     if (handler) {
-      handler.execute(this, tail(command));
+      await handler.execute(this, tail(command));
       return;
     }
     switch (verb) {
@@ -179,21 +180,6 @@ export class Repl {
       }
     };
     this.reindex();
-
-    let photos = new GooglePhotos();
-    const target = document.querySelector(".photos") as HTMLElement;
-    if (target) {
-      const albums = await photos.getAlbums();
-      albums.forEach(async album => {
-        let mediaItems = await photos.getAlbum(album);
-        mediaItems.forEach(mediaItem => {
-          let photo = new GoogleCollagePhoto(mediaItem);
-          this.photos.push(photo);
-          photo.renderInto(target);
-          this.reindexPhotos();
-        });
-      });
-    }
   }
 
   public executeCommand(cmd: string) {
@@ -206,4 +192,3 @@ export class Repl {
     return ai.parsePhrase(command);
   }
 }
-
