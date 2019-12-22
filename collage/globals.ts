@@ -45,10 +45,25 @@ To move right, press l.
 To move down, press j.
 To move up, press k.
  */
-keyboardHandlers.addEventHandler(new ChangePositionCommand({ x: -1 }), { shiftKey: true, key: "H" });
-keyboardHandlers.addEventHandler(new ChangePositionCommand({ x: 1 }), { shiftKey: true, key: "L" });
-keyboardHandlers.addEventHandler(new ChangePositionCommand({ y: 1 }), { shiftKey: true, key: "J" });
-keyboardHandlers.addEventHandler(new ChangePositionCommand({ y: -1 }), { shiftKey: true, key: "K" });
+keyboardHandlers.addEventHandler(new ChangePositionCommand({ x: -1 }), { shiftKey: true, key: "ArrowLeft" });
+keyboardHandlers.addEventHandler(new ChangePositionCommand({ x: 1 }), { shiftKey: true, key: "ArrowRight" });
+keyboardHandlers.addEventHandler(new ChangePositionCommand({ y: 1 }), { shiftKey: true, key: "ArrowDown" });
+keyboardHandlers.addEventHandler(new ChangePositionCommand({ y: -1 }), { shiftKey: true, key: "ArrowUp" });
+
+keyboardHandlers.addEventHandler(new ChangeStyleCommand("top", { delta: 1, units: "px" }), { key: "t" });
+keyboardHandlers.addEventHandler(new ChangeStyleCommand("top", { delta: -1, units: "px" }), { shiftKey: true, key: "T" });
+keyboardHandlers.addEventHandler(new ChangeStyleCommand("left", { delta: 1, units: "px" }), { key: "l" });
+keyboardHandlers.addEventHandler(new ChangeStyleCommand("left", { delta: -1, units: "px" }), { shiftKey: true, key: "L" });
+keyboardHandlers.addEventHandler(new ChangeStyleCommand("bottom", { delta: 1, units: "px" }), { key: "b" });
+keyboardHandlers.addEventHandler(new ChangeStyleCommand("bottom", { delta: -1, units: "px" }), { shiftKey: true, key: "B" });
+keyboardHandlers.addEventHandler(new ChangeStyleCommand("right", { delta: 1, units: "px" }), { key: "r" });
+keyboardHandlers.addEventHandler(new ChangeStyleCommand("right", { delta: -1, units: "px" }), { shiftKey: true, key: "R" });
+
+keyboardHandlers.addEventHandler(new ChangeStyleCommand("width", { delta: 1, units: "px" }), { key: "w" });
+keyboardHandlers.addEventHandler(new ChangeStyleCommand("width", { delta: -1, units: "px" }), { shiftKey: true, key: "W" });
+keyboardHandlers.addEventHandler(new ChangeStyleCommand("height", { delta: 1, units: "px" }), { key: "h" });
+keyboardHandlers.addEventHandler(new ChangeStyleCommand("height", { delta: -1, units: "px" }), { shiftKey: true, key: "H" });
+
 
 const dnd = new DragAndDrop(repl, keyboardHandlers);
 repl.dnd = dnd;
@@ -91,6 +106,11 @@ commands.add(new ChangeStyleCommand("borderTopLeftRadius"), "brtl");
 commands.add(new ChangeStyleCommand("borderTopRightRadius"), "brtr");
 commands.add(new ChangeStyleCommand("borderBottomLeftRadius"), "brbl");
 commands.add(new ChangeStyleCommand("borderBottomRightRadius"), "brbr");
+
+commands.add(new ChangeStyleCommand("width", { units: "em" }), "width");
+commands.add(new ChangeStyleCommand("height", { units: "px" }), "height");
+
+commands.add(new ChangeStyleCommand("zIndex"), "z");
 
 export let globals = {
     allowSpeechRecognition: false,

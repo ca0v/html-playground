@@ -9,10 +9,12 @@ repl.eval("aspect 4 6");
 if (globals.debug) {
     repl.eval("split 1");
     repl.eval("merge 4 3");
+    repl.eval("split 2");
+    ///repl.eval("split 1");
+
     repl.eval("bw 1em");
-    repl.eval("bwt 0 3");    
-    repl.eval("bwr 0.5em 1");
-    repl.eval("bwl 0.5em 2");
+    repl.eval("bc white");
+    repl.eval("bgc silver");
     // repl.eval("scale 1 0.75");
     // repl.eval("border 1 3 silver");
     // repl.eval("rotate 1 -2");

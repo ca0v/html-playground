@@ -9,6 +9,7 @@ html-playground
 2019.12.20 - refactor into commands
 2019.12.20 - rotate the actual background image and not the panel
 2019.12.21 - ability to TRS text overlay, panel styles
+2019.12.22 - ability to style the outer panel-container (why is that not a panel)
 2019.12.22 - "shift+click" to group/ungroup (think sketchup)
 
 # definitions

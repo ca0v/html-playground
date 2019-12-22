@@ -107,32 +107,7 @@ export class CollagePanel {
     this.panel.remove();
   }
 
-  /**
-   * Splits the current panel into 4 equal size panels
-   * This panel then takes on the role of a panel container
-   */
-  split() {
-    let [topleft, topright, bottomleft, bottomright] = [1, 2, 3, 4].map(n => document.createElement("div"));
-    let children = [topleft, topright, bottomleft, bottomright].map(v => new CollagePanel(v));
-    topleft.classList.add("q1");
-    topright.classList.add("q2");
-    bottomleft.classList.add("q3");
-    bottomright.classList.add("q4");
-    // photo contains no state so not cloning
-    const photo = this.photo;
-    if (photo) {
-      children.forEach(c => c.addPhoto(photo.clone()));
-    }
-    this.panel.classList.remove("panel");
-    this.overlay.remove();
-    this.image.src = "";
-    this.panel.classList.add("panel-container");
-    this.panel.dataset["id"] = "";
-    children.forEach(c => this.panel.appendChild(c.panel));
-    return children;
-  }
-
-  /**
+    /**
    * 
    * @param backgroundImage the url of the image to display in this panel
    */

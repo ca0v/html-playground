@@ -86,6 +86,7 @@ html.collage, .collage body {
     top: 0;
     width: 100%;
     height: auto;
+    user-select: none;
 }
 
 .collage .q1 {

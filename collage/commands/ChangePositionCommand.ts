@@ -13,6 +13,8 @@ export class ChangePositionCommand implements Command {
       return false;
     if (!isValidTarget(labelImageOrPanel))
       return false;
-    labelImageOrPanel.style.transform += `translate(${this.delta.x || 0}px, ${this.delta.y || 0}px)`;
+    let computedTranform = getComputedStyle(labelImageOrPanel).transform;
+    if (computedTranform === "none") computedTranform = "";
+    labelImageOrPanel.style.transform = computedTranform + ` translate(${this.delta.x || 0}px, ${this.delta.y || 0}px)`;
   }
 }
