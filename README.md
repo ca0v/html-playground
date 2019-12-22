@@ -27,6 +27,7 @@ photo - the icon representing a picture to bring into the collage
 * zoom about a point
 * rotate about a point
 * show a focal point for rotation and scale actions
+* arc text as a series of rotated labels (or svg path)
 
 # reference
 * https://developers.google.com/photos/library/reference/rest
@@ -37,3 +38,4 @@ photo - the icon representing a picture to bring into the collage
 * https://developer.mozilla.org/en-US/docs/Web/API/Element/setPointerCapture
 * https://css-tricks.com/snippets/css/multiple-borders/
 * https://docs.oracle.com/cd/E19683-01/806-7612/6jgfmsvqf/index.html
+* https://css-tricks.com/snippets/svg/curved-text-along-path/

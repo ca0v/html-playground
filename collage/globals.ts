@@ -9,6 +9,7 @@ import { ChangeStyleCommand } from "./commands/ChangeStyleCommand";
 import { GotoCommand } from "./commands/GotoCommand";
 import { TextCommand } from "./commands/TextCommand";
 import { PadCommand } from "./commands/PadCommand";
+import { ToggleVisibilityCommand } from "./commands/ToggleVisibilityCommand";
 import { TranslateCommand } from "./commands/TranslateCommand";
 import { MarginCommand } from "./commands/MarginCommand";
 import { MergeCommand } from "./commands/MergeCommand";
@@ -44,10 +45,10 @@ To move right, press l.
 To move down, press j.
 To move up, press k.
  */
-keyboardHandlers.addEventHandler(new ChangePositionCommand({x: -1}), { shiftKey: true, key: "H" });
-keyboardHandlers.addEventHandler(new ChangePositionCommand({x: 1}), { shiftKey: true, key: "L" });
-keyboardHandlers.addEventHandler(new ChangePositionCommand({y: 1}), { shiftKey: true, key: "J" });
-keyboardHandlers.addEventHandler(new ChangePositionCommand({y: -1}), { shiftKey: true, key: "K" });
+keyboardHandlers.addEventHandler(new ChangePositionCommand({ x: -1 }), { shiftKey: true, key: "H" });
+keyboardHandlers.addEventHandler(new ChangePositionCommand({ x: 1 }), { shiftKey: true, key: "L" });
+keyboardHandlers.addEventHandler(new ChangePositionCommand({ y: 1 }), { shiftKey: true, key: "J" });
+keyboardHandlers.addEventHandler(new ChangePositionCommand({ y: -1 }), { shiftKey: true, key: "K" });
 
 const dnd = new DragAndDrop(repl, keyboardHandlers);
 repl.dnd = dnd;
@@ -70,17 +71,19 @@ commands.add(new TranslateCommand(), "pan");
 commands.add(new ZoomCommand(), "zoom");
 commands.add(new ChangeStyleCommand("backgroundColor"), "bgc");
 
+commands.add(new ToggleVisibilityCommand({ selector: ".collage .panel-container .overlay" }), "overlay");
+
 commands.add(new ChangeStyleCommand("borderColor"), "bc");
-commands.add(new ChangeStyleCommand("borderTopColor"), "btc");
-commands.add(new ChangeStyleCommand("borderBottomColor"), "bbc");
-commands.add(new ChangeStyleCommand("borderLeftColor"), "blc");
-commands.add(new ChangeStyleCommand("borderRightColor"), "brc");
+commands.add(new ChangeStyleCommand("borderTopColor"), "bct");
+commands.add(new ChangeStyleCommand("borderBottomColor"), "bcb");
+commands.add(new ChangeStyleCommand("borderLeftColor"), "bcl");
+commands.add(new ChangeStyleCommand("borderRightColor"), "bcr");
 
 commands.add(new ChangeStyleCommand("borderWidth"), "bw");
-commands.add(new ChangeStyleCommand("borderBottomWidth"), "bbw");
-commands.add(new ChangeStyleCommand("borderTopWidth"), "btw");
-commands.add(new ChangeStyleCommand("borderLeftWidth"), "blw");
-commands.add(new ChangeStyleCommand("borderRightWidth"), "brw");
+commands.add(new ChangeStyleCommand("borderBottomWidth"), "bwb");
+commands.add(new ChangeStyleCommand("borderTopWidth"), "bwt");
+commands.add(new ChangeStyleCommand("borderLeftWidth"), "bwl");
+commands.add(new ChangeStyleCommand("borderRightWidth"), "bwr");
 
 commands.add(new ChangeStyleCommand("opacity"), "opacity");
 commands.add(new ChangeStyleCommand("borderRadius"), "br");
@@ -88,7 +91,6 @@ commands.add(new ChangeStyleCommand("borderTopLeftRadius"), "brtl");
 commands.add(new ChangeStyleCommand("borderTopRightRadius"), "brtr");
 commands.add(new ChangeStyleCommand("borderBottomLeftRadius"), "brbl");
 commands.add(new ChangeStyleCommand("borderBottomRightRadius"), "brbr");
-commands.add(new ChangeStyleCommand("borderTopColor"), "btc");
 
 export let globals = {
     allowSpeechRecognition: false,

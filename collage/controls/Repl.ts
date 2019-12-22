@@ -9,7 +9,7 @@ import { DragAndDrop } from "./DragAndDrop";
 
 export class Repl {
   // public so split command can operate on them
-  public panels: Array<CollagePanel> = []; 
+  public panels: Array<CollagePanel> = [];
   private photos: Array<GoogleCollagePhoto> = [];
   private commandHistory: Array<string> = [];
   private commandHistoryIndex = -1;
@@ -101,27 +101,15 @@ export class Repl {
     return this.photos[parseInt(id) - 1];
   }
 
-  merge_nodes(node1: HTMLElement, node2: HTMLElement) {
-    node2.classList.forEach(c => node1.classList.add(c));
-    node2.remove();
-    // if node1 is q1...q4 and only child then it assumes the q of it's container and replaces its container
-    let qs = [1, 2, 3, 4].map(v => `q${v}`);
-    if (qs.every(v => node1.classList.contains(v))) {
-      const parent = node1.parentElement;
-      if (!parent) return;
-
-      if (parent.classList.contains("panel-container")) {
-        qs.forEach(v => node1.classList.remove(v));
-        qs.forEach(v => parent.classList.contains(v) && node1.classList.add(v));
-        parent.parentElement?.insertBefore(node1, parent);
-        parent.remove();
-      }
-    }
-    this.reindex();
+  removePanel(panel: CollagePanel) {
+    let index = this.panels.indexOf(panel);
+    if (-1 === index) throw "panel not found";
+    this.panels.splice(index, 1);
+    panel.panel.remove();
   }
 
   reindex() {
-    this.panels.forEach((p, i) => p.overlay.dataset.id = p.overlay.innerText = i + 1 + "");
+    this.panels.filter(p => !!p?.panel?.parentElement).forEach((p, i) => p.overlay.dataset.id = p.overlay.innerText = i + 1 + "");
   }
 
   /**
