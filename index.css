@@ -75,7 +75,8 @@ html.collage, .collage body {
 
 .collage .label:focus,
 .collage .panel-container:focus,
-.collage .panel:focus {
+.collage .panel.focus
+ {
     outline: 2px solid red;
     z-index: 1;
 }

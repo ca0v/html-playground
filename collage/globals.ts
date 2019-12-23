@@ -25,12 +25,14 @@ import { KeyboardHandlers } from "./controls/KeyboardHandlers";
 import { EscapeCommand } from "./commands/EscapeCommand";
 import { IncreaseFontSize, DecreaseFontSize } from "./commands/ChangeFontSizeCommand";
 import { OpenAlbumsCommand } from "./commands/OpenAlbumsCommand";
+import { MultiSelector } from "./behavior/MultiSelector";
 
 /** global variables */
 const animations = new Animations();
 const commands = new Commands();
 const repl = new Repl(animations, commands);
 const keyboardHandlers = new KeyboardHandlers();
+repl.use(new MultiSelector());
 
 keyboardHandlers.addEventHandler(new EscapeCommand(), { key: "Escape" });
 keyboardHandlers.addEventHandler(new IncreaseFontSize(), { key: "+" });

@@ -6,6 +6,7 @@ import { GooglePhotos } from "./GooglePhotos";
 import { Animations } from "./Animations";
 import { Commands } from "./Commands";
 import { DragAndDrop } from "./DragAndDrop";
+import { Behavior } from "../models/Behavior";
 
 export class Repl {
   // public so split command can operate on them
@@ -18,6 +19,10 @@ export class Repl {
 
   constructor(public animations: Animations, public commands: Commands) {
     // cannot set dnd because dnd needs repl (for now)
+  }
+
+  public use(behavior: Behavior<Repl>) {
+    behavior.extend(this);
   }
 
   async eval(command: string) {

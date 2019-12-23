@@ -21,15 +21,16 @@ export class ChangeStyleCommand implements Command {
   }) {
   }
 
-  private keyboardHandler() {
-    let target = document.activeElement as HTMLElement;
-    if (!isPanel(target)) return;
-    let value = parseFloat(getComputedStyle(target)[this.target]) + (this.options?.delta ?? 0);
-    target.style[<any>this.target] = value + (this.options?.units ?? "");
+  private keyboardHandler(repl: Repl) {
+    repl.panels.filter(p => p.panel.classList.contains("focus")).forEach(panel => {
+      let target = panel.panel;
+      let value = parseFloat(getComputedStyle(target)[this.target]) + (this.options?.delta ?? 0);
+      target.style[<any>this.target] = value + (this.options?.units ?? "");
+    });
   }
 
   execute(repl: Repl, args?: string | undefined): void | false {
-    if (!args) return this.keyboardHandler();
+    if (!args) return this.keyboardHandler(repl);
 
     let panels = repl.panels;
     let [value, id] = args.split(" ");

@@ -38,7 +38,7 @@ function run() {
                 repl.eval(`move ${1 + (i - 1) % photoCount} ${i}`);
             }
             // repl.eval("open 1");
-            repl.eval("hires 6");
+            // repl.eval("hires 6");
             // repl.eval("export");
         }, 3000);
     }

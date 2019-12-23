@@ -24,6 +24,8 @@ export class EscapeCommand implements Command {
   }
   
   execute(repl: Repl, args: string): void {
+    // unfocus all panels
+    repl.panels.forEach(p => p.panel.classList.remove("focus"));
     this.selectParentPanel();
   }
 }

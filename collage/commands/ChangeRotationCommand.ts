@@ -4,12 +4,11 @@ import { isValidTarget } from "../fun/isValidTarget";
 
 export class ChangeRotationCommand implements Command {
   constructor(public delta: number) { }
+
   execute(repl: Repl, args: string): void | false {
-    let labelImageOrPanel = document.activeElement as HTMLElement;
-    if (!labelImageOrPanel)
-      return false;
-    if (!isValidTarget(labelImageOrPanel))
-      return false;
-    labelImageOrPanel.style.transform += `rotate(${this.delta}deg)`;
+    repl.panels.filter(p => p.panel.classList.contains("focus")).forEach(panel => {
+      let labelImageOrPanel = panel.panel;
+      labelImageOrPanel.style.transform += `rotate(${this.delta}deg)`;
+    });
   }
 }
