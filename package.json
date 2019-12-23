@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "tsc -w",
-    "playground": "cd playground && tsc IntersectionObserver.ts defineProperty.ts dispatchEvent.ts cssKeyframes.ts --outfile index.js --watch"
+    "playground": "cd playground && tsc IntersectionObserver.ts defineProperty.ts dispatchEvent.ts cssKeyframes.ts taggedFunctions.ts --outfile index.js --watch"
   },
   "repository": {
     "type": "git",

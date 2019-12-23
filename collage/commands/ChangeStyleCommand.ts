@@ -8,25 +8,27 @@ function hasUnits(value: string) {
 }
 
 function isPanel(element: Element | null) {
-  if (!element)
-    return false;
+  if (!element) return false;
   return element.classList.contains("panel") || element.classList.contains("panel-container");
 }
 
-
 export class ChangeStyleCommand implements Command {
-  constructor(public target: keyof (CSSStyleDeclaration), public options?: {
-    units?: string;
-    delta?: number;
-  }) {
-  }
+  constructor(
+    public target: keyof Omit<CSSStyleDeclaration, number>,
+    public options?: {
+      units?: string;
+      delta?: number;
+    }
+  ) {}
 
   private keyboardHandler(repl: Repl) {
-    repl.panels.filter(p => p.panel.classList.contains("focus")).forEach(panel => {
-      let target = panel.panel;
-      let value = parseFloat(getComputedStyle(target)[this.target]) + (this.options?.delta ?? 0);
-      target.style[<any>this.target] = value + (this.options?.units ?? "");
-    });
+    repl.panels
+      .filter(p => p.panel.classList.contains("focus"))
+      .forEach(panel => {
+        let target = panel.panel;
+        let value = parseFloat(getComputedStyle(target)[this.target]) + (this.options?.delta ?? 0);
+        target.style.setProperty(this.target, value + (this.options?.units ?? ""));
+      });
   }
 
   execute(repl: Repl, args?: string | undefined): void | false {
@@ -36,8 +38,7 @@ export class ChangeStyleCommand implements Command {
     let [value, id] = args.split(" ");
     if (!!id) {
       let panel = repl.selectPanel(id);
-      if (!panel)
-        return;
+      if (!panel) return;
       panels = [panel];
     }
 
