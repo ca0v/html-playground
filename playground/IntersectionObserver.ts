@@ -19,7 +19,7 @@ async function CollisionDetection() {
         let entry = entries.find(entry => entry.isIntersecting);
         document.title = !entry ? "Outside" : Math.round(entry.intersectionRatio * 100) + "%";
         if (!!entry && 1.0 === entry.intersectionRatio) {
-          good();
+          good({ root, target });
         }
       },
       {
@@ -42,7 +42,9 @@ function StartRandomWalk() {
 
 let walkers = StartRandomWalk();
 
-CollisionDetection().then(() => {
+CollisionDetection().then((args: { root: HTMLElement; target: HTMLElement }) => {
   walkers.forEach(w => clearInterval(w));
   console.log("Hit!");
+  args.target.classList.add("is-captured");
+  args.root.classList.add("did-capture");
 });

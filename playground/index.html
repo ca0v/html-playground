@@ -1,21 +1,37 @@
 <html>
   <head>
     <style>
+      body {
+        background-color: black;
+        color: white;
+      }
       .can-move {
         position: absolute;
-        border: 1px solid black;
+        border: 1px solid silver;
+        background-color: green;
+        min-width: 12px;
+        min-height: 12px;
+        border-radius: 6px;
+      }
+
+      .can-move.is-captured {
+        background-color: red;
       }
 
       .can-not-move {
         position: absolute;
         width: 120px;
         height: 120px;
-        border: 1px solid black;
+        border: 1px solid silver;
+      }
+
+      .can-not-move.did-capture {
+        background-color: green;
       }
     </style>
   </head>
   <body>
-    <div class="can-collide can-not-move"><div class="can-collide can-move">DragMe</div></div>
-    <script src="IntersectionObserver.js"></script>
+    <div class="can-collide can-not-move"><div class="can-collide can-move"></div></div>
+    <script src="index.js"></script>
   </body>
 </html>
