@@ -28,10 +28,32 @@
       .can-not-move.did-capture {
         background-color: green;
       }
+
+      .move-right {
+        position: absolute;
+        left: 0em;
+        top: 5em;
+        animation-name: move-right;
+        animation-duration: 10s;
+        animation-delay: 2s;
+        animation-iteration-count: 2;
+        animation-timing-function: cubic-bezier(0.785, 0.135, 0.15, 0.86);
+        animation-direction: normal;
+      }
+
+      @keyframes move-right {
+        0% {
+          left: 0em;
+        }
+        100% {
+          left: 25em;
+        }
+      }
     </style>
   </head>
   <body>
     <div class="can-collide can-not-move"><div class="can-collide can-move"></div></div>
+    <div class="move-right"></div>
     <script src="index.js"></script>
   </body>
 </html>

@@ -77,14 +77,16 @@ function testDefineProp() {
   pojo.bar = pojo.foo;
 
   // proves that preventExtensions is enforced at runtime
-  {
+  try {
     pojo.foobar = pojo.foo = pojo.bar = "test";
     // should fail due to preventExtensions
     watch(model, propName => {
       console.log(`${propName} changed to ${pojo[propName]}`);
-      if (propName === "foobar") console.error("should not have been possible");
+      if (propName === "foobar") console.warn("should not have been possible");
     });
     pojo.foobar = pojo.foo = pojo.bar = "123";
+  } catch (ex) {
+    console.warn(ex);
   }
 }
 
