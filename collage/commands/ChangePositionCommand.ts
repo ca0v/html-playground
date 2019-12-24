@@ -2,7 +2,7 @@ import { Command } from "../models/Command";
 import { Repl } from "../controls/Repl";
 import { getFocusPanels } from "./getFocusPanels";
 
-export class ChangePositionCommand implements Command {
+export class TranslatePanelCommand implements Command {
   constructor(public delta: {
     x?: number;
     y?: number;

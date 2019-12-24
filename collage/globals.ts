@@ -11,22 +11,20 @@ import { GotoCommand } from "./commands/GotoCommand";
 import { TextCommand } from "./commands/TextCommand";
 import { PadCommand } from "./commands/PadCommand";
 import { ToggleVisibilityCommand } from "./commands/ToggleVisibilityCommand";
-import { TranslateCommand as TranslateImageCommand } from "./commands/TranslateCommand";
+import { TranslateImageCommand } from "./commands/TranslateCommand";
 import { MarginCommand } from "./commands/MarginCommand";
 import { MergeCommand } from "./commands/MergeCommand";
 import { HiResCommand } from "./commands/HiResCommand";
 import { MoveCommand } from "./commands/MoveCommand";
-import { RotateCommand, ChangeRotationCommand as RotatePanelCommand, RotationImageCommand as RotateImageCommand } from "./commands/ChangeRotationCommand";
-import { ChangePositionCommand as TranslatePanelCommand } from "./commands/ChangePositionCommand";
-import { ZoomCommand } from "./commands/ZoomCommand";
-import { ScaleCommand } from "./commands/ScaleCommand";
+import { RotateCommand, RotatePanelCommand, RotateImageCommand } from "./commands/ChangeRotationCommand";
+import { TranslatePanelCommand  } from "./commands/ChangePositionCommand";
 import { StopCommand } from "./commands/StopCommand";
 import { KeyboardHandlers } from "./controls/KeyboardHandlers";
 import { EscapeCommand } from "./commands/EscapeCommand";
 import { ChangeFontSizeCommand } from "./commands/ChangeFontSizeCommand";
 import { OpenAlbumsCommand } from "./commands/OpenAlbumsCommand";
 import { MultiSelector } from "./behavior/MultiSelector";
-import { ChangeScaleCommand as ScalePanelCommand } from "./commands/ChangeScaleCommand";
+import { ScalePanelCommand, ScaleImageCommand } from "./commands/ChangeScaleCommand";
 
 /** global variables */
 const animations = new Animations();
@@ -39,8 +37,10 @@ keyboardHandlers.addEventHandler(new EscapeCommand(), { key: "Escape" });
 keyboardHandlers.addEventHandler(new ChangeFontSizeCommand(1), { key: "+" });
 keyboardHandlers.addEventHandler(new ChangeFontSizeCommand(-1), { key: "-" });
 
-keyboardHandlers.addEventHandler(new ScalePanelCommand(1.01), { key: "+" });
-keyboardHandlers.addEventHandler(new ScalePanelCommand(1 / 1.01), { key: "-" });
+keyboardHandlers.addEventHandler(new ScalePanelCommand(1.01), { shiftKey: true, key: "+" });
+keyboardHandlers.addEventHandler(new ScalePanelCommand(1 / 1.01), { shiftKey: true, key: "-" });
+keyboardHandlers.addEventHandler(new ScaleImageCommand(1.01), { key: "+" });
+keyboardHandlers.addEventHandler(new ScaleImageCommand(1 / 1.01), { key: "-" });
 
 keyboardHandlers.addEventHandler(new RotateImageCommand(1), { key: "." });
 keyboardHandlers.addEventHandler(new RotateImageCommand(-1), { key: "," });
@@ -93,13 +93,13 @@ commands.add(new MergeCommand(), "merge");
 commands.add(new MoveCommand(), "move");
 commands.add(new PadCommand(), "pad");
 commands.add(new RotateCommand(), "rotate");
-commands.add(new ScaleCommand(), "scale");
+commands.add(new ScalePanelCommand(), "scale");
 commands.add(new SplitCommand(), "split");
 commands.add(new StopCommand(), "stop");
 commands.add(new TextCommand(), "text");
 commands.add(new TranslateImageCommand(), "translate");
 commands.add(new TranslateImageCommand(), "pan");
-commands.add(new ZoomCommand(), "zoom");
+commands.add(new ScaleImageCommand(), "zoom");
 commands.add(new ChangeStyleCommand("backgroundColor"), "bgc");
 
 commands.add(new ToggleVisibilityCommand({ selector: ".collage .panel-container .overlay" }), "overlay");

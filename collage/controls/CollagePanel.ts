@@ -190,11 +190,12 @@ export class CollagePanel {
   scaleFrame(scale: string) {
     this.transform_node(`scale(${scale}, ${scale})`);
   }
+
   /**
    * Scale the image
    * @param scale percentage delta from current scale
    */
-  scale(scale: string) {
+  scaleImage(scale: string) {
     let node = this.image;
     if (!node)
       return;

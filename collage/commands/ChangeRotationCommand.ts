@@ -15,7 +15,7 @@ export class RotateCommand implements Command {
   }
 }
 
-export class ChangeRotationCommand implements Command {
+export class RotatePanelCommand implements Command {
   constructor(public delta: number) { }
 
   execute(repl: Repl, args: string): void | false {
@@ -29,7 +29,7 @@ export class ChangeRotationCommand implements Command {
   }
 }
 
-export class RotationImageCommand implements Command {
+export class RotateImageCommand implements Command {
   constructor(public delta: number) { }
 
   execute(repl: Repl, args: string): void | false {
