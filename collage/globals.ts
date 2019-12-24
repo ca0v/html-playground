@@ -16,7 +16,7 @@ import { MergeCommand } from "./commands/MergeCommand";
 import { HiResCommand } from "./commands/HiResCommand";
 import { MoveCommand } from "./commands/MoveCommand";
 import { RotateCommand } from "./commands/RotateCommand";
-import { ChangeRotationCommand } from "./commands/ChangeRotationCommand";
+import { ChangeRotationCommand, RotationImageCommand } from "./commands/ChangeRotationCommand";
 import { ChangePositionCommand } from "./commands/ChangePositionCommand";
 import { ZoomCommand } from "./commands/ZoomCommand";
 import { ScaleCommand } from "./commands/ScaleCommand";
@@ -42,10 +42,10 @@ keyboardHandlers.addEventHandler(new ChangeFontSizeCommand(-1), { key: "-" });
 keyboardHandlers.addEventHandler(new ChangeScaleCommand(1.01), { key: "+" });
 keyboardHandlers.addEventHandler(new ChangeScaleCommand(1 / 1.01), { key: "-" });
 
-keyboardHandlers.addEventHandler(new ChangeRotationCommand(1), { key: "." });
-keyboardHandlers.addEventHandler(new ChangeRotationCommand(-1), { key: "," });
-keyboardHandlers.addEventHandler(new ChangeRotationCommand(10), { shiftKey: true, key: ">" });
-keyboardHandlers.addEventHandler(new ChangeRotationCommand(-10), { shiftKey: true, key: "<" });
+keyboardHandlers.addEventHandler(new RotationImageCommand(1), { key: "." });
+keyboardHandlers.addEventHandler(new RotationImageCommand(-1), { key: "," });
+keyboardHandlers.addEventHandler(new ChangeRotationCommand(1), { shiftKey: true, key: ">" });
+keyboardHandlers.addEventHandler(new ChangeRotationCommand(-1), { shiftKey: true, key: "<" });
 
 /** vim commands
 To move left, press h.

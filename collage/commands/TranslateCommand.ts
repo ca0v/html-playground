@@ -3,7 +3,7 @@ import { Repl } from "../controls/Repl";
 
 export class TranslateCommand implements Command {
 
-  constructor(public delta: {
+  constructor(public delta?: {
     x?: number;
     y?: number;
   }) { }
@@ -15,7 +15,7 @@ export class TranslateCommand implements Command {
       repl.selectPanel(noun)?.pan(noun2, noun3 || "0");
     } else if (this.delta) {
       repl.panels.filter(p => p.panel.classList.contains("focus")).forEach(panel => {
-        panel.pan((this.delta.x || 0) + "", (this.delta.y || 0) + "");
+        panel.pan((this.delta!.x || 0) + "", (this.delta!.y || 0) + "");
       });
     } else {
       // not handled
