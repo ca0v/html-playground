@@ -58,6 +58,11 @@ keyboardHandlers.addEventHandler(new ChangePositionCommand({ x: 1 }), { shiftKey
 keyboardHandlers.addEventHandler(new ChangePositionCommand({ y: 1 }), { shiftKey: true, key: "ArrowDown" });
 keyboardHandlers.addEventHandler(new ChangePositionCommand({ y: -1 }), { shiftKey: true, key: "ArrowUp" });
 
+keyboardHandlers.addEventHandler(new TranslateCommand({ x: -1 }), { shiftKey: false, key: "ArrowLeft" });
+keyboardHandlers.addEventHandler(new TranslateCommand({ x: 1 }), { shiftKey: false, key: "ArrowRight" });
+keyboardHandlers.addEventHandler(new TranslateCommand({ y: 1 }), { shiftKey: false, key: "ArrowDown" });
+keyboardHandlers.addEventHandler(new TranslateCommand({ y: -1 }), { shiftKey: false, key: "ArrowUp" });
+
 keyboardHandlers.addEventHandler(new ChangeStyleCommand("top", { delta: 1, units: "px" }), { key: "t" });
 keyboardHandlers.addEventHandler(new ChangeStyleCommand("top", { delta: -1, units: "px" }), { shiftKey: true, key: "T" });
 keyboardHandlers.addEventHandler(new ChangeStyleCommand("left", { delta: 1, units: "px" }), { key: "l" });

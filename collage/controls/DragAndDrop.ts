@@ -42,18 +42,6 @@ export class DragAndDrop {
       }
       let from = source.innerHTML;
       switch (event.key) {
-        case "ArrowDown":
-          repl.executeCommand(`pan ${from} 0 1`);
-          break;
-        case "ArrowUp":
-          repl.executeCommand(`pan ${from} 0 -1`);
-          break;
-        case "ArrowLeft":
-          repl.executeCommand(`pan ${from} -1 0`);
-          break;
-        case "ArrowRight":
-          repl.executeCommand(`pan ${from} 1 0`);
-          break;
         case "(":
         case "<":
           repl.executeCommand(`rotate ${from} -1`);

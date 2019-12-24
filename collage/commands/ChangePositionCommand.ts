@@ -1,6 +1,5 @@
 import { Command } from "../models/Command";
 import { Repl } from "../controls/Repl";
-import { isValidTarget } from "../fun/isValidTarget";
 
 export class ChangePositionCommand implements Command {
   constructor(public delta: {
