@@ -1,3 +1,10 @@
+@keyframes fade-out {
+    100% {
+        background-color: transparent;
+        border-color: transparent;
+    }
+}
+
 html.collage, .collage body {
     background-color: black;
     overflow: hidden;
@@ -8,6 +15,7 @@ html.collage, .collage body {
     right: 1px;
     padding: 1px;
     margin: 1px;
+    font-family: sans-serif;
 }
 
 .collage .canvas {
@@ -215,4 +223,35 @@ html.collage, .collage body {
     cursor: move;
     resize: none;
     overflow: visible;
+}
+
+.collage .toaster {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 8em;
+    max-width: 16em;
+    max-height: 30em;
+    overflow: hidden;
+    z-index: 100;
+    border: 1px solid white;
+    background-color: rgba(200, 200, 200, 0.8);
+}
+
+.collage .toaster .toast {
+    background-color: black;
+    color: white;
+    width: 100%;
+    min-height: 4em;
+    padding: 0.5em;
+}
+
+.collage .toaster.fade-out {
+    display: none;
+}
+
+.collage .toaster .toast.fade-out
+{
+    opacity: 0;
+    transition: opacity 2s linear;
 }

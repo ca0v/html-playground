@@ -33,35 +33,8 @@ export class DragAndDrop {
       })) {
         // handled
         event.preventDefault();
-        return;
       }
 
-      let source = getActiveOverlay();
-      if (!source) {
-        console.log("no active overlay found");
-        return;
-      }
-      let from = source.innerHTML;
-      switch (event.key) {
-        case "(":
-        case "<":
-          repl.executeCommand(`rotate ${from} -1`);
-          break;
-        case ")":
-        case ">":
-          repl.executeCommand(`rotate ${from} 1`);
-          break;
-        case "c":
-          event.preventDefault();
-          gotoCommandEditor();
-          break;
-        case "Enter":
-        case " ":
-          repl.executeCommand("stop");
-          break;
-        default:
-          console.log(`${event.key} not handled`);
-      }
     });
   }
 

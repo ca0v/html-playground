@@ -30,8 +30,11 @@ function swapImages(panel1: CollagePanel, panel2: CollagePanel) {
 export class SwapPanelsCommand implements Command {
   private keyboardHandler(repl: Repl) {
     let panels = getFocusPanels(repl);
-    if (2 !== panels.length)
+    if (!panels.length) return;
+    if (2 !== panels.length) {
+      repl.notify("Exactly two panels must be selected before you can perform a swap.");
       return false;
+    }
     swapImages(panels[0], panels[1]);
   }
 

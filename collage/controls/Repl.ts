@@ -2,13 +2,18 @@ import { tail } from "../fun/tail";
 import { CommandParser } from "./CommandParser";
 import { CollagePanel } from "./CollagePanel";
 import { GoogleCollagePhoto } from "./GoogleCollagePhoto";
-import { GooglePhotos } from "./GooglePhotos";
 import { Animations } from "./Animations";
 import { Commands } from "./Commands";
 import { DragAndDrop } from "./DragAndDrop";
 import { Behavior } from "../models/Behavior";
 
 export class Repl {
+
+  // extension point for behaviors
+  notify(message: string) {
+    console.log(message);
+  }
+
   // public so split command can operate on them
   public panels: Array<CollagePanel> = [];
   // public so openAlbums command can operation on them
@@ -27,7 +32,7 @@ export class Repl {
 
   async eval(command: string) {
     console.log(`executing: ${command}`);
-    let [verb, noun, noun2, noun3] = command.split(" ");
+    let [verb] = command.split(" ");
     let handler = this.commands.get(verb);
     if (handler) {
       await handler.execute(this, tail(command));

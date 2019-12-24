@@ -1,4 +1,5 @@
 import { Animations } from "./controls/Animations";
+import { Toaster } from "./controls/Toaster";
 import { Repl } from "./controls/Repl";
 import { DragAndDrop } from "./controls/DragAndDrop";
 import { Commands } from "./controls/Commands";
@@ -6,6 +7,7 @@ import { SplitCommand } from "./commands/SplitCommand";
 import { AspectRatioCommand } from "./commands/AspectRatioCommand";
 import { BorderCommand } from "./commands/BorderCommand";
 import { ChangeStyleCommand } from "./commands/ChangeStyleCommand";
+import { GotoCommandEditorCommand } from "./commands/GotoCommandEditorCommand";
 import { SwapPanelsCommand } from "./commands/SwapPanelsCommand";
 import { GotoCommand } from "./commands/GotoCommand";
 import { TextCommand } from "./commands/TextCommand";
@@ -16,22 +18,25 @@ import { MarginCommand } from "./commands/MarginCommand";
 import { MergeCommand } from "./commands/MergeCommand";
 import { HiResCommand } from "./commands/HiResCommand";
 import { MoveCommand } from "./commands/MoveCommand";
-import { RotateCommand, RotatePanelCommand, RotateImageCommand } from "./commands/ChangeRotationCommand";
-import { TranslatePanelCommand  } from "./commands/ChangePositionCommand";
+import { RotatePanelCommand, RotateImageCommand } from "./commands/ChangeRotationCommand";
+import { TranslatePanelCommand } from "./commands/ChangePositionCommand";
 import { StopCommand } from "./commands/StopCommand";
 import { KeyboardHandlers } from "./controls/KeyboardHandlers";
 import { EscapeCommand } from "./commands/EscapeCommand";
 import { ChangeFontSizeCommand } from "./commands/ChangeFontSizeCommand";
 import { OpenAlbumsCommand } from "./commands/OpenAlbumsCommand";
 import { MultiSelector } from "./behavior/MultiSelector";
+import { NotificationBehavior } from "./behavior/NotificationBehavior";
 import { ScalePanelCommand, ScaleImageCommand } from "./commands/ChangeScaleCommand";
 
 /** global variables */
+const toaster = new Toaster(document.querySelector(".toaster") as HTMLElement);
 const animations = new Animations();
 const commands = new Commands();
 const repl = new Repl(animations, commands);
 const keyboardHandlers = new KeyboardHandlers();
 repl.use(new MultiSelector());
+repl.use(new NotificationBehavior(toaster));
 
 keyboardHandlers.addEventHandler(new EscapeCommand(), { key: "Escape" });
 keyboardHandlers.addEventHandler(new ChangeFontSizeCommand(1), { key: "+" });
@@ -78,6 +83,8 @@ keyboardHandlers.addEventHandler(new ChangeStyleCommand("height", { delta: 1, un
 keyboardHandlers.addEventHandler(new ChangeStyleCommand("height", { delta: -1, units: "px" }), { shiftKey: true, key: "H" });
 
 keyboardHandlers.addEventHandler(new SwapPanelsCommand(), { ctrlKey: true, key: "s" });
+keyboardHandlers.addEventHandler(new StopCommand(), { key: " " });
+keyboardHandlers.addEventHandler(new GotoCommandEditorCommand(), { key: "c" });
 
 const dnd = new DragAndDrop(repl, keyboardHandlers);
 repl.dnd = dnd;
@@ -92,7 +99,7 @@ commands.add(new MarginCommand(), "margin");
 commands.add(new MergeCommand(), "merge");
 commands.add(new MoveCommand(), "move");
 commands.add(new PadCommand(), "pad");
-commands.add(new RotateCommand(), "rotate");
+commands.add(new RotateImageCommand(), "rotate");
 commands.add(new ScalePanelCommand(), "scale");
 commands.add(new SplitCommand(), "split");
 commands.add(new StopCommand(), "stop");
@@ -128,11 +135,11 @@ commands.add(new ChangeStyleCommand("height", { units: "px" }), "height");
 
 commands.add(new ChangeStyleCommand("zIndex"), "z");
 
+toaster.toast("Welcome!");
 export let globals = {
     allowSpeechRecognition: false,
     debug: true,
     animations,
     repl,
     dnd,
-
 }
