@@ -17,7 +17,12 @@ export class GooglePhotos {
   }
   async getAlbum(album: GoogleAlbum) {
     let data = await gapi.client.photoslibrary.mediaItems.search({ albumId: album.id });
-    return data.result.mediaItems;
+    let {mediaItems} = data.result;
+    while (data.result.nextPageToken) {
+      data = await gapi.client.photoslibrary.mediaItems.search({ albumId: album.id, pageToken: data.result.nextPageToken });
+      mediaItems.push(...data.result.mediaItems);
+    }
+    return mediaItems;
   }
   async getPhoto(mediaItemId: string) {
     let data = await gapi.client.photoslibrary.mediaItems.get({ mediaItemId });
