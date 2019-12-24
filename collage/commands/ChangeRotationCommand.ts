@@ -2,6 +2,31 @@ import { Command } from "../models/Command";
 import { Repl } from "../controls/Repl";
 import { getFocusPanels } from "./getFocusPanels";
 
+function transform(node: HTMLElement, value: string) {
+  let t = window.getComputedStyle(node).transform;
+  t = (t === "none") ? "" : t + " ";
+  node.style.transform = t + value;
+}
+
+function rotateImage(repl: Repl, node: HTMLElement, angle: string) {
+  if (!node)
+    return;
+
+  if (!!angle) {
+    transform(node, `rotate(${angle}deg)`);
+  }
+  else {
+    let angle = 0;
+    let animations = repl.animations;
+    animations.animate("rotate", () => {
+      angle += 1;
+      transform(node, `rotate(${angle}deg)`);
+    });
+  }
+
+}
+
+
 export class RotatePanelCommand implements Command {
   constructor(public delta: number) { }
 
@@ -11,7 +36,7 @@ export class RotatePanelCommand implements Command {
 
     panels.forEach(panel => {
       let labelImageOrPanel = panel.panel;
-      labelImageOrPanel.style.transform += `rotate(${this.delta}deg)`;
+      transform(labelImageOrPanel, `rotate(${this.delta}deg)`);
     });
   }
 }
@@ -22,12 +47,10 @@ export class RotateImageCommand implements Command {
   execute(repl: Repl, args: string): void | false {
     if (!!args) {
       let [noun, noun2] = args.split(" ");
-      if (noun && noun2) {
-        let panel = repl.selectPanel(noun);
-        if (!panel) return false;
-        panel.rotateImage(noun2);
-        return;
-      };
+      let panel = repl.selectPanel(noun);
+      if (!panel) return false;
+      rotateImage(repl, panel.image, noun2);
+      return;
     }
 
     let panels = getFocusPanels(repl);
@@ -35,7 +58,7 @@ export class RotateImageCommand implements Command {
 
     panels.forEach(panel => {
       let labelImageOrPanel = panel.image;
-      labelImageOrPanel.style.transform += `rotate(${this.delta}deg)`;
+      transform(labelImageOrPanel, `rotate(${this.delta}deg)`);
     });
   }
 }

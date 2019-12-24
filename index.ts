@@ -1,7 +1,7 @@
 import { start } from "./collage/fun/start";
 import { globals } from "./collage/globals";
 
-function run() {
+async function run() {
     start();
 
     const repl = globals.repl;
@@ -28,7 +28,7 @@ function run() {
         // repl.eval("goto 1");
         // repl.eval("text 1 Summer 2019");
 
-        repl.eval("open 2019"); // present list of google photo albums?
+        await repl.eval("open 2019"); // present list of google photo albums?
         //await repl.eval("open gp 1999"); // open google photo album "1999"?
 
         setTimeout(() => {

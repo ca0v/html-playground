@@ -2,22 +2,23 @@
 html-playground
 
 # tasks
-2019.12.11 - drag/drop images, generate resulting command (draggable, droppable, action-handler)
-2019.12.12 - dnd panel-to-panel
-2019.12.18 - drag photo to re-position within frame, overlay text
-2019.12.20 - refactor into modules, "hires" command to improve resolution
-2019.12.20 - refactor into commands
-2019.12.20 - rotate the actual background image and not the panel
-2019.12.21 - ability to TRS text overlay, panel styles
-2019.12.22 - ability to style the outer panel-container (onfocus => "focus" style, command applies to "focus" element(s))
-2019.12.22 - "shift+click" to group/ungroup (think sketchup)
-2019.12.23 - add toaster notifications (swap w/out two panels selected)
+* 2019.12.24 - zoom and rotate about the frame center
+* 2019.12.23 - add toaster notifications (swap w/out two panels selected)
+* 2019.12.22 - ability to style the outer panel-container (onfocus => "focus" style, command applies to "focus" element(s))
+* 2019.12.22 - "shift+click" to group/ungroup (think sketchup)
+* 2019.12.21 - ability to TRS text overlay, panel styles
+* 2019.12.20 - rotate the actual background image and not the panel
+* 2019.12.20 - refactor into modules, "hires" command to improve resolution
+* 2019.12.20 - refactor into commands
+* 2019.12.18 - drag photo to re-position within frame, overlay text
+* 2019.12.12 - dnd panel-to-panel
+* 2019.12.11 - drag/drop images, generate resulting command (draggable, droppable, action-handler)
 
 # definitions
-collage - a collection of frames
-frame - the panel containing a background image
-image - the background image of a frame
-photo - the icon representing a picture to bring into the collage
+* collage - a collection of frames
+* frame - the panel containing a background image
+* image - the background image of a frame
+* photo - the icon representing a picture to bring into the collage
 
 # commands
 * border all # changes the border of all the frames
@@ -26,7 +27,6 @@ photo - the icon representing a picture to bring into the collage
 # ideas
 * undo/redo
 * border to match edges of photo
-* zoom about a point
 * rotate about a point
 * show a focal point for rotation and scale actions
 * arc text as a series of rotated labels (or svg path)

@@ -41,6 +41,18 @@ export class SwapPanelsCommand implements Command {
   execute(repl: Repl, args?: string | undefined): false | void | Promise<false | void> {
     if (!args)
       return this.keyboardHandler(repl);
-    return false;
+
+    let [id1, id2] = args.split(" ");
+    let panel1 = repl.selectPanel(id1);
+    let panel2 = repl.selectPanel(id2);
+    if (!panel1) {
+      repl.notify(`Panel not found: ${id1}`);
+      return false;
+    }
+    if (!panel2) {
+      repl.notify(`Panel not found: ${id2}`);
+      return false;
+    }
+    swapImages(panel1, panel2);
   }
 }

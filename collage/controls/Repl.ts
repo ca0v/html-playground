@@ -21,8 +21,9 @@ export class Repl {
   private commandHistory: Array<string> = [];
   private commandHistoryIndex = -1;
   public dnd: DragAndDrop | null = null;
+  public animations = new Animations();
 
-  constructor(public animations: Animations, public commands: Commands) {
+  constructor(public commands: Commands) {
     // cannot set dnd because dnd needs repl (for now)
   }
 
@@ -132,12 +133,9 @@ export class Repl {
     let dnd = this.dnd;
     if (dnd) {
       dnd.zoomable(overlay);
-      console.log(`${overlay.innerHTML} is zoomable`);
       dnd.draggable(overlay);
       dnd.panable(panel);
-      console.log(`${overlay.innerHTML} is draggable`);
       dnd.droppable(overlay);
-      console.log(`${overlay.innerHTML} is droppable`);
     }
   }
 
@@ -151,7 +149,6 @@ export class Repl {
         overlay.dataset.id = overlay.innerText = 1 + i + "";
         p.appendChild(overlay);
         this.dnd?.draggable(overlay);
-        console.log(`${overlay.innerHTML} is draggable`);
       }
     })
   }

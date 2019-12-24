@@ -8,3 +8,11 @@ export class StopCommand implements Command {
   }
 }
 
+export class ToggleFocusCommand implements Command {
+  execute(repl: Repl, args: string): void | false {
+    let activePanel = document.activeElement;
+    if (!activePanel?.classList.contains("panel")) return false;
+    activePanel.classList.toggle("focus");    
+    // here i am - if not "shift" key then unfocus all panels
+  }
+}

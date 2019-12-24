@@ -7,6 +7,7 @@ export class Animations {
     type: string;
     handle: number;
   }> = [];
+  
   stop(type: string) {
     let animations = this.animations.map(v => v); //clone
     animations.forEach((v, i) => {
@@ -16,6 +17,7 @@ export class Animations {
       }
     });
   }
+
   animate(type: string, cb: () => void) {
     this.animations.push({ type, handle: setInterval(cb, 100) });
   }

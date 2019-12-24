@@ -1,4 +1,3 @@
-import { Animations } from "./controls/Animations";
 import { Toaster } from "./controls/Toaster";
 import { Repl } from "./controls/Repl";
 import { DragAndDrop } from "./controls/DragAndDrop";
@@ -20,7 +19,7 @@ import { HiResCommand } from "./commands/HiResCommand";
 import { MoveCommand } from "./commands/MoveCommand";
 import { RotatePanelCommand, RotateImageCommand } from "./commands/ChangeRotationCommand";
 import { TranslatePanelCommand } from "./commands/ChangePositionCommand";
-import { StopCommand } from "./commands/StopCommand";
+import { StopCommand, ToggleFocusCommand } from "./commands/StopCommand";
 import { KeyboardHandlers } from "./controls/KeyboardHandlers";
 import { EscapeCommand } from "./commands/EscapeCommand";
 import { ChangeFontSizeCommand } from "./commands/ChangeFontSizeCommand";
@@ -31,9 +30,8 @@ import { ScalePanelCommand, ScaleImageCommand } from "./commands/ChangeScaleComm
 
 /** global variables */
 const toaster = new Toaster(document.querySelector(".toaster") as HTMLElement);
-const animations = new Animations();
 const commands = new Commands();
-const repl = new Repl(animations, commands);
+const repl = new Repl(commands);
 const keyboardHandlers = new KeyboardHandlers();
 repl.use(new MultiSelector());
 repl.use(new NotificationBehavior(toaster));
@@ -83,8 +81,10 @@ keyboardHandlers.addEventHandler(new ChangeStyleCommand("height", { delta: 1, un
 keyboardHandlers.addEventHandler(new ChangeStyleCommand("height", { delta: -1, units: "px" }), { shiftKey: true, key: "H" });
 
 keyboardHandlers.addEventHandler(new SwapPanelsCommand(), { ctrlKey: true, key: "s" });
-keyboardHandlers.addEventHandler(new StopCommand(), { key: " " });
+keyboardHandlers.addEventHandler(new StopCommand(), { shiftKey: true, key: " " });
 keyboardHandlers.addEventHandler(new GotoCommandEditorCommand(), { key: "c" });
+keyboardHandlers.addEventHandler(new ToggleFocusCommand(), { shiftKey: true, key: " " });
+keyboardHandlers.addEventHandler(new ToggleFocusCommand(), { shiftKey: false, key: " " });
 
 const dnd = new DragAndDrop(repl, keyboardHandlers);
 repl.dnd = dnd;
@@ -101,6 +101,7 @@ commands.add(new MoveCommand(), "move");
 commands.add(new PadCommand(), "pad");
 commands.add(new RotateImageCommand(), "rotate");
 commands.add(new ScalePanelCommand(), "scale");
+commands.add(new SwapPanelsCommand(), "swap");
 commands.add(new SplitCommand(), "split");
 commands.add(new StopCommand(), "stop");
 commands.add(new TextCommand(), "text");
@@ -139,7 +140,6 @@ toaster.toast("Welcome!");
 export let globals = {
     allowSpeechRecognition: false,
     debug: true,
-    animations,
     repl,
     dnd,
 }

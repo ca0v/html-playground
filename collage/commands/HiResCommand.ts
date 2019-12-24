@@ -2,6 +2,18 @@ import { Command } from "../models/Command";
 import { Repl } from "../controls/Repl";
 import { CollagePanel } from "../controls/CollagePanel";
 
+function getResolution(image: HTMLImageElement) {
+  let style = getComputedStyle(image);
+  let w = parseFloat(style.width);
+  let h = parseFloat(style.height);
+  let isPortrait = h > w;
+  // 512 is the maximum width/height of the placeholder image
+  let scale = (isPortrait ? h : w) / 512.0;
+  let rect = image.getBoundingClientRect();
+  scale *= rect.width / w;
+  return scale;
+}
+
 export class HiResCommand implements Command {
 
   /**
@@ -11,13 +23,9 @@ export class HiResCommand implements Command {
     if (!panel.photo)
       return;
 
-    // 512 is the maximum width/height of the placeholder image
-    // 512 * scale = actual size
-    let w = panel.photoWidth;
-    let h = panel.photoHeight;
-    let isPortrait = h > w;
-    let scale = (isPortrait ? h : w) / 512.0;
+    let scale = getResolution(panel.image);
     if (scale < 1) return;
+    let w = panel.photoWidth;
     panel.setBackgroundImage(`${panel.photo.mediaInfo.baseUrl}=w${Math.floor(w * scale)}`);
   }
 

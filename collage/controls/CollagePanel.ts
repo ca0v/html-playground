@@ -90,10 +90,10 @@ export class CollagePanel {
     this.panel.remove();
   }
 
-    /**
-   * 
-   * @param backgroundImage the url of the image to display in this panel
-   */
+  /**
+ * 
+ * @param backgroundImage the url of the image to display in this panel
+ */
   setBackgroundImage(backgroundImage: string): void {
     this.image.src = backgroundImage;
   }
@@ -145,7 +145,8 @@ export class CollagePanel {
       node.style.top = `${y0}px`;
     };
     op();
-    animate && globals.animations.animate("pan", op);
+    let animations = globals.repl.animations;
+    animate && animations.animate("pan", op);
   }
   /**
    * Rotate the actual frame
@@ -161,58 +162,18 @@ export class CollagePanel {
     else {
       let angle = 0;
       let transform = node.style.transform;
-      globals.animations.animate("rotate", () => {
+      let animations = globals.repl.animations;
+      animations.animate("rotate", () => {
         angle += 1;
         node.style.transform = transform + ` rotate(${angle}deg)`;
       });
     }
-  }
-
-  rotateImage(angle: string) {
-    let node = this.image;
-    if (!node)
-      return;
-
-    if (!!angle) {
-      node.style.transform += `rotate(${angle}deg)`;
-    }
-    else {
-      let angle = 0;
-      let transform = node.style.transform;
-      globals.animations.animate("rotate", () => {
-        angle += 1;
-        node.style.transform = transform + ` rotate(${angle}deg)`;
-      });
-    }
-
   }
 
   scaleFrame(scale: string) {
     this.transform_node(`scale(${scale}, ${scale})`);
   }
 
-  /**
-   * Scale the image
-   * @param scale percentage delta from current scale
-   */
-  scaleImage(scale: string) {
-    let node = this.image;
-    if (!node)
-      return;
-    if (!scale) {
-      let width = getComputedStyle(node).width;
-      let scale = parseFloat(width) / 100;
-      globals.animations.animate("zoom", () => {
-        scale *= 1.01;
-        node.style.width = `${100 * scale}%`;
-      });
-    }
-    else {
-      let effectiveScale = parseFloat(scale) * (this.getData("scale") || 1.0);
-      node.style.width = `${100 * effectiveScale}%`;
-      this.setData("scale", effectiveScale);
-    }
-  }
   private transform_node(v: string) {
     let node = this.panel;
     let transform = (node.style.transform || "").split(" ");
@@ -226,16 +187,5 @@ export class CollagePanel {
     overlay.classList.add("overlay");
     this.panel.appendChild(overlay);
   }
-  private getData(tag: string) {
-    let element = this.panel;
-    let dataStr = element.dataset.data = element.dataset.data || "{}";
-    let data = JSON.parse(dataStr);
-    return data[tag];
-  }
-  private setData(tag: string, value: any) {
-    let element = this.panel;
-    let data = JSON.parse(element.dataset.data || "{}");
-    data[tag] = value;
-    element.dataset.data = JSON.stringify(data);
-  }
+
 }
