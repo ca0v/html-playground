@@ -32,6 +32,7 @@ export class DragAndDrop {
         return false !== handler.command.execute(repl);
       })) {
         // handled
+        event.preventDefault();
         return;
       }
 

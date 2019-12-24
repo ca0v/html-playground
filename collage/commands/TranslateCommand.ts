@@ -1,5 +1,6 @@
 import { Command } from "../models/Command";
 import { Repl } from "../controls/Repl";
+import { getFocusPanels } from "./getFocusPanels";
 
 export class TranslateCommand implements Command {
 
@@ -14,7 +15,10 @@ export class TranslateCommand implements Command {
       let [noun, noun2, noun3] = args.split(" ");
       repl.selectPanel(noun)?.pan(noun2, noun3 || "0");
     } else if (this.delta) {
-      repl.panels.filter(p => p.panel.classList.contains("focus")).forEach(panel => {
+      let panels = getFocusPanels(repl);
+      if (!panels.length) return false;
+      
+      panels.forEach(panel => {
         panel.pan((this.delta!.x || 0) + "", (this.delta!.y || 0) + "");
       });
     } else {

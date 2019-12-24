@@ -11,6 +11,7 @@ html-playground
 2019.12.21 - ability to TRS text overlay, panel styles
 2019.12.22 - ability to style the outer panel-container (onfocus => "focus" style, command applies to "focus" element(s))
 2019.12.22 - "shift+click" to group/ungroup (think sketchup)
+2019.12.23 - add toaster notifications
 
 # definitions
 collage - a collection of frames

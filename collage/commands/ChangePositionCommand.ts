@@ -1,5 +1,6 @@
 import { Command } from "../models/Command";
 import { Repl } from "../controls/Repl";
+import { getFocusPanels } from "./getFocusPanels";
 
 export class ChangePositionCommand implements Command {
   constructor(public delta: {
@@ -8,7 +9,9 @@ export class ChangePositionCommand implements Command {
   }) { }
 
   execute(repl: Repl, args: string): void | false {
-    repl.panels.filter(p => p.panel.classList.contains("focus")).forEach(panel => {
+    let panels = getFocusPanels(repl);
+    if (!panels.length) return false;
+    panels.forEach(panel => {
       let labelImageOrPanel = panel.panel;
       let computedTranform = getComputedStyle(labelImageOrPanel).transform;
       if (computedTranform === "none") computedTranform = "";

@@ -1,11 +1,15 @@
 import { Repl } from "../controls/Repl";
 import { Command } from "../models/Command";
+import { getFocusPanels } from "./getFocusPanels";
 
 export class ChangeScaleCommand implements Command {
     constructor(public scale: number) {
     }
     execute(repl: Repl, args?: string | undefined): void | false {
-        repl.panels.filter(p => p.panel.classList.contains("focus")).forEach(panel => {
+        let panels = getFocusPanels(repl);
+        if (!panels.length) return false;
+
+        panels.forEach(panel => {
             panel.scale(this.scale + "");
         });
     }

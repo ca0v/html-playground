@@ -7,11 +7,6 @@ function hasUnits(value: string) {
   return units.some(v => value.endsWith(v));
 }
 
-function isPanel(element: Element | null) {
-  if (!element) return false;
-  return element.classList.contains("panel") || element.classList.contains("panel-container");
-}
-
 export class ChangeStyleCommand implements Command {
   constructor(
     public target: keyof Omit<CSSStyleDeclaration, number>,
@@ -19,28 +14,33 @@ export class ChangeStyleCommand implements Command {
       units?: string;
       delta?: number;
     }
-  ) {}
+  ) { }
 
   private keyboardHandler(repl: Repl) {
-    repl.panels
+    return repl.panels
       .filter(p => p.panel.classList.contains("focus"))
-      .forEach(panel => {
+      .some(panel => {
         let target = panel.panel;
         let value = parseFloat(getComputedStyle(target)[this.target]) + (this.options?.delta ?? 0);
         target.style.setProperty(this.target, value + (this.options?.units ?? ""));
+        return true;
       });
   }
 
   execute(repl: Repl, args?: string | undefined): void | false {
-    if (!args) return this.keyboardHandler(repl);
+    if (!args) {
+      if (this.keyboardHandler(repl)) return;
+      return false;
+    }
 
     let panels = repl.panels;
     let [value, id] = args.split(" ");
     if (!!id) {
       let panel = repl.selectPanel(id);
-      if (!panel) return;
+      if (!panel) return false;
       panels = [panel];
     }
+    if (!panels.length) return false;
 
     if (this.options?.units && !hasUnits(value)) {
       value += this.options.units;
@@ -51,3 +51,5 @@ export class ChangeStyleCommand implements Command {
     });
   }
 }
+
+

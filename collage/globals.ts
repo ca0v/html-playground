@@ -6,18 +6,18 @@ import { SplitCommand } from "./commands/SplitCommand";
 import { AspectRatioCommand } from "./commands/AspectRatioCommand";
 import { BorderCommand } from "./commands/BorderCommand";
 import { ChangeStyleCommand } from "./commands/ChangeStyleCommand";
+import { SwapPanelsCommand } from "./commands/SwapPanelsCommand";
 import { GotoCommand } from "./commands/GotoCommand";
 import { TextCommand } from "./commands/TextCommand";
 import { PadCommand } from "./commands/PadCommand";
 import { ToggleVisibilityCommand } from "./commands/ToggleVisibilityCommand";
-import { TranslateCommand } from "./commands/TranslateCommand";
+import { TranslateCommand as TranslateImageCommand } from "./commands/TranslateCommand";
 import { MarginCommand } from "./commands/MarginCommand";
 import { MergeCommand } from "./commands/MergeCommand";
 import { HiResCommand } from "./commands/HiResCommand";
 import { MoveCommand } from "./commands/MoveCommand";
-import { RotateCommand } from "./commands/RotateCommand";
-import { ChangeRotationCommand, RotationImageCommand } from "./commands/ChangeRotationCommand";
-import { ChangePositionCommand } from "./commands/ChangePositionCommand";
+import { RotateCommand, ChangeRotationCommand as RotatePanelCommand, RotationImageCommand as RotateImageCommand } from "./commands/ChangeRotationCommand";
+import { ChangePositionCommand as TranslatePanelCommand } from "./commands/ChangePositionCommand";
 import { ZoomCommand } from "./commands/ZoomCommand";
 import { ScaleCommand } from "./commands/ScaleCommand";
 import { StopCommand } from "./commands/StopCommand";
@@ -26,7 +26,7 @@ import { EscapeCommand } from "./commands/EscapeCommand";
 import { ChangeFontSizeCommand } from "./commands/ChangeFontSizeCommand";
 import { OpenAlbumsCommand } from "./commands/OpenAlbumsCommand";
 import { MultiSelector } from "./behavior/MultiSelector";
-import { ChangeScaleCommand } from "./commands/ChangeScaleCommand";
+import { ChangeScaleCommand as ScalePanelCommand } from "./commands/ChangeScaleCommand";
 
 /** global variables */
 const animations = new Animations();
@@ -39,13 +39,13 @@ keyboardHandlers.addEventHandler(new EscapeCommand(), { key: "Escape" });
 keyboardHandlers.addEventHandler(new ChangeFontSizeCommand(1), { key: "+" });
 keyboardHandlers.addEventHandler(new ChangeFontSizeCommand(-1), { key: "-" });
 
-keyboardHandlers.addEventHandler(new ChangeScaleCommand(1.01), { key: "+" });
-keyboardHandlers.addEventHandler(new ChangeScaleCommand(1 / 1.01), { key: "-" });
+keyboardHandlers.addEventHandler(new ScalePanelCommand(1.01), { key: "+" });
+keyboardHandlers.addEventHandler(new ScalePanelCommand(1 / 1.01), { key: "-" });
 
-keyboardHandlers.addEventHandler(new RotationImageCommand(1), { key: "." });
-keyboardHandlers.addEventHandler(new RotationImageCommand(-1), { key: "," });
-keyboardHandlers.addEventHandler(new ChangeRotationCommand(1), { shiftKey: true, key: ">" });
-keyboardHandlers.addEventHandler(new ChangeRotationCommand(-1), { shiftKey: true, key: "<" });
+keyboardHandlers.addEventHandler(new RotateImageCommand(1), { key: "." });
+keyboardHandlers.addEventHandler(new RotateImageCommand(-1), { key: "," });
+keyboardHandlers.addEventHandler(new RotatePanelCommand(1), { shiftKey: true, key: ">" });
+keyboardHandlers.addEventHandler(new RotatePanelCommand(-1), { shiftKey: true, key: "<" });
 
 /** vim commands
 To move left, press h.
@@ -53,15 +53,15 @@ To move right, press l.
 To move down, press j.
 To move up, press k.
  */
-keyboardHandlers.addEventHandler(new ChangePositionCommand({ x: -1 }), { shiftKey: true, key: "ArrowLeft" });
-keyboardHandlers.addEventHandler(new ChangePositionCommand({ x: 1 }), { shiftKey: true, key: "ArrowRight" });
-keyboardHandlers.addEventHandler(new ChangePositionCommand({ y: 1 }), { shiftKey: true, key: "ArrowDown" });
-keyboardHandlers.addEventHandler(new ChangePositionCommand({ y: -1 }), { shiftKey: true, key: "ArrowUp" });
+keyboardHandlers.addEventHandler(new TranslatePanelCommand({ x: -1 }), { shiftKey: true, key: "ArrowLeft" });
+keyboardHandlers.addEventHandler(new TranslatePanelCommand({ x: 1 }), { shiftKey: true, key: "ArrowRight" });
+keyboardHandlers.addEventHandler(new TranslatePanelCommand({ y: 1 }), { shiftKey: true, key: "ArrowDown" });
+keyboardHandlers.addEventHandler(new TranslatePanelCommand({ y: -1 }), { shiftKey: true, key: "ArrowUp" });
 
-keyboardHandlers.addEventHandler(new TranslateCommand({ x: -1 }), { shiftKey: false, key: "ArrowLeft" });
-keyboardHandlers.addEventHandler(new TranslateCommand({ x: 1 }), { shiftKey: false, key: "ArrowRight" });
-keyboardHandlers.addEventHandler(new TranslateCommand({ y: 1 }), { shiftKey: false, key: "ArrowDown" });
-keyboardHandlers.addEventHandler(new TranslateCommand({ y: -1 }), { shiftKey: false, key: "ArrowUp" });
+keyboardHandlers.addEventHandler(new TranslateImageCommand({ x: -1 }), { shiftKey: false, key: "ArrowLeft" });
+keyboardHandlers.addEventHandler(new TranslateImageCommand({ x: 1 }), { shiftKey: false, key: "ArrowRight" });
+keyboardHandlers.addEventHandler(new TranslateImageCommand({ y: 1 }), { shiftKey: false, key: "ArrowDown" });
+keyboardHandlers.addEventHandler(new TranslateImageCommand({ y: -1 }), { shiftKey: false, key: "ArrowUp" });
 
 keyboardHandlers.addEventHandler(new ChangeStyleCommand("top", { delta: 1, units: "px" }), { key: "t" });
 keyboardHandlers.addEventHandler(new ChangeStyleCommand("top", { delta: -1, units: "px" }), { shiftKey: true, key: "T" });
@@ -77,6 +77,7 @@ keyboardHandlers.addEventHandler(new ChangeStyleCommand("width", { delta: -1, un
 keyboardHandlers.addEventHandler(new ChangeStyleCommand("height", { delta: 1, units: "px" }), { key: "h" });
 keyboardHandlers.addEventHandler(new ChangeStyleCommand("height", { delta: -1, units: "px" }), { shiftKey: true, key: "H" });
 
+keyboardHandlers.addEventHandler(new SwapPanelsCommand(), { ctrlKey: true, key: "s" });
 
 const dnd = new DragAndDrop(repl, keyboardHandlers);
 repl.dnd = dnd;
@@ -96,8 +97,8 @@ commands.add(new ScaleCommand(), "scale");
 commands.add(new SplitCommand(), "split");
 commands.add(new StopCommand(), "stop");
 commands.add(new TextCommand(), "text");
-commands.add(new TranslateCommand(), "translate");
-commands.add(new TranslateCommand(), "pan");
+commands.add(new TranslateImageCommand(), "translate");
+commands.add(new TranslateImageCommand(), "pan");
 commands.add(new ZoomCommand(), "zoom");
 commands.add(new ChangeStyleCommand("backgroundColor"), "bgc");
 
