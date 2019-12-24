@@ -20,15 +20,3 @@ export class ChangeFontSizeCommand implements Command {
     }
 }
 
-export class DecreaseFontSize extends ChangeFontSizeCommand {
-    constructor() {
-        super(-1);
-    }
-}
-
-export class IncreaseFontSize extends ChangeFontSizeCommand {
-    constructor() {
-        super(1);
-    }
-}
-

@@ -25,6 +25,7 @@ export interface GooglePhotoAPI {
       mediaItems: {
         search: (args: {
           albumId: string;
+          pageToken?: string;
         }) => Promise<{
           result: {
             nextPageToken?: string;

@@ -28,8 +28,12 @@ export class DragAndDrop {
 
     window.addEventListener("keydown", event => {
 
-      let handler = this.keydownHandlers.getEventHandler(event);
-      if (handler && false !== handler.execute(repl)) return;
+      if (this.keydownHandlers.getEventHandlers(event).some(handler => {
+        return false !== handler.command.execute(repl);
+      })) {
+        // handled
+        return;
+      }
 
       let source = getActiveOverlay();
       if (!source) {
@@ -57,12 +61,6 @@ export class DragAndDrop {
         case ")":
         case ">":
           repl.executeCommand(`rotate ${from} 1`);
-          break;
-        case "+":
-          repl.executeCommand(`zoom ${from} ${1.01}`);
-          break;
-        case "-":
-          repl.executeCommand(`zoom ${from} ${0.99}`);
           break;
         case "c":
           event.preventDefault();

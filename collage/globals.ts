@@ -23,9 +23,10 @@ import { ScaleCommand } from "./commands/ScaleCommand";
 import { StopCommand } from "./commands/StopCommand";
 import { KeyboardHandlers } from "./controls/KeyboardHandlers";
 import { EscapeCommand } from "./commands/EscapeCommand";
-import { IncreaseFontSize, DecreaseFontSize } from "./commands/ChangeFontSizeCommand";
+import { ChangeFontSizeCommand } from "./commands/ChangeFontSizeCommand";
 import { OpenAlbumsCommand } from "./commands/OpenAlbumsCommand";
 import { MultiSelector } from "./behavior/MultiSelector";
+import { ChangeScaleCommand } from "./commands/ChangeScaleCommand";
 
 /** global variables */
 const animations = new Animations();
@@ -35,8 +36,12 @@ const keyboardHandlers = new KeyboardHandlers();
 repl.use(new MultiSelector());
 
 keyboardHandlers.addEventHandler(new EscapeCommand(), { key: "Escape" });
-keyboardHandlers.addEventHandler(new IncreaseFontSize(), { key: "+" });
-keyboardHandlers.addEventHandler(new DecreaseFontSize(), { key: "-" });
+keyboardHandlers.addEventHandler(new ChangeFontSizeCommand(1), { key: "+" });
+keyboardHandlers.addEventHandler(new ChangeFontSizeCommand(-1), { key: "-" });
+
+keyboardHandlers.addEventHandler(new ChangeScaleCommand(1.01), { key: "+" });
+keyboardHandlers.addEventHandler(new ChangeScaleCommand(1 / 1.01), { key: "-" });
+
 keyboardHandlers.addEventHandler(new ChangeRotationCommand(1), { key: "." });
 keyboardHandlers.addEventHandler(new ChangeRotationCommand(-1), { key: "," });
 keyboardHandlers.addEventHandler(new ChangeRotationCommand(10), { shiftKey: true, key: ">" });
