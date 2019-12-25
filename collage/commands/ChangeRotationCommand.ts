@@ -1,12 +1,7 @@
 import { Command } from "../models/Command";
 import { Repl } from "../controls/Repl";
 import { getFocusPanels } from "./getFocusPanels";
-
-function transform(node: HTMLElement, value: string) {
-  let t = window.getComputedStyle(node).transform;
-  t = (t === "none") ? "" : t + " ";
-  node.style.transform = t + value;
-}
+import { transform } from "../fun/transform";
 
 function rotateImage(repl: Repl, node: HTMLElement, angle: string) {
   if (!node)

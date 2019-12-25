@@ -105,53 +105,11 @@ export class CollagePanel {
   border(width: string, color = "white") {
     this.panel.style.border = `${width}em solid ${color}`;
   }
+
   /**
-   * Move the image inside the frame
-   * @param x horizontal offset in pixels
-   * @param y vertical offset in pixels
-   */
-  pan(x: string, y: string) {
-    let node = this.image;
-    if (!node)
-      return;
-    let [dx, dy] = [0, 0];
-    let animate = true;
-    let pixelSize = 1;
-    switch (x) {
-      case "up":
-        dy = -pixelSize;
-        break;
-      case "down":
-        dy = pixelSize;
-        break;
-      case "left":
-        dx = -pixelSize;
-        break;
-      case "right":
-        dx = pixelSize;
-        break;
-      default:
-        animate = false;
-        dx = pixelSize * parseFloat(x);
-        dy = pixelSize * parseFloat(y);
-        break;
-    }
-    let op = () => {
-      let x0 = parseFloat(node.style.left || "0");
-      let y0 = parseFloat(node.style.top || "0");
-      x0 += dx;
-      y0 += dy;
-      node.style.left = `${x0}px`;
-      node.style.top = `${y0}px`;
-    };
-    op();
-    let animations = globals.repl.animations;
-    animate && animations.animate("pan", op);
-  }
-  /**
-   * Rotate the actual frame
-   * @param angle angle in degrees
-   */
+  * Rotate the actual frame
+  * @param angle angle in degrees
+  */
   rotateFrame(angle: string) {
     let node = this.panel;
     if (!node)

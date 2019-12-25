@@ -11,6 +11,8 @@ async function run() {
         repl.eval("split 1");
         repl.eval("merge 4 3");
         repl.eval("split 2");
+        repl.eval("merge 4 5");
+        repl.eval("merge 2 3");
         ///repl.eval("split 1");
 
         repl.eval("bw 1em");

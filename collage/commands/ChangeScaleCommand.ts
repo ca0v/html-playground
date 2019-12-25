@@ -2,31 +2,7 @@ import { Repl } from "../controls/Repl";
 import { Command } from "../models/Command";
 import { getFocusPanels } from "./getFocusPanels";
 import { CollagePanel } from "../controls/CollagePanel";
-
-function transform(node: HTMLElement, value: string) {
-    let t = window.getComputedStyle(node).transform;
-    t = (t === "none") ? "" : t + " ";
-    t += value;
-    console.log("transform", t);
-    node.style.transform = t;
-}
-
-function bbox(node: HTMLElement) {
-    let { left, top, width, height } = getComputedStyle(node);
-    return { top: parseFloat(top), left: parseFloat(left), width: parseFloat(width), height: parseFloat(height) };
-}
-
-function getData(element: HTMLElement, tag: string) {
-    let dataStr = element.dataset.data = element.dataset.data || "{}";
-    let data = JSON.parse(dataStr);
-    return data[tag];
-}
-
-function setData(element: HTMLElement, tag: string, value: any) {
-    let data = JSON.parse(element.dataset.data || "{}");
-    data[tag] = value;
-    element.dataset.data = JSON.stringify(data);
-}
+import { transform } from "../fun/transform";
 
 /**
  * Scale the image

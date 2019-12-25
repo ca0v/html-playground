@@ -93,7 +93,7 @@ html.collage, .collage body {
     position: relative;
     left: 0;
     top: 0;
-    width: 100%;
+    width: initial;
     height: auto;
     user-select: none;
 }

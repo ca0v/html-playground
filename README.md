@@ -2,6 +2,7 @@
 html-playground
 
 # tasks
+* 2019.12.24 - show overlay on hover
 * 2019.12.24 - zoom and rotate about the frame center
 * 2019.12.23 - add toaster notifications (swap w/out two panels selected)
 * 2019.12.22 - ability to style the outer panel-container (onfocus => "focus" style, command applies to "focus" element(s))

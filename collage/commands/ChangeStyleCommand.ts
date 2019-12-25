@@ -22,7 +22,7 @@ export class ChangeStyleCommand implements Command {
       .some(panel => {
         let target = panel.panel;
         let value = parseFloat(getComputedStyle(target)[this.target]) + (this.options?.delta ?? 0);
-        target.style.setProperty(this.target, value + (this.options?.units ?? ""));
+        target.style[<any>this.target] = value + (this.options?.units ?? "");
         return true;
       });
   }
@@ -37,7 +37,10 @@ export class ChangeStyleCommand implements Command {
     let [value, id] = args.split(" ");
     if (!!id) {
       let panel = repl.selectPanel(id);
-      if (!panel) return false;
+      if (!panel) {
+        repl.notify(`panel not found: ${id}`);
+        return false;
+      }  
       panels = [panel];
     }
     if (!panels.length) return false;

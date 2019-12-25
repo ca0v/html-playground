@@ -2,6 +2,8 @@ import { getActiveOverlay } from "../fun/getActiveOverlay";
 import { CollagePanel } from "./CollagePanel";
 import { Repl } from "./Repl";
 import { KeyboardHandlers } from "./KeyboardHandlers";
+import { transform } from "../fun/transform";
+import { bbox } from "../fun/bbox";
 
 /**
  * manages user interactions for keyboard shortcuts, wheel, drag, click events
@@ -53,11 +55,16 @@ export class DragAndDrop {
       draggable.setPointerCapture(event.pointerId);
       draggable.addEventListener("pointermove", pointermove);
       event.stopPropagation();
-
     });
+
     draggable.addEventListener("pointerup", event => {
       draggable.releasePointerCapture(event.pointerId);
       draggable.removeEventListener("pointermove", pointermove);
+      let box = bbox(draggable);
+      let rect = draggable.getBoundingClientRect();      
+      let scale = rect.width / box.width;
+      draggable.style.top = draggable.style.left = "0px";
+      transform(draggable, `translate(${box.left / scale}px, ${box.top / scale}px)`);
       event.stopPropagation();
     });
 
@@ -72,6 +79,7 @@ export class DragAndDrop {
   moveable(draggable: HTMLElement) {
     let startPosition = [0, 0];
     draggable.classList.add("draggable");
+
     draggable.addEventListener("pointerdown", event => {
       let top = parseFloat(draggable.style.top);
       let left = parseFloat(draggable.style.left);
@@ -80,11 +88,13 @@ export class DragAndDrop {
       draggable.addEventListener("pointermove", pointermove);
       event.stopPropagation();
     });
+
     draggable.addEventListener("pointerup", event => {
       draggable.releasePointerCapture(event.pointerId);
       draggable.removeEventListener("pointermove", pointermove);
       event.stopPropagation();
     });
+
     let pointermove = (event: MouseEvent) => {
       let [left, top] = [startPosition[0] + event.screenX, startPosition[1] + event.screenY];
       draggable.style.top = top + "px";
