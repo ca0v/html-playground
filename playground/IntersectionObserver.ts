@@ -1,5 +1,5 @@
 class IntersectionObserverLab {
-  randomWalk(node) {
+  randomWalk(node: HTMLElement) {
     let x = Math.random() * 200;
     let y = Math.random() * 200;
     node.style.left = x + "px";
@@ -34,7 +34,7 @@ class IntersectionObserverLab {
   }
 
   StartRandomWalk() {
-    let canMove = Array.from(document.querySelectorAll(".can-collide.can-move"));
+    let canMove = Array.from(document.querySelectorAll(".can-collide.can-move")) as Array<HTMLElement>;
     canMove.forEach(n => this.randomWalk(n));
     return canMove.map(mover => {
       return setInterval(() => this.randomWalk(mover), 1000);

@@ -1,3 +1,59 @@
+/**
+ * Manages image style.transform by persisting
+ * the scale and rotation to facilitate computing transforms
+ */
+class Sprite {
+
+    public x: number;
+    public y: number;
+    public r: number;
+    public s: number;
+
+    constructor(public image: HTMLImageElement) {
+        this.x = this.y = this.r = 0;
+        this.s = 1;
+    }
+
+    transform(args: {
+        dx?: number;
+        dy?: number;
+        scale?: number;
+        angle?: number;
+    }
+    ) {
+        this.x += (args.dx || 0);
+        this.y += (args.dy || 0);
+        this.r += (args.angle || 0);
+        this.s *= (args.scale || 1.0);
+        this.image.style.transform = `translate(${this.x}px,${this.y}px) rotate(${this.r}deg) scale(${this.s})`;
+    }
+
+    translate(dx: number, dy: number) {
+        return this.transform({ dx, dy });
+    }
+
+    rotate(angle: number) {
+        return this.transform({ angle });
+    }
+
+    scale(scale: number) {
+        return this.transform({ scale });
+    }
+
+    // modify the pixel density of the image
+    // useful when using google photos API to 
+    // request higher resolution photos
+    upscale(scale: number) {
+        let style = getComputedStyle(this.image);
+        let width = parseFloat(style.width);
+        let height = parseFloat(style.height);
+        this.scale(1 / scale);
+        this.image.style.width = scale * width + "px";
+        this.image.style.height = scale * height + "px";
+        this.translate(width / 2 - width * scale / 2, height / 2 - height * scale / 2);
+    }
+}
+
 class CssLab {
 
     transform(node: HTMLElement, value: string) {
@@ -34,62 +90,6 @@ class CssLab {
         node.style.top = "0px";
     }
 
-    upscale(image: HTMLImageElement, scale: number) {
-        /**
-         * I cannot find a way to compute the rotation and scale
-         * because the bounding client is enlarged due to the rotation scale
-         * and the transform matrix elements have both scale and sin/cos angle
-         * mixed together...need to know the angle to compute the scale or visa-versa
-         * so...probably need to track the angle and scale as meta-data
-         */
-        let style = getComputedStyle(image);
-        let width = parseFloat(style.width);
-        let height = parseFloat(style.height);
-        let r = parseFloat(image.dataset.angle || "0");
-        let s = parseFloat(image.dataset.scale || "1");
-        this.scaleImage(image, 1 / scale);
-        image.style.width = scale * width + "px";
-        image.style.height = scale * height + "px";
-        // s = 0.7, scale = 5, width = 150, height = 145
-        // how does these numbers make any sense at all?
-        // actual width increases x 5
-        // transform negates this effect
-        this.translateImage(image, width / 2 - width * scale / 2, height / 2 - height * scale / 2);
-    }
-
-    transformImage(image: HTMLImageElement, args: {
-        dx?: number;
-        dy?: number;
-        scale?: number;
-        angle?: number;
-    }
-    ) {
-        let x = parseFloat(image.dataset.x || "0") + (args.dx || 0);
-        let y = parseFloat(image.dataset.y || "0") + (args.dy || 0);
-        let r = parseFloat(image.dataset.angle || "0") + (args.angle || 0);
-        let s = parseFloat(image.dataset.scale || "1") * (args.scale || 1.0);
-        image.style.transform = `translate(${x}px,${y}px) rotate(${r}deg) scale(${s})`;
-        image.dataset.x = x + "";
-        image.dataset.y = y + "";
-        image.dataset.scale = s + "";
-        image.dataset.angle = r + "";
-        let result = { x, y, r, s };
-        console.log(result);
-        return result;
-    }
-
-    translateImage(image: HTMLImageElement, dx: number, dy: number) {
-        return this.transformImage(image, { dx, dy });
-    }
-
-    rotateImage(image: HTMLImageElement, angle: number) {
-        return this.transformImage(image, { angle });
-    }
-
-    scaleImage(image: HTMLImageElement, scale: number) {
-        return this.transformImage(image, { scale });
-    }
-
     run() {
         this.css(`
 .outer { position:absolute; width: 5em; height: 5em; left:20em; top:3em; border: 1em solid white; overflow: hidden; transform:rotate(-13deg) scale(1.3) translate(1em,1em) }
@@ -103,11 +103,12 @@ class CssLab {
         inner.appendChild(image);
         image.src = "../assets/ca0v.png";
         image.onload = () => {
-            this.transformImage(image, { dx: -10, dy: -10, scale: 1.1, angle: 3 });
+            let sprite = new Sprite(image);
+            sprite.transform({ dx: -10, dy: -10, scale: 1.1, angle: 3 });
             setTimeout(() => {
                 this.translateTopLeft(inner);
                 setTimeout(() => {
-                    this.upscale(image, 5);
+                    sprite.upscale(2.0);
                 }, 1000);
             }, 1000);
         };

@@ -1,9 +1,7 @@
 import { Command } from "../models/Command";
 import { Repl } from "../controls/Repl";
 import { CollagePanel } from "../controls/CollagePanel";
-import { transform } from "../fun/transform";
 import { bbox } from "../fun/bbox";
-import { getImageResolution } from "../fun/getImageResolution";
 
 export class HiResCommand implements Command {
 

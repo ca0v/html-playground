@@ -22,3 +22,4 @@ export class Animations {
     this.animations.push({ type, handle: setInterval(cb, 100) });
   }
 }
+
