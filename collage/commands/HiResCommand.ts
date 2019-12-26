@@ -10,21 +10,30 @@ export class HiResCommand implements Command {
   /**
    * replaces the current photo with one of higher quality
    */
-  async upgradeResolution(panel: CollagePanel) {
+  async upgradeResolution(repl: Repl, panel: CollagePanel) {
     if (!panel.photo)
       return;
 
-    let scale = getImageResolution(panel.image);
-    if (scale < 1) return;
-    let w = panel.photoWidth;
+    // attempts to increase an image size and decrease the transform scale 
+    // to have a negligable effect on the image but allow for swapping in 
+    // a higher resolution version.
+    // this is not compensating for  padding, margin, border width, etc.
+    // it is not preserving rotation
+    let box = bbox(panel.image);
     let imageRect = panel.image.getBoundingClientRect();
+    let scale = imageRect.width / box.width;
+    if (1 > scale) {
+      repl.notify("this would not be an upgrade");
+      return;
+    }
     let panelRect = panel.panel.getBoundingClientRect();
     panel.image.style.width = imageRect.width + "px";
     panel.image.style.height = imageRect.height + "px";
-    let dx = imageRect.left - panelRect.left;
-    let dy = imageRect.top - panelRect.top;
+    let dx = imageRect.left - panelRect.left - parseFloat(panel.panel.style.borderLeftWidth);
+    let dy = imageRect.top - panelRect.top - parseFloat(panel.panel.style.borderTopWidth);
     panel.image.style.transform = `translate(${dx}px,${dy}px)`;
-    panel.setBackgroundImage(`${panel.photo.mediaInfo.baseUrl}=w${Math.floor(w * scale)}`);
+    panel.setBackgroundImage(`${panel.photo.mediaInfo.baseUrl}=w${Math.floor(imageRect.width)}`);
+    repl.notify(`upgraded by ${Math.round(scale * 100)}%`);
   }
 
 
@@ -32,7 +41,7 @@ export class HiResCommand implements Command {
     let id = args;
     let panel = repl.selectPanel(id);
     if (!panel) return;
-    this.upgradeResolution(panel);
+    this.upgradeResolution(repl, panel);
 
   }
 }

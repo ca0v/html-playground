@@ -1,16 +1,18 @@
-function cssKeyframeTest(rules: any) {
-  const style = document.createElement("style");
-  document.head.appendChild(style);
-  const sheet = (style.sheet as unknown) as CSSGroupingRule;
+class KeyFrameLab {
+  cssKeyframeTest(rules: any) {
+    const style = document.createElement("style");
+    document.head.appendChild(style);
+    const sheet = (style.sheet as unknown) as CSSGroupingRule;
 
-  Object.keys(rules).forEach(name => {
-    let rule = rules[name];
-    sheet.insertRule(`@keyframes ${name} ${rule}`, sheet.cssRules.length);
-  });
-}
+    Object.keys(rules).forEach(name => {
+      let rule = rules[name];
+      sheet.insertRule(`@keyframes ${name} ${rule}`, sheet.cssRules.length);
+    });
+  }
 
-cssKeyframeTest({
-  "move-right": `{
+  run() {
+    this.cssKeyframeTest({
+      "move-right": `{
     25% {
       transform: translate(0em, 25em);
       background-color: red;
@@ -37,4 +39,7 @@ cssKeyframeTest({
       background-color: red;
     }
   }`,
-});
+    });
+  }
+}
+new KeyFrameLab().run();
