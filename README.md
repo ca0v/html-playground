@@ -42,3 +42,4 @@ html-playground
 * https://css-tricks.com/snippets/css/multiple-borders/
 * https://docs.oracle.com/cd/E19683-01/806-7612/6jgfmsvqf/index.html
 * https://css-tricks.com/snippets/svg/curved-text-along-path/
+* https://developer.mozilla.org/en-US/docs/Web/SVG/Element/symbol

@@ -1,0 +1,57 @@
+<html>
+
+<head>
+    <style>
+        body>svg {
+            display: none;
+        }
+
+        .button {
+            width: 96px;
+            height: 64px;
+            overflow: hidden;
+        }
+
+        .button>svg {
+            height: 32px;
+        }
+
+        .button>label {
+            display: block;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            width: 100%;
+            overflow: hidden;
+        }
+    </style>
+
+</head>
+
+<body>
+    <svg viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+        <g>
+            <circle id="svg_dot" cx="64" cy="64" r="64" />
+            <polygon id="svg_star" stroke="#000000" stroke-width="5"
+                points="64.00001461596366,6.702670942133409 78.54800329678801,49.89022152944199 122.84784698486328,50.82177355152635 87.53915423377657,78.4447030268002 100.36998631802453,122.20797729492188 64.00001461596366,96.09235513487147 27.630051251719124,122.20797729492188 40.46088333596708,78.4447030268002 5.152173909247722,50.82177355152635 49.45202593513932,49.89022152944199 64.00001461596366,6.702670942133409 78.54800329678801,49.89022152944199 "
+                strokeWidth="5" strokecolor="#000000" fill="#FF0000" orient="point" r2="49.9856" r="124.96399" point="5"
+                shape="star" cy="159.66667" cx="187" />
+        </g>
+    </svg>
+    <div>
+        <h1>SVG Button Test</h1>
+        <button class="button">
+            <svg viewBox="0 0 128 128" style="transform:rotate(45deg) scale(0.9)">
+                <use xlink:href="#svg_star"></use>
+            </svg>
+            <label>Click Me</label>
+        </button>
+        <button class="button">
+            <svg viewBox="0 0 128 128" style="transform:rotate(45deg) scale(0.9)">
+                <use xlink:href="#svg_dot"></use>
+            </svg>
+            <label>Click Me Now Please</label>
+        </button>
+    </div>
+</body>
+
+</html>
