@@ -2,6 +2,11 @@
 
 <head>
     <style>
+        body {
+            background-color: black;
+            color: white;
+        }
+
         body>svg {
             display: none;
         }
@@ -23,24 +28,46 @@
             width: 100%;
             overflow: hidden;
         }
+
+        img {
+            border: 0.1em solid white;
+        }
+
+        .animation.pulse svg g:hover {
+            animation: pulse 0.05s 0s 7 alternate ease-in-out forwards;
+        }
+
+        @keyframes pulse {
+            25% {
+                transform: translate(-1px, 1px);
+            }
+
+            75% {
+                transform: translate(1px, -1px);
+            }
+        }
     </style>
 
 </head>
 
 <body>
     <svg viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
-        <g>
-            <circle id="svg_dot" cx="64" cy="64" r="64" />
-            <polygon id="svg_star" stroke="#000000" stroke-width="5"
-                points="64.00001461596366,6.702670942133409 78.54800329678801,49.89022152944199 122.84784698486328,50.82177355152635 87.53915423377657,78.4447030268002 100.36998631802453,122.20797729492188 64.00001461596366,96.09235513487147 27.630051251719124,122.20797729492188 40.46088333596708,78.4447030268002 5.152173909247722,50.82177355152635 49.45202593513932,49.89022152944199 64.00001461596366,6.702670942133409 78.54800329678801,49.89022152944199 "
-                strokeWidth="5" strokecolor="#000000" fill="#FF0000" orient="point" r2="49.9856" r="124.96399" point="5"
-                shape="star" cy="159.66667" cx="187" />
-        </g>
+        <symbol id="svg_add" viewBox="0 0 18 18">
+            <path d="M16 8h-6V2a1 1 0 00-2 0v6H2a1 1 0 000 2h6v6a1 1 0 002 0v-6h6a1 1 0 000-2" />
+        </symbol>
+        <symbol id="svg_dot">
+            <circle cx="64" cy="64" r="64" />
+        </symbol>
+        <symbol id="svg_star">
+            <polygon cy="159.66667" cx="187"
+                points="64.0000,6.7026709 78.5480033,49.8902215 122.847847,50.82177 87.539154,78.444703 100.36999,122.20798 64.00001461596366,96.09235513487147 27.630051251719124,122.20797729492188 40.46088333596708,78.4447030268002 5.152173909247722,50.82177355152635 49.45202593513932,49.89022152944199 64.0000146,6.7026709 78.548003,49.89022153 " />
+        </symbol>
     </svg>
     <div>
         <h1>SVG Button Test</h1>
         <button class="button">
-            <svg viewBox="0 0 128 128" style="transform:rotate(45deg) scale(0.9)">
+            <svg style="fill:white;stroke:black;stroke-width:0.5em" viewBox="0 0 128 128"
+                style="transform:rotate(45deg) scale(0.9)">
                 <use xlink:href="#svg_star"></use>
             </svg>
             <label>Click Me</label>
@@ -51,7 +78,26 @@
             </svg>
             <label>Click Me Now Please</label>
         </button>
+        <button class="button">
+            <svg viewBox="0 0 128 128" style="transform:rotate(45deg) scale(0.9)">
+                <use xlink:href="#svg_add"></use>
+            </svg>
+            <label>Cancel</label>
+        </button>
+    </div>
+    <div>
+        <h1>SVG Image Filter Test</h1>
+        <div class="animation pulse">
+            <div><img src="../../assets/ca0v.png" /></div>
+            <svg viewBox="0 0 640 30">
+                <g fill="red" stroke="white" stroke-width="0.5" transform="scale(1)">
+                    <text x="0" y="29" font-size="30">Here I Am.</text>
+                </g>
+            </svg>
+        </div>
+    </div>
     </div>
 </body>
+</div>
 
 </html>
