@@ -56,4 +56,5 @@ html-playground
 - [svg animation examples](https://www.hongkiat.com/blog/svg-animations/)
 - [svg morphing](https://greensock.com/morphSVG)
 - [easing visualizations](https://easings.net/en)
+- [drag-and-drop](https://tympanus.net/Development/DragDropInteractions/reveal.html)
 -
