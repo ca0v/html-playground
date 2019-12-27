@@ -55,4 +55,5 @@ html-playground
 - [responsive icons](http://responsiveicons.co.uk/)
 - [svg animation examples](https://www.hongkiat.com/blog/svg-animations/)
 - [svg morphing](https://greensock.com/morphSVG)
+- [easing visualizations](https://easings.net/en)
 -

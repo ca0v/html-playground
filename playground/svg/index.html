@@ -81,7 +81,7 @@
     }
 
     .button:focus>svg {
-      fill: red;
+      fill: green;
       stroke-width: 8px;
     }
 
@@ -98,6 +98,19 @@
       text-overflow: ellipsis;
       width: 100%;
       overflow: hidden;
+    }
+
+    .button.cue.running {
+      outline: none;
+      border: 1px solid red;
+      border-radius: 50%;
+      transition: border-radius 3s ease-out;
+    }
+
+    .button.cue.running>svg {
+      fill: red;
+      transform: rotate(3600deg);
+      transition: transform 5s ease-in-out;
     }
 
     img {
@@ -180,27 +193,38 @@
       <div><img src="../../assets/ca0v.png" /></div>
       <svg id="hereiam" viewBox="0 0 640 90" fill="silver">
         <g stroke="white" stroke-width="1" transform="scale(1)">
-          <text x="0" y="40" font-size="40">Morphing Revealing Style Cues</text>
-          <text x="0" y="85" font-size="40">Interaction Conservation</text>
+          <text x="0" y="40" font-size="40">Morphing, Revealing, Style, Cues</text>
+          <text x="0" y="85" font-size="40">Interaction, and Conservation</text>
         </g>
       </svg>
     </div>
   </div>
   <div>
-    <h1>Reveal Principle</h1>
+    <h1>Reveal and Isolation</h1>
     <div class="paragraph reveal">
       <h2 class="halign">Reveal Demo</h2>
       <div class="sentence halign valign">30</div>
     </div>
   </div>
   <div>
-    <h1>Isolation Principle</h1>
-    <div class="paragraph reveal">
-      <h2 class="halign">Isolation Demo</h2>
-      <div class="sentence valign">20</div>
-    </div>
+    <h1>Cue Principle</h1>
+    <button class="cue button">
+      <svg viewBox="0 0 128 128">
+        <use xlink:href="#svg_star"></use>
+      </svg>
+      <label>Click Me</label>
+    </button>
   </div>
   <script>
+
+    (function() {
+      Array.from(document.querySelectorAll(".button.cue")).forEach(button => {
+        button.addEventListener("click", () => {
+          button.classList.add("running");
+          setTimeout(() => button.classList.remove("running"), 5000);
+        })
+      });
+    })();
 
     (function() {
       function makeWord(charCount) {
