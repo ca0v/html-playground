@@ -1,4 +1,5 @@
 import { GoogleCollagePhoto } from "./GoogleCollagePhoto";
+import { Sprite } from "./Sprite";
 import { globals } from "../globals";
 
 /**
@@ -14,6 +15,7 @@ export class CollagePanel {
 
   // the actual image rendered on the panel
   public image: HTMLImageElement;
+  public sprite: Sprite;
 
   /**
    * 
@@ -22,6 +24,7 @@ export class CollagePanel {
   constructor(public panel: HTMLDivElement) {
     this.photo = null;
     this.image = document.createElement("img");
+    this.sprite = new Sprite(this.image);
     this.image.classList.add("img");
     this.image.draggable = false;
     this.panel.appendChild(this.image);
