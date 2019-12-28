@@ -33,34 +33,14 @@
 
         .animation.moon {
             fill: #111;
-            transform: translate(-30px, 40px);
-            animation: moon 5s linear infinite;
+            transform: translate(-90px, 50px) rotate3d(1, 1, 0, 10deg);
+            animation: moon 10s linear infinite;
         }
 
         @keyframes moon {
-            0% {
-                fill: #111;
-                transform: translate(0px, 50px) scale(1);
-            }
-
-            25% {
-                fill: #555;
-                transform: translate(90px, 60px) scale(1.3);
-            }
-
-            50% {
-                fill: white;
-                transform: translate(160px, 70px) scale(1.5);
-            }
-
-            75% {
-                fill: white;
-                transform: translate(220px, 80px) scale(0.8);
-            }
-
             100% {
-                fill: transparent;
-                transform: translate(0px, 50px) scale(1);
+                fill: #ddd;
+                transform: translate(320px, 90px) rotate3d(1, 1, 0, 0deg);
             }
         }
 
