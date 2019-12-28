@@ -1,274 +1,325 @@
 <html>
 
 <head>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <style>
-    @media screen and (max-width: 520px) {
-      body {
-        background-color: rgba(40, 40, 0, 1) !important;
-      }
-    }
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <style>
+        @media screen and (max-width: 520px) {
+            body {
+                background-color: rgba(40, 40, 0, 1) !important;
+            }
+        }
 
-    body {
-      background-color: black;
-      color: white;
-    }
+        body {
+            background-color: black;
+            color: white;
+        }
 
-    body>svg {
-      display: none;
-    }
+        body>svg {
+            display: none;
+        }
 
-    .paragraph {
-      overflow-x: hidden;
-      overflow-y: hidden;
-      border: 1px solid #cccccc;
-      background: #222222;
-      color: #cccccc;
-      margin-top: 1em;
-      padding: 0.5em;
-      left: 1em;
-      width: 20%;
-      height: 8em;
-      border-left-width: 0.5em;
-      border-left-color: #dddddd;
-    }
+        .paragraph {
+            overflow-x: hidden;
+            overflow-y: hidden;
+            border: 1px solid #cccccc;
+            background: #222222;
+            color: #cccccc;
+            margin-top: 1em;
+            padding: 0.5em;
+            left: 1em;
+            width: 20%;
+            height: 8em;
+            border-left-width: 0.5em;
+            border-left-color: #dddddd;
+        }
 
-    .paragraph.reveal {
-      transition: width 0.5s ease-in-out;
-    }
+        .paragraph.reveal {
+            transition: width 0.5s ease-in-out;
+        }
 
-    .paragraph.reveal .sentence {
-      opacity: 0.2;
-      transition: opacity 0.5s ease-in-out;
-    }
+        .paragraph.reveal .sentence {
+            opacity: 0.2;
+            transition: opacity 0.5s ease-in-out;
+        }
 
-    .paragraph.reveal:hover .sentence {
-      opacity: 1;
-    }
+        .paragraph.reveal:hover .sentence {
+            opacity: 1;
+        }
 
-    .paragraph.reveal:hover {
-      width: 80%;
-    }
+        .paragraph.reveal:hover {
+            width: 80%;
+        }
 
-    .paragraph.reveal:hover h2 {
-      display: none;
-    }
+        .paragraph.reveal:hover h2 {
+            display: none;
+        }
 
-    .paragraph>.halign {
-      text-align: center;
-    }
+        .paragraph>.halign {
+            text-align: center;
+        }
 
-    .paragraph>.valign {
-      position: relative;
-      top: 50%;
-      transform: translateY(-50%);
-    }
+        .paragraph>.valign {
+            position: relative;
+            top: 50%;
+            transform: translateY(-50%);
+        }
 
-    .button {
-      width: 96px;
-      height: 64px;
-      overflow: hidden;
-    }
+        .button {
+            width: 96px;
+            height: 64px;
+            overflow: hidden;
+        }
 
-    .button:disabled,
-    .button[disabled=disabled] {
-      fill: white;
-      stroke-width: 0;
-    }
+        .button:disabled,
+        .button[disabled=disabled] {
+            fill: white;
+            stroke-width: 0;
+        }
 
-    .button:hover>svg {
-      stroke-width: 8px;
-    }
+        .button:hover>svg {
+            stroke-width: 8px;
+        }
 
-    .button:focus>svg {
-      fill: green;
-      stroke-width: 8px;
-    }
+        .button:focus>svg {
+            fill: green;
+            stroke-width: 8px;
+        }
 
-    .button>svg {
-      height: 32px;
-      fill: rgba(200, 200, 200, 0.8);
-      stroke: black;
-      stroke-width: 2px;
-    }
+        .button>svg {
+            height: 32px;
+            fill: rgba(200, 200, 200, 0.8);
+            stroke: black;
+            stroke-width: 2px;
+        }
 
-    .button>label {
-      display: block;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      width: 100%;
-      overflow: hidden;
-    }
+        .button>label {
+            display: block;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            width: 100%;
+            overflow: hidden;
+        }
 
-    .button.cue.running {
-      outline: none;
-      border: 1px solid red;
-      border-radius: 50%;
-      transition: border-radius 0.3s ease-out;
-    }
+        .button.cue.running {
+            outline: none;
+            border: 1px solid red;
+            border-radius: 50%;
+            transition: border-radius 0.3s ease-out;
+        }
 
-    .button.cue.running>svg {
-      fill: red;
-      transform: rotate(3600deg);
-      transition: transform 4.7s ease-in-out;
-      transition-delay: 0.2s;
-    }
+        .button.cue.running>svg {
+            fill: red;
+            transform: rotate(3600deg);
+            transition: transform 4.7s ease-in-out;
+            transition-delay: 0.2s;
+        }
 
-    img {
-      border: 0.1em solid white;
-    }
+        img {
+            border: 0.1em solid white;
+            margin: 0.2em;
+            padding: 0.1em;
+            outline: 0.1em solid silver;
+        }
 
-    .animation.pulse:focus svg,
-    .animation.pulse:hover svg {
-      animation: pulse 0.05s 0s 3 alternate ease-in-out forwards;
-    }
+        .animation.pulse:focus svg,
+        .animation.pulse:hover svg {
+            animation: pulse 0.05s 0s 3 alternate ease-in-out forwards;
+        }
 
-    .box50 {
-      width: 80%;
-      display: inline-block;
-      border: 1px solid white;
-    }
+        #hereiam {
+            width: 20em;
+        }
 
-    @keyframes pulse {
-      20% {
-        transform: translate(-1px, 0px);
-      }
+        .box50 {
+            width: 80%;
+            height: auto;
+            display: inline-block;
+            border: 1px solid white;
+        }
 
-      40% {
-        transform: translate(0px, -1px);
-      }
+        @keyframes pulse {
+            20% {
+                transform: translate(-1px, 0px);
+            }
 
-      50% {
-        fill: red;
-      }
+            40% {
+                transform: translate(0px, -1px);
+            }
 
-      60% {
-        transform: translate(2px, 0px);
-      }
+            50% {
+                fill: red;
+            }
 
-      80% {
-        transform: translate(0px, 2px);
-      }
-    }
-  </style>
+            60% {
+                transform: translate(2px, 0px);
+            }
+
+            80% {
+                transform: translate(0px, 2px);
+            }
+        }
+    </style>
 
 </head>
 
 <body>
-  <svg viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
-    <symbol id="svg_add" viewBox="0 0 18 18">
-      <path d="M16 8h-6V2a1 1 0 00-2 0v6H2a1 1 0 000 2h6v6a1 1 0 002 0v-6h6a1 1 0 000-2" />
-    </symbol>
-    <symbol id="svg_dot">
-      <circle cx="64" cy="64" r="64" />
-    </symbol>
-    <symbol id="svg_star">
-      <polygon cy="159.66667" cx="187"
-        points="64.0000,6.7026709 78.5480033,49.8902215 122.847847,50.82177 87.539154,78.444703 100.36999,122.20798 64.00001461596366,96.09235513487147 27.630051251719124,122.20797729492188 40.46088333596708,78.4447030268002 5.152173909247722,50.82177355152635 49.45202593513932,49.89022152944199 64.0000146,6.7026709 78.548003,49.89022153 " />
-    </symbol>
-  </svg>
-  <div>
-    <h1>SVG Button Test</h1>
-    <button class="button animation pulse">
-      <svg viewBox="0 0 128 128" style="transform:rotate(0deg)">
-        <use xlink:href="#svg_star"></use>
-      </svg>
-      <label>Click Me</label>
-    </button>
-    <button class="button animation pulse">
-      <svg viewBox="0 0 128 128" style="transform:rotate(0  deg)">
-        <use xlink:href="#svg_dot"></use>
-      </svg>
-      <label>Click Me Now Please</label>
-    </button>
-    <button class="button animation pulse">
-      <svg viewBox="0 0 128 128" style="transform:rotate(45deg)">
-        <use xlink:href="#svg_add"></use>
-      </svg>
-      <label>Cancel</label>
-    </button>
-  </div>
-  <div>
-    <h1>SVG Image Filter Test</h1>
-    <div class="animation pulse box50" tabindex="0">
-      <div><img src="../../assets/ca0v.png" /></div>
-      <svg id="hereiam" viewBox="0 0 640 90" fill="silver">
-        <g stroke="white" stroke-width="1" transform="scale(1)">
-          <text x="0" y="40" font-size="40">Morphing, Revealing, Style, Cues</text>
-          <text x="0" y="85" font-size="40">Interaction, and Conservation</text>
-        </g>
-      </svg>
+    <svg viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+        <symbol id="svg_add" viewBox="0 0 18 18">
+            <path d="M16 8h-6V2a1 1 0 00-2 0v6H2a1 1 0 000 2h6v6a1 1 0 002 0v-6h6a1 1 0 000-2" />
+        </symbol>
+        <symbol id="svg_dot">
+            <circle cx="64" cy="64" r="64" />
+        </symbol>
+        <symbol id="svg_star">
+            <polygon cy="159.66667" cx="187"
+                points="64.0000,6.7026709 78.5480033,49.8902215 122.847847,50.82177 87.539154,78.444703 100.36999,122.20798 64.00001461596366,96.09235513487147 27.630051251719124,122.20797729492188 40.46088333596708,78.4447030268002 5.152173909247722,50.82177355152635 49.45202593513932,49.89022152944199 64.0000146,6.7026709 78.548003,49.89022153 " />
+        </symbol>
+    </svg>
+    <div>
+        <h1>SVG Button Test</h1>
+        <button class="button animation pulse">
+            <svg viewBox="0 0 128 128" style="transform:rotate(0deg)">
+                <use xlink:href="#svg_star"></use>
+            </svg>
+            <label>Click Me</label>
+        </button>
+        <button class="button animation pulse">
+            <svg viewBox="0 0 128 128" style="transform:rotate(0  deg)">
+                <use xlink:href="#svg_dot"></use>
+            </svg>
+            <label>Click Me Now Please</label>
+        </button>
+        <button class="button animation pulse">
+            <svg viewBox="0 0 128 128" style="transform:rotate(45deg)">
+                <use xlink:href="#svg_add"></use>
+            </svg>
+            <label>Cancel</label>
+        </button>
     </div>
-  </div>
-  <div>
-    <h1>Reveal and Isolation</h1>
-    <div class="paragraph reveal">
-      <h2 class="halign">Reveal Demo</h2>
-      <div class="sentence halign valign">30</div>
+    <div>
+        <h1>SVG Image Filter Test</h1>
+        <div class="animation pulse box50" tabindex="0">
+            <div></div><img src="../../assets/ca0v.png" style="width:120px;height:120px" />
+            <svg id="hereiam" viewBox="0 0 640 90" fill="silver">
+                <g stroke="white" stroke-width="1" transform="scale(1)">
+                    <text x="0" y="40" font-size="40">Morphing, Revealing, Style, Cues</text>
+                    <text x="0" y="85" font-size="40">Interaction, and Conservation</text>
+                </g>
+            </svg>
+        </div>
     </div>
-  </div>
-  <div>
-    <h1>Cue Principle</h1>
-    <button class="cue button">
-      <svg viewBox="0 0 128 128">
-        <use xlink:href="#svg_star"></use>
-      </svg>
-      <label>Click Me</label>
-    </button>
-  </div>
-  <script>
+    </div>
+    <div>
+        <h1>Reveal and Isolation</h1>
+        <div class="paragraph reveal">
+            <h2 class="halign">Reveal Demo</h2>
+            <div class="sentence halign valign">30</div>
+        </div>
+    </div>
+    <div>
+        <h1>Cue Principle</h1>
+        <button class="cue button">
+            <svg viewBox="0 0 128 128">
+                <use xlink:href="#svg_star"></use>
+            </svg>
+            <label>Save</label>
+        </button>
+    </div>
+    <div>
+        <h1>Masking and Filters</h1>
+        <svg width="128px" height="128px" viewBox="0 0 128 128" fill="black"
+            style="background-image: url(../../assets/ca0v.png)">
+            <defs>
+                <mask id="hole">
+                    <rect width="100%" height="100%" fill="white" />
+                    <circle r="64" cx="64" cy="64" fill="#555555" />
+                    <circle r="48" cx="64" cy="64" fill="black" />
+                </mask>
+            </defs>
+            <g>
+                <rect width="100%" height="100%" mask="url(#hole)" />
+            </g>
+        </svg>
+        <svg width="64px" height="128px" viewBox="0 0 128 128">
+            <filter id="myFilter">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="2" />
+            </filter>
+            <defs>
+                <mask id="hole2">
+                    <rect width="100%" height="100%" fill="black" />
+                    <circle r="64" cx="64" cy="64" fill="#111" />
+                    <circle r="62" cx="64" cy="64" fill="#222" />
+                    <circle r="60" cx="64" cy="64" fill="#333" />
+                    <circle r="58" cx="64" cy="64" fill="#444" />
+                    <circle r="56" cx="64" cy="64" fill="#555" />
+                    <circle r="54" cx="64" cy="64" fill="#666" />
+                    <circle r="52" cx="64" cy="64" fill="#777" />
+                    <circle r="50" cx="64" cy="64" fill="#888" />
+                    <circle r="48" cx="64" cy="64" fill="white" />
+                </mask>
+            </defs>
+            <image xlink:href="../../assets/ca0v.png" x="-5" y="-10" filter="url(#myFilter)" mask="url(#hole2)">
+            </image>
+        </svg>
+    </div>
+    <script>
 
-    (function() {
-      Array.from(document.querySelectorAll(".button.cue")).forEach(button => {
-        button.addEventListener("click", () => {
-          let count = 1;
-          button.classList.add("running");
-          let h = setInterval(() => {
-            button.disabled = true;
-            button.classList.remove("running");
-            setTimeout(() => {
-              if (0 >= --count) {
-                clearInterval(h);
-                button.disabled = false;
-                return;
-              }
-              button.classList.add("running");
-            }, 10);
-          }, 5000);
-        })
-      });
-    })();
+        (function () {
+            Array.from(document.querySelectorAll(".button.cue")).forEach(button => {
+                button.addEventListener("click", () => {
+                    let count = 1;
+                    button.classList.add("running");
+                    let h = setInterval(() => {
+                        button.disabled = true;
+                        button.classList.remove("running");
+                        setTimeout(() => {
+                            if (0 >= --count) {
+                                clearInterval(h);
+                                button.disabled = false;
+                                return;
+                            }
+                            button.classList.add("running");
+                        }, 10);
+                    }, 5000);
+                })
+            });
+        })();
 
-    (function() {
-      function makeWord(charCount) {
-        result = [];
-        for (let i = 0; i < charCount; i++) result[i] = String.fromCharCode(65 + Math.floor(Math.random() * 26));
-        return result.join("").toLowerCase();
-      }
+        (function () {
 
-      function makeSentence(wordCount) {
-        let result = [];
-        for (let i = 0; i < wordCount; i++) result[i] = 3 + Math.floor(Math.random() * 6);
-        result = result.map(v => makeWord(v));
-        return result.join(" ");
-      }
+            function upperCase(word) {
+                return word[0].toUpperCase() + word.substr(1);
+            }
 
-      Array.from(document.querySelectorAll(".sentence")).forEach(s => s.innerHTML = makeSentence(parseInt(s.innerText) || 100));
+            function makeWord(charCount) {
+                result = [];
+                for (let i = 0; i < charCount; i++) result[i] = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+                return result.join("").toLowerCase();
+            }
 
-    })();
+            function makeSentence(wordCount) {
+                let result = [];
+                for (let i = 0; i < wordCount; i++) result[i] = 3 + Math.floor(Math.random() * 6);
+                result = result.map(v => makeWord(v));
+                result[0] = upperCase(result[0]);
+                return result.join(" ") + ".";
+            }
 
-    // media queries via matchMedia
-    (function() {
-      function doit() {
-        document.title = mq.matches ? "large screen mode" : "small";
-        Array.from(document.querySelectorAll(".box50")).forEach(b => b.style.height = `${mq.matches ? 10 : 6}em`);
-      }
-      let mq = matchMedia("(min-width: 640px)");
-      mq.addListener(doit);
-      doit();
+            Array.from(document.querySelectorAll(".sentence")).forEach(s => s.innerHTML = makeSentence(parseInt(s.innerText) || 100));
 
-    })();
-  </script>
+        })();
+
+        // media queries via matchMedia
+        (function () {
+            function doit() {
+                document.title = mq.matches ? "large screen mode" : "small";
+            }
+            let mq = matchMedia("(min-width: 640px)");
+            mq.addListener(doit);
+            doit();
+
+        })();
+    </script>
 
 </body>
 

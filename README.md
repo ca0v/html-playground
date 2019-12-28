@@ -57,4 +57,4 @@ html-playground
 - [svg morphing](https://greensock.com/morphSVG)
 - [easing visualizations](https://easings.net/en)
 - [drag-and-drop](https://tympanus.net/Development/DragDropInteractions/reveal.html)
--
+- [svg filters](https://tympanus.net/codrops/2019/01/15/svg-filters-101/)
