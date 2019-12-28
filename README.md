@@ -49,6 +49,8 @@ html-playground
 - [two or more borders (box-shadow)](https://css-tricks.com/snippets/css/multiple-borders/)
 - [svg curved text](https://css-tricks.com/snippets/svg/curved-text-along-path/)
 - [svg symbol](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/symbol)
+- [svg filters](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feGaussianBlur)
+- [svg filters](https://tympanus.net/codrops/2019/01/15/svg-filters-101/)
 - [animation tutorial](http://www.spriteland.com/tutorials/animating-a-walk-cycle-in-inkscape-part-1.html)
 - [tmux panel splitting commands](https://www.hamvocke.com/blog/a-quick-and-easy-guide-to-tmux/)
 - [css filters](https://una.im/CSSgram/)
@@ -57,4 +59,3 @@ html-playground
 - [svg morphing](https://greensock.com/morphSVG)
 - [easing visualizations](https://easings.net/en)
 - [drag-and-drop](https://tympanus.net/Development/DragDropInteractions/reveal.html)
-- [svg filters](https://tympanus.net/codrops/2019/01/15/svg-filters-101/)

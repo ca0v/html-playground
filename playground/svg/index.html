@@ -107,6 +107,10 @@
             transition: border-radius 0.3s ease-out;
         }
 
+        .button.cue.success {
+            background-color: transparent;
+        }
+
         .button.cue.running>svg {
             fill: red;
             transform: rotate(3600deg);
@@ -218,7 +222,7 @@
     </div>
     <div>
         <h1>Cue Principle</h1>
-        <button class="cue button">
+        <button class="cue button" data-busy-text="Saving" data-text="Save" data-success-text="Saved">
             <svg viewBox="0 0 128 128">
                 <use xlink:href="#svg_star"></use>
             </svg>
@@ -269,13 +273,21 @@
                 button.addEventListener("click", () => {
                     let count = 1;
                     button.classList.add("running");
+                    button.querySelector("label").innerText = button.dataset["busyText"];
                     let h = setInterval(() => {
+
                         button.disabled = true;
                         button.classList.remove("running");
                         setTimeout(() => {
                             if (0 >= --count) {
                                 clearInterval(h);
-                                button.disabled = false;
+                                button.querySelector("label").innerText = button.dataset["successText"];
+                                button.classList.add("success");
+                                setTimeout(() => {
+                                    button.disabled = false;
+                                    button.classList.remove("success");
+                                    button.querySelector("label").innerText = button.dataset["text"];
+                                }, 5000);
                                 return;
                             }
                             button.classList.add("running");
