@@ -22,6 +22,20 @@
             position: absolute;
             transform: rotate(0deg);
         }
+
+        #moon4 {
+            offset-path: path('M0,150h100 v200 h-200 v-200 Z');
+            animation: followpath 10s linear infinite;
+            motion-offset: 0%;
+            offset-distance: 0%;
+        }
+
+        @keyframes followpath {
+            to {
+                motion-offset: 100%;
+                offset-distance: 100%;
+            }
+        }
     </style>
 </head>
 
@@ -72,7 +86,9 @@
                         dur="10s" additive="sum" fill="freeze" />
                 </circle>
                 <circle id="moon3" transform="translate(0,250) scale(2)" cx="-50" cy="0" r="10" fill="blue">
-                    <animateMotion dur="10s" repeatCount="indefinite" path="M0,0 l100,-100 l100,100 l-100,100 z"/>
+                    <animateMotion dur="10s" repeatCount="indefinite" path="M0,0 l100,-100 l100,100 l-100,100 z" />
+                </circle>
+                <circle id="moon4" transform="translate(0,0) scale(2)" cx="0" cy="-0" r="10" fill="green">
                 </circle>
             </g>
             <rect x="300" y="-400" width="100" height="100" rx="30" ry="10" />
