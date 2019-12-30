@@ -141,6 +141,17 @@
             border: 1px solid white;
         }
 
+        .blurry-until-focus {
+            filter: url(#myFilter);
+            opacity: 0.9;
+        }
+
+        .blurry-until-focus:hover {
+            filter: none;
+            mask: none;
+            opacity: 1;
+        }
+
         @keyframes pulse {
             20% {
                 transform: translate(-1px, 0px);
@@ -262,7 +273,8 @@
                     <circle r="48" cx="64" cy="64" fill="white" />
                 </mask>
             </defs>
-            <image xlink:href="../../assets/ca0v.png" x="-5" y="-10" filter="url(#myFilter)" mask="url(#hole2)">
+            <image class="blurry-until-focus" xlink:href="../../assets/ca0v.png" x="-5" y="-10" filter="url(#myFilter)"
+                mask="url(#hole2)">
             </image>
         </svg>
     </div>
