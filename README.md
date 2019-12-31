@@ -61,3 +61,4 @@ html-playground
 - [tmux panel splitting commands](https://www.hamvocke.com/blog/a-quick-and-easy-guide-to-tmux/)
 - [two or more borders (box-shadow)](https://css-tricks.com/snippets/css/multiple-borders/)
 - [svg elements](https://www.w3.org/TR/SVG/eltindex.html)
+- [motion design](https://codepen.io/sdras/full/JbaGwg)
