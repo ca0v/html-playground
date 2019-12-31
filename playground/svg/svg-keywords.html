@@ -23,6 +23,10 @@
             transform: rotate(0deg);
         }
 
+        #moon1 {
+            transition: d 1s;
+        }
+
         #moon4 {
             offset-path: path('M0,150h100 v200 h-200 v-200 Z');
             animation: followpath 10s linear infinite;
@@ -80,7 +84,13 @@
             <circle cx="250" cy="0" r="60" filter="url(#filter1)" fill="url(#pattern1)" />
             <g id="target">
                 <circle transform="translate(0,250) scale(6)" cx="0" cy="0" r="10" fill="url(#gradient1)" />
-                <circle id="moon1" transform="translate(0,250) scale(2)" cx="50" cy="0" r="10" fill="red" />
+                <path id="moon1" transform="translate(0,250) scale(2)" stroke="orange" stroke-width="2" fill="none"
+                    d="">
+                    <animate attributeType="XML" attributeName="d"
+                        from="M -5.877853 8.090170l 5.877853 21.909830 l 5.877853 -21.909830 l 22.653843 1.180340 l -19.021130 -12.360680 l 8.122992 -21.180340 l -17.633558 14.270510 l -17.633558 -14.270510 l 8.122992 21.180340 l -19.021130 12.360680 l 22.653843 -1.180340"
+                        to="M -5.877853 8.090170l 5.877853 61.909830 l 5.877853 -61.909830 l 60.696104 13.541020 l -57.063391 -24.721360 l 31.634402 -53.541020 l -41.144968 46.631190 l -41.144968 -46.631190 l 31.634402 53.541020 l -57.063391 24.721360 l 60.696104 -13.541020"
+                        dur="1s" fill="freeze" begin="indefinite" />
+                </path>
                 <circle id="moon2" transform="translate(0,250) scale(2)" cx="0" cy="50" r="10" fill="white">
                     <animateTransform attributeName="transform" type="rotate" from="0" to="360" repeatCount="indefinite"
                         dur="10s" additive="sum" fill="freeze" />
@@ -98,21 +108,70 @@
     </svg>
     <script>
         (function () {
-            function zoomTarget(selector, x, y) {
-                let target = document.querySelector(selector);
-                let style = getComputedStyle(target);
-                console.log(style.transform, target.transform);
-                // cannot += current transform?
-                target.setAttribute("transform", `translate(0,250) scale(2) rotate(360)`);
-                target.style.transition = `all 10s linear 0s`;
-                target.addEventListener("transitionend", () => {
-                    console.log("transitionend");
+
+            function range(n) {
+                return Array(n).fill();
+            }
+
+            function circle(r, count, offset) {
+                r = r || 100;
+                let dr = 2 * Math.PI / count;
+                return range(count).map((_, i) => {
+                    let x = r * Math.sin((i + offset) * dr);
+                    let y = r * Math.cos((i + offset) * dr);
+                    return ({ x, y });
                 });
             }
 
-            setTimeout(() => {
-                zoomTarget("#moon1", 0, 250);
-            }, 500);
+            function round6(n) {
+                return n.toFixed(6);
+            }
+
+            function star(r1, r2, count) {
+                let c1 = circle(r1, count, 0);
+                let c2 = circle(r2, count, 0.5);
+                return c1.reduce((arr, v, i) => arr.concat(v, c2[i]), []);
+            }
+
+            function xySvg(xy) {
+                return xy.map(({ x, y }, i) => {
+                    if (i === 0) {
+                        let lastItem = xy[xy.length - 1];
+                        let [dx, dy] = [x - lastItem.x, y - lastItem.y];
+                        return `M ${round6(lastItem.x)} ${round6(lastItem.y)} l ${round6(dx)} ${round6(dy)}`;
+                    }
+                    return `l ${round6(x - xy[i - 1].x)} ${round6(y - xy[i - 1].y)} `;
+                }).join("");
+            }
+
+            function zoomTarget(selector, points) {
+                let target = document.querySelector(selector);
+                let animation = target.querySelector("animate");
+                let starPoints = xySvg(star(100, 10, points));
+                let circlePoints = xySvg(circle(100, 2 * points, -0.5));
+                console.log(starPoints, circlePoints);
+                animation.setAttribute("from", circlePoints);
+                animation.setAttribute("to", starPoints);
+                animation.beginElement();
+                setTimeout(() => {
+                    animation.setAttribute("to", circlePoints);
+                    animation.setAttribute("from", starPoints);
+                    animation.beginElement();
+                }, 3000);
+            }
+
+            // it is possible to @keyframes "d" on a path
+            // would like to morph down to a circle with same point count
+            // then to a circle with new point count
+            // then to a star with new point count
+            let count = 3;
+            zoomTarget("#moon1", count++);
+            let h = setInterval(() => {
+                if (count > 10) count = 3;
+                zoomTarget("#moon1", count++);
+                //clearInterval(h);
+            }, 5000);
+
         })();
     </script>
 </body>
