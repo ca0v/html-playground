@@ -295,9 +295,10 @@ class Fractal {
 }
 
 async function run() {
-    async function renderFractal(fractal: SVGGeometryElement) {
+    async function renderFractal(fractal: SVGGeometryElement, className: string) {
         if (fractal) {
-            let clone = fractal.cloneNode(true);
+            let clone = fractal.cloneNode(true) as SVGGeometryElement;
+            clone.classList.add(className);
             fractal.parentElement.appendChild(clone);
             let vx = 50 - Math.random() * 100;
             let vy = - Math.sqrt(200 * 200 - vx * vx);
@@ -314,8 +315,14 @@ async function run() {
     }
 
     (async () => {
-        while (true) {
-            await renderFractal(document.querySelector(".fractal") as SVGGeometryElement);
+        let count = 0;
+        let colors = "na ba sr cu ti".split(" ");
+        let model = document.querySelector(".fractal") as SVGGeometryElement;
+        while (++count) {
+            colors.forEach(c => {
+                if (0.1 > Math.random()) renderFractal(model, c);
+            })
+            await renderFractal(model, colors[count % colors.length]);
         }
     })();
 

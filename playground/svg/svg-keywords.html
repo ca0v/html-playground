@@ -21,6 +21,7 @@
         .workarea {
             position: absolute;
             transform: rotate(0deg);
+            visibility: hidden;
         }
 
         #target {
@@ -33,6 +34,30 @@
         }
 
         .fractal {
+            stroke: white;
+            fill: white;
+            stroke-width: 1px;
+            opacity: 0.9;
+        }
+
+        .fractal.na {
+            stroke: orange;
+        }
+
+        .fractal.ba {
+            stroke: green;
+        }
+
+        .fractal.sr {
+            stroke: red;
+        }
+
+        .fractal.cu {
+            stroke: blue;
+        }
+
+        .fractal.ti {
+            stroke: silver;
         }
 
         .moon4,
@@ -124,8 +149,10 @@
                 foreign object demo
             </div>
         </foreignObject>
-        <circle class="fractal" cx="0" cy="0" r="3" stroke="white" />
+        <circle class="fractal" cx="0" cy="0" r="1" fill="#F00">
+        </circle>
         <discard begin="600s" />
+        <set attributeName="visibility" to="visible" begin="0.1s" fill="freeze" />
     </svg>
     <script src="fun.js"></script>
     <script>
