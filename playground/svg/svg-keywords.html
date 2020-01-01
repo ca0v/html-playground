@@ -24,13 +24,18 @@
         }
 
         #target {
-            transform: rotateX(-70deg) translateZ(100px);
+            transform: rotateX(-70deg) rotateY(15deg) translateZ(100px);
         }
 
+        .moon1,
         #moon1 {
             transition: d 1s;
         }
 
+        .fractal {
+        }
+
+        .moon4,
         #moon4 {
             offset-path: path('M0,150h100 v200 h-200 v-200 Z');
             animation: followpath 10s linear infinite;
@@ -96,7 +101,7 @@
                     <animate attributeType="XML" attributeName="d"
                         from="M -5.877853 8.090170l 5.877853 21.909830 l 5.877853 -21.909830 l 22.653843 1.180340 l -19.021130 -12.360680 l 8.122992 -21.180340 l -17.633558 14.270510 l -17.633558 -14.270510 l 8.122992 21.180340 l -19.021130 12.360680 l 22.653843 -1.180340"
                         to="M -5.877853 8.090170l 5.877853 61.909830 l 5.877853 -61.909830 l 60.696104 13.541020 l -57.063391 -24.721360 l 31.634402 -53.541020 l -41.144968 46.631190 l -41.144968 -46.631190 l 31.634402 53.541020 l -57.063391 24.721360 l 60.696104 -13.541020"
-                        dur="0.1s" fill="freeze" begin="indefinite" />
+                        dur="0.1s" fill="freeze" />
                 </path>
                 <circle id="moon2" transform="translate(0,250) scale(2)" cx="0" cy="50" r="10" fill="white">
                     <animateTransform attributeName="transform" type="rotate" from="0" to="360" repeatCount="indefinite"
@@ -113,6 +118,14 @@
             <image xlink:href="../../assets/ca0v.png" transform="translate(-300,-50)" x="0" y="0" width="100"
                 height="100" filter="url(#filter1)" clip-path="url(#clippath1)" />
         </g>
+        <foreignObject class="moon1" width="100" height="100" transform="translate(-50,300)" filter="url(#filter1)"
+            clip-path="url(#clippath1)">
+            <div xmlns="http://www.w3.org/1999/xhtml" style="height:68px;overflow:auto;border:1em solid white">
+                foreign object demo
+            </div>
+        </foreignObject>
+        <circle class="fractal" cx="0" cy="0" r="3" stroke="white" />
+        <discard begin="600s" />
     </svg>
     <script src="fun.js"></script>
     <script>
@@ -141,9 +154,12 @@
             let count = 3;
             zoomTarget("#moon1", count++);
             let h = setInterval(() => {
-                if (count > 10) count = 3;
-                zoomTarget("#moon1", count++);
-                //clearInterval(h);
+                try {
+                    if (count > 10) count = 3;
+                    zoomTarget("#moon1", count++);
+                } catch {
+                    clearInterval(h);
+                }
             }, 5000);
 
             run();
