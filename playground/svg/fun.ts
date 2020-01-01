@@ -64,6 +64,12 @@ function xySvg(xy: Array<DD>) {
     }).join("");
 }
 
+function rotate(xy: Array<DD>, angle: number) {
+    let s = Math.sin(angle);
+    let c = Math.cos(angle);
+    return xy.map(v => ({ x: c * v.x - s * v.y, y: c * v.y + s * v.x }));
+}
+
 function rotate90(xy: Array<DD>) {
     return xy.map(v => ({ x: v.x - v.y, y: v.y + v.x }));
 }
@@ -276,17 +282,16 @@ class Fractal {
                 let grandSpring = Math.floor(offspring / 2);
                 if (grandSpring == 1) {
                     grandSpring = 0;
-                    lifespan.ticks += TICKS_PER_SECOND * 2;
                 }
                 parent.parentElement.appendChild(canvas);
-                // 0 pi is right, 1/2 pi is down, 3/2 pi is left, 2pi is up
-                let angle = Math.PI * Math.random() + 1.0 * Math.PI;
+                let angle = - 0.5 * Math.PI + Math.PI * Math.random();
+                let v = rotate([velocity], angle)[0];
                 return new Fractal({
                     canvas,
                     lifespan,
                     offspringRange: [grandSpring, 0],
                     position,
-                    velocity: { x: Math.cos(angle) * energy, y: Math.sin(angle) * energy, z: velocity.z }
+                    velocity: { x: v.x, y: v.y, z: velocity.z }
                 });
             });
         parent.remove();
@@ -320,7 +325,7 @@ async function run() {
         let model = document.querySelector(".fractal") as SVGGeometryElement;
         while (++count) {
             colors.forEach(c => {
-                if (0.1 > Math.random()) renderFractal(model, c);
+                if (0.5 > Math.random()) renderFractal(model, c);
             })
             await renderFractal(model, colors[count % colors.length]);
         }
