@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "tsc -p tsconfig.json -w",
-    "playground": "tsc -p playground/tsconfig.json -w"
+    "pg": "tsc -p playground/tsconfig.json -w",
+    "pg:svg": "tsc -p playground/svg/tsconfig.json -w"
   },
   "repository": {
     "type": "git",

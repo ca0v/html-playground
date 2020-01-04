@@ -1,4 +1,4 @@
-const GRAVITY = { x: -1, y: 25, z: 0 };
+const GRAVITY = { x: -1, y: 30, z: 0 };
 const TICKS_PER_SECOND = 1000;
 type DD = { x: number; y: number };
 type DDD = { x: number; y: number, z: number };
@@ -86,7 +86,6 @@ class Effects {
         let dx = args.pattern.reduce((a, b) => a + b.x, 0) / args.pattern.length;
         let xSegmentCount = Math.floor(width / (2 * dx));
         let ySegmentCount = Math.floor(xSegmentCount * height / width);
-        console.log(args.pattern, { dx, xSegmentCount, ySegmentCount });
         let path = [] as Array<DD>;
 
         // start
@@ -162,7 +161,7 @@ class Effects {
         dx = dx ?? Math.floor(width / 9);
         height = height ?? width;
         dy = dy ?? Math.floor(height / 9);
-        let pattern = [[0.5, 0], [0, 1], [1, 0], [0, -1]].map(v => ({ x: v[0] * dx, y: v[1] * dy }));
+        let pattern = [[0.5, 0], [0, 1], [1, 0], [0, -1]].map(v => ({ x: v[0] * dx!, y: v[1] * dy! }));
         return this.createPatternPath({ pattern, sections, width, height });
     }
 
@@ -196,6 +195,15 @@ class Fractal {
 
     constructor(readonly initialState: FractalState) {
         this.birthday = { ticks: Date.now() }
+    }
+
+    computeSpeed(velocity: DDD) {
+        return Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y + velocity.z * velocity.z);
+    }
+
+    computeHeading(velocity: DDD) {
+        let angle = Math.atan2(velocity.y, velocity.x);
+        return angle;
     }
 
     computePosition(tick: Ticks) {
@@ -237,33 +245,33 @@ class Fractal {
         return this.computeVelocity({ ticks });
     }
 
-    moveTo(p: DDD) {
-        let transform = this.initialState.canvas.ownerSVGElement.createSVGTransform();
-        transform.setTranslate(p.x, p.y);
-        this.initialState.canvas.transform.baseVal.initialize(transform);
-    }
-
-    lineTo(p: DDD) {
-
-    }
-
-    lineSegment(...positions: DDD[]) {
-        let [head, ...tail] = positions;
-        this.moveTo(head);
-        tail.forEach(p => this.lineTo(p));
+    moveTo(p: DDD, angle: number, length: number) {
+        // let transform1 = this.initialState.canvas.ownerSVGElement!.createSVGTransform();
+        // let transform2 = this.initialState.canvas.ownerSVGElement!.createSVGTransform();
+        // transform1.setTranslate(p.x, p.y);
+        // transform2.setRotate(angle, 0, 0);
+        angle += Math.PI / 2;
+        angle *= 180 / Math.PI;
+        this.initialState.canvas.setAttribute("transform", `translate(${p.x}, ${p.y}) rotate(${angle})`);
+        // this.initialState.canvas.transform.baseVal.clear();
+        // this.initialState.canvas.transform.baseVal.appendItem(transform2);
+        // this.initialState.canvas.transform.baseVal.appendItem(transform1);
     }
 
     // render a arc representing this fractal
     // span child-fractals at end-of-life, each with
     // near-equal energy as the parent
-    async render() {
+    async render(): Promise<any> {
         // compute projectile path from initial state
         // render along path
         let priorPosition = this.computeCurrentPosition();
-        this.moveTo(priorPosition);
+        this.moveTo(priorPosition, 0, 1);
         await loopUntil(() => {
+            let velocity = this.computeCurrentVelocity();
+            let angle = this.computeHeading(velocity);
+            let speed = this.computeSpeed(velocity);
             let position = this.computeCurrentPosition();
-            this.moveTo(position);
+            this.moveTo(position, angle, speed);
             //this.lineSegment(priorPosition, position);
             priorPosition = position;
             return Date.now() > this.initialState.lifespan.ticks;
@@ -272,10 +280,8 @@ class Fractal {
         let parent = this.initialState.canvas;
         let velocity = this.computeCurrentVelocity();
         let offspring = this.initialState.offspringRange[0];
-        let energy = Math.sqrt((velocity.x * velocity.x + velocity.y * velocity.y + velocity.z * velocity.z));
-        let lifespan = { ticks: Date.now() + 5 * TICKS_PER_SECOND };
+        let lifespan = { ticks: Date.now() + 2 * TICKS_PER_SECOND };
         let position = this.computeCurrentPosition();
-        console.log(velocity, offspring, energy, position);
         let children = range(offspring)
             .map(() => parent.cloneNode(true) as unknown as SVGCircleElement)
             .map((canvas, i) => {
@@ -283,8 +289,8 @@ class Fractal {
                 if (grandSpring == 1) {
                     grandSpring = 0;
                 }
-                parent.parentElement.appendChild(canvas);
-                let angle = - 0.5 * Math.PI + Math.PI * Math.random();
+                parent.parentElement?.appendChild(canvas);
+                let angle = 0.5 * Math.PI * (Math.random() - 0.5);
                 let v = rotate([velocity], angle)[0];
                 return new Fractal({
                     canvas,
@@ -304,12 +310,12 @@ async function run() {
         if (fractal) {
             let clone = fractal.cloneNode(true) as SVGGeometryElement;
             clone.classList.add(className);
-            fractal.parentElement.appendChild(clone);
-            let vx = 50 - Math.random() * 100;
-            let vy = - Math.sqrt(200 * 200 - vx * vx);
+            fractal.parentElement?.appendChild(clone);
+            let vx = 80 - Math.random() * 120;
+            let vy = - Math.sqrt(200 * 250 - vx * vx);
             let animator = new Fractal({
                 canvas: <any>clone,
-                lifespan: { ticks: Date.now() + 1 * TICKS_PER_SECOND },
+                lifespan: { ticks: Date.now() + 2 * TICKS_PER_SECOND },
                 offspringRange: [1 + Math.pow(2, Math.round(Math.random() * 3)), 2], // this means 7! = 5040 nodes created in last two cycles
                 position: { x: 0, y: 0, z: 0 },
                 velocity: { x: vx, y: vy, z: 0 }
@@ -320,14 +326,15 @@ async function run() {
     }
 
     (async () => {
-        let count = 0;
-        let colors = "na ba sr cu ti".split(" ");
+        let colors = "na ba sr cu ti na ba sr cu ti na ba sr cu ti".split(" ");
         let model = document.querySelector(".fractal") as SVGGeometryElement;
-        while (++count) {
-            colors.forEach(c => {
-                if (0.5 > Math.random()) renderFractal(model, c);
-            })
-            await renderFractal(model, colors[count % colors.length]);
+        while (true) {
+            await sleep(1000);
+            let nextColors = colors.filter(c => 0.5 < Math.random());
+            await Promise.all(nextColors.map(async c => {
+                await sleep(300 + 700 * Math.random());
+                return renderFractal(model, c);
+            }));
         }
     })();
 
