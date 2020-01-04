@@ -1,5 +1,9 @@
-const GRAVITY = { x: -1, y: 30, z: 0 };
+const GRAVITY = { x: 0, y: 1, z: 0 };
+const LIFESPAN = 20.2;
+const REFRESH_RATE = 0;
 const TICKS_PER_SECOND = 1000;
+const MISSLES_PER_LAUNCH = 10;
+const MAXPOWER = 100;
 type DD = { x: number; y: number };
 type DDD = { x: number; y: number, z: number };
 type BorderEdge = "top" | "left" | "bottom" | "right";
@@ -50,7 +54,7 @@ function round6(n: number) {
 function star(r1: number, r2: number, count: number, offset: number) {
     let c1 = circle(r1, count, offset);
     let c2 = circle(r2, count, offset + 0.5);
-    return c1.reduce((arr, v, i) => arr.concat(v, c2[i]), []);
+    return c1.reduce((arr, v, i) => arr.concat(v, c2[i]), [] as typeof c1);
 }
 
 function xySvg(xy: Array<DD>) {
@@ -274,13 +278,15 @@ class Fractal {
             this.moveTo(position, angle, speed);
             //this.lineSegment(priorPosition, position);
             priorPosition = position;
-            return Date.now() > this.initialState.lifespan.ticks;
+            let timeRemaining = this.initialState.lifespan.ticks - Date.now();
+            return timeRemaining < 0;
         });
+
         // create children if still on screen
         let parent = this.initialState.canvas;
         let velocity = this.computeCurrentVelocity();
         let offspring = this.initialState.offspringRange[0];
-        let lifespan = { ticks: Date.now() + 2 * TICKS_PER_SECOND };
+        let lifespan = { ticks: Date.now() + (0.1 * + 0.9 * Math.random()) * LIFESPAN * TICKS_PER_SECOND };
         let position = this.computeCurrentPosition();
         let children = range(offspring)
             .map(() => parent.cloneNode(true) as unknown as SVGCircleElement)
@@ -290,7 +296,7 @@ class Fractal {
                     grandSpring = 0;
                 }
                 parent.parentElement?.appendChild(canvas);
-                let angle = 0.5 * Math.PI * (Math.random() - 0.5);
+                let angle = 0.9 * Math.PI * (Math.random() - 0.5);
                 let v = rotate([velocity], angle)[0];
                 return new Fractal({
                     canvas,
@@ -300,8 +306,23 @@ class Fractal {
                     velocity: { x: v.x, y: v.y, z: velocity.z }
                 });
             });
-        parent.remove();
+        this.explode(2000);
         return Promise.all(children.map(c => c.render()));
+    }
+
+    private async explode(life = 250) {
+        let parent = this.initialState.canvas;
+        parent.style.animation = `explode ${life}ms 0s linear`;
+        let timeRemaining = Date.now() + life;
+        await loopUntil(() => {
+            let velocity = this.computeCurrentVelocity();
+            let angle = this.computeHeading(velocity);
+            let speed = this.computeSpeed(velocity);
+            let position = this.computeCurrentPosition();
+            this.moveTo(position, angle, speed);
+            return timeRemaining < Date.now();
+        });
+        parent.remove();
     }
 }
 
@@ -311,11 +332,11 @@ async function run() {
             let clone = fractal.cloneNode(true) as SVGGeometryElement;
             clone.classList.add(className);
             fractal.parentElement?.appendChild(clone);
-            let vx = 80 - Math.random() * 120;
-            let vy = - Math.sqrt(200 * 250 - vx * vx);
+            let vx = 6 - Math.random() * 12;
+            let vy = - Math.sqrt((0.1 + Math.random()) * MAXPOWER * MAXPOWER - vx * vx);
             let animator = new Fractal({
                 canvas: <any>clone,
-                lifespan: { ticks: Date.now() + 2 * TICKS_PER_SECOND },
+                lifespan: { ticks: Date.now() + (0.1 * + 0.9 * Math.random()) *LIFESPAN * TICKS_PER_SECOND },
                 offspringRange: [1 + Math.pow(2, Math.round(Math.random() * 3)), 2], // this means 7! = 5040 nodes created in last two cycles
                 position: { x: 0, y: 0, z: 0 },
                 velocity: { x: vx, y: vy, z: 0 }
@@ -326,13 +347,16 @@ async function run() {
     }
 
     (async () => {
-        let colors = "na ba sr cu ti na ba sr cu ti na ba sr cu ti".split(" ");
+        let colors = "cusr na ba sr cu ti na ba sr cu ti".split(" ");
+        colors = [...colors, ...colors];
+        let prob = Math.min(MISSLES_PER_LAUNCH / colors.length, 1);
         let model = document.querySelector(".fractal") as SVGGeometryElement;
+        renderFractal(model, "ti");
         while (true) {
-            await sleep(1000);
-            let nextColors = colors.filter(c => 0.5 < Math.random());
+            await sleep(300 + 1000 * REFRESH_RATE * Math.random());
+            let nextColors = colors.filter(c => prob > Math.random());
             await Promise.all(nextColors.map(async c => {
-                await sleep(300 + 700 * Math.random());
+                await sleep(300 + 1700 * Math.random());
                 return renderFractal(model, c);
             }));
         }

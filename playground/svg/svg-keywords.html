@@ -18,6 +18,10 @@
             color: white;
         }
 
+        .hide {
+            display: none;
+        }
+
         .workarea {
             position: absolute;
             transform: rotate(0deg);
@@ -36,14 +40,27 @@
         }
 
         .sandy-moon {
-            transform: translate(0, -300px) rotate(0deg) scale(1);
+            transform: translate(0, -300px) rotate(0deg) scale(3);
             filter: url("#moon-filter");
         }
 
         .explosion {
             fill: #ff1111;
             transform: translate(200px, -400px) rotate(0deg) scale(1);
-            filter: url("#explosion-filter");
+            animation: explode 200ms 0s linear;
+            opacity: 0;
+            filter: url("#explosion-filter1");
+        }
+
+        @keyframes explode {
+            0% {
+                opacity: 1;
+                scale: 2;
+            }
+
+            100% {
+                opacity: 0;
+            }
         }
 
         .fractal {
@@ -66,6 +83,12 @@
         .fractal.sr {
             fill: red;
             stroke: rgb(255, 25, 25);
+            opacity: 1;
+        }
+
+        .fractal.cusr {
+            fill: purple;
+            stroke: purple;
             opacity: 1;
         }
 
@@ -110,22 +133,27 @@
                 <feGaussianBlur stdDeviation="1" />
             </filter>
             <filter id="moon-filter">
-                <feTurbulence type="turbulence" baseFrequency="0.09" numOctaves="1" result="turbulence" />
-                <feSpecularLighting result="spotlight" specularConstant="1.5" specularExponent="4"
+                <feTurbulence type="turbulence" baseFrequency="0.065" numOctaves="2" result="turbulence" />
+                <feSpecularLighting result="spotlight" specularConstant="1.2" specularExponent="7"
                     lighting-color="#FFF">
-                    <feSpotLight x="600" y="600" z="400" limitingConeAngle="5.5" />
+                    <feSpotLight x="600" y="600" z="600" limitingConeAngle="7.5" />
                 </feSpecularLighting>
             </filter>
-            <filter id="explosion-filter">
+            <filter id="explosion-filter1">
                 <feSpecularLighting result="spotlight1" specularConstant="1.1" specularExponent="50"
                     lighting-color="#999">
-                    <fePointLight x="20" y="10" z="50" />
+                    <fePointLight x="0" y="0" z="50" />
                 </feSpecularLighting>
-                <feSpecularLighting result="spotlight2" specularConstant="1.1" specularExponent="50"
+                <feComposite in="SourceGraphic" in2="spotlight1" in3="spotlight2" operator="arithmetic" k1="0" k2="0.5"
+                    k3="5" k4="0.1" />
+            </filter>
+            <filter id="explosion-filter2">
+                <feSpecularLighting result="spotlight1" specularConstant="1.1" specularExponent="50"
                     lighting-color="#999">
-                    <fePointLight x="-20" y="10" z="50" />
+                    <fePointLight x="30" y="-30" z="50" />
                 </feSpecularLighting>
-                <feComposite in="SourceGraphic" in2="spotlight1" in3="spotlight2" operator="arithmetic" k1="1" k2="1" k3="1" k4="0" />
+                <feComposite in="SourceGraphic" in2="spotlight1" in3="spotlight2" operator="arithmetic" k1="0" k2="0.5"
+                    k3="5" k4="0.1" />
             </filter>
             <radialGradient id="gradient1" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="10">
                 <stop offset="0%" stop-color="white" />
@@ -146,19 +174,19 @@
                     <path d="M 0 0 h 40 v 10 h 20 v -10 h 40 v100 h-100 v100" />
                 </clipPath>
             </defs>
-            <circle cx="0" cy="-450" r="30" fill="url(#pattern1)" />
-            <text x="-30" y="30" font-family="Verdana" font-size="16">SVG A-Z</text>
-            <text style="font: 20px sans-serif;">
+            <circle class="hide" cx="0" cy="-450" r="30" fill="url(#pattern1)" />
+            <text class="hide" x="-30" y="30" font-family="Verdana" font-size="16">SVG A-Z</text>
+            <text class="hide" style="font: 20px sans-serif;">
                 <textPath href="#path1">Daniel Alix</textPath>
             </text>
 
-            <line x1="0" y1="0" x2="-500" y2="-500" stroke="green" />
-            <path d="M 0 0 l 500 -500 Z" stroke="yellow" />
-            <ellipse rx="10" ry="8" fill="blue" />
-            <circle cx="0" cy="0" r="3" fill="orange" />
-            <polygon points="-400,-400 -350,-350 -300,-400 -300,-300 -350,-250 -400,-300" />
-            <circle cx="250" cy="0" r="60" filter="url(#filter1)" fill="url(#pattern1)" />
-            <g id="target">
+            <line class="hide" x1="0" y1="0" x2="-500" y2="-500" stroke="green" />
+            <path class="hide" d="M 0 0 l 500 -500 Z" stroke="yellow" />
+            <ellipse rx="6" ry="4" fill="grey" />
+            <circle cx="0" cy="0" r="3" fill="black" />
+            <polygon class="hide" points="-400,-400 -350,-350 -300,-400 -300,-300 -350,-250 -400,-300" />
+            <circle class="hide" cx="250" cy="0" r="60" filter="url(#filter1)" fill="url(#pattern1)" />
+            <g class="hide" id="target">
                 <circle transform="translate(0,250) scale(6)" cx="0" cy="0" r="10" fill="url(#gradient1)" />
                 <path id="moon1" transform="translate(0,250) scale(2)" stroke="orange" stroke-width="2" fill="none"
                     d="">
@@ -177,19 +205,19 @@
                 <circle id="moon4" transform="translate(0,0) scale(2)" cx="0" cy="-0" r="10" fill="green">
                 </circle>
             </g>
-            <rect x="300" y="-400" width="100" height="100" rx="30" ry="10" />
-            <rect transform="translate(300,-200)" width="100" height="100" clip-path="url(#clippath1)" />
-            <image xlink:href="../../assets/ca0v.png" transform="translate(-300,-50)" x="0" y="0" width="100"
+            <rect class="hide" x="300" y="-400" width="100" height="100" rx="30" ry="10" />
+            <rect class="hide" transform="translate(300,-200)" width="100" height="100" clip-path="url(#clippath1)" />
+            <image class="hide" xlink:href="../../assets/ca0v.png" transform="translate(-300,-50)" x="0" y="0" width="100"
                 height="100" filter="url(#filter1)" clip-path="url(#clippath1)" />
         </g>
-        <foreignObject class="moon1" width="100" height="100" transform="translate(-50,300)" filter="url(#filter1)"
+        <foreignObject class="moon1 hide" width="100" height="100" transform="translate(-50,300)" filter="url(#filter1)"
             clip-path="url(#clippath1)">
             <div xmlns="http://www.w3.org/1999/xhtml" style="height:68px;overflow:auto;border:1em solid white">
                 foreign object demo
             </div>
         </foreignObject>
         <g class="fractal">
-            <circle cx="0" cy="0" r="1" style="transform:scale(0.7, 2.1)" />
+            <circle cx="0" cy="0" r="2" style="transform:scale(0.2, 2)" />
         </g>
         <g class="sandy-moon" clip-path="circle(40)" filter="url(#moon-filter)">
             <path d="M -50 -50 h 100 v 100 h -100 z"></path>
