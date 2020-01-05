@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body {
+            background-color: black;
+            color: silver;
+        }
+
+        ul,
+        grid {
+            display: grid;
+            grid-template-columns: repeat(3, 30vmin);
+            grid-template-rows: repeat(3, 30vmin);
+        }
+
+        grid>* {
+            border: 0.25em solid #333333aa;
+            margin: 1em;
+            padding: 1em;
+        }
+
+        .X {
+            animation: X 300ms linear forwards;
+        }
+
+        .Y {
+            clip-path: url(#test);
+            animation: Y 300ms linear forwards;
+        }
+
+        @keyframes X {
+            0% {
+                border: none;
+                transform: scale(0);
+                clip-path: circle();
+            }
+
+            100% {
+                clip-path: circle();
+                background-color: red;
+                transform: scale(0.6);
+                border: none;
+            }
+        }
+
+        @keyframes Y {
+            0% {
+                border: none;
+                transform: scale(0);
+            }
+
+            100% {
+                background-color: blue;
+                transform: scale(0.6);
+                border: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <grid>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+    </grid>
+
+    <script>
+        let styles = ["X", "Y"];
+        let styleIndex = 0;
+        let cb = cell => cell.className = styles[styleIndex++ % styles.length];
+        Array.from(document.querySelectorAll("grid div")).forEach(cell => {
+            cell.addEventListener("click", () => {
+                cb(cell);
+            });
+        });
+    </script>
+</body>
+
+</html>
