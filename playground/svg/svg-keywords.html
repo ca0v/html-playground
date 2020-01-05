@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -19,7 +20,7 @@
         }
 
         .hide {
-            display: none;
+            opacity: 0.05;
         }
 
         .workarea {
@@ -126,7 +127,7 @@
         <defs>
             <pattern id="pattern1" patternUnits="userSpaceOnUse" x="0" y="0" width="10" height="10"
                 viewBox="-5 -5 10 10">
-                <rect x="-4" y="-4" width="8" height="8" fill="gold" />
+                <rect x="-4" y="-4" width="8" height="8" fill="gold"></rect>
                 <circle cx="0" cy="0" r="3" fill="black" />
             </pattern>
             <filter id="filter1">
@@ -182,8 +183,8 @@
 
             <line class="hide" x1="0" y1="0" x2="-500" y2="-500" stroke="green" />
             <path class="hide" d="M 0 0 l 500 -500 Z" stroke="yellow" />
-            <ellipse rx="6" ry="4" fill="grey" />
-            <circle cx="0" cy="0" r="3" fill="black" />
+            <ellipse class="hide" rx="6" ry="4" fill="grey" />
+            <circle class="hide" cx="0" cy="0" r="1" fill="#777" />
             <polygon class="hide" points="-400,-400 -350,-350 -300,-400 -300,-300 -350,-250 -400,-300" />
             <circle class="hide" cx="250" cy="0" r="60" filter="url(#filter1)" fill="url(#pattern1)" />
             <g class="hide" id="target">
@@ -230,41 +231,6 @@
     </svg>
     <script src="fun.js"></script>
     <script>
-        (function () {
-
-            function zoomTarget(selector, points) {
-                let offset = 0.5 * points % 2;
-                let target = document.querySelector(selector);
-                let animation = target.querySelector("animate");
-                let starPoints = xySvg(star(100, 50, points, offset));
-                let circlePoints = xySvg(circle(80, 2 * points, offset - 0.5));
-                animation.setAttribute("from", circlePoints);
-                animation.setAttribute("to", starPoints);
-                animation.beginElement();
-                setTimeout(() => {
-                    animation.setAttribute("to", circlePoints);
-                    animation.setAttribute("from", starPoints);
-                    animation.beginElement();
-                }, 3000);
-            }
-
-            // it is possible to @keyframes "d" on a path
-            // would like to morph down to a circle with same point count
-            // then to a circle with new point count
-            // then to a star with new point count
-            let count = 3;
-            zoomTarget("#moon1", count++);
-            let h = setInterval(() => {
-                try {
-                    if (count > 10) count = 3;
-                    zoomTarget("#moon1", count++);
-                } catch {
-                    clearInterval(h);
-                }
-            }, 5000);
-
-            run();
-        })();
     </script>
 </body>
 

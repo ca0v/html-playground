@@ -1,5 +1,5 @@
-const GRAVITY = { x: 0, y: 1, z: 0 };
-const LIFESPAN = 20.2;
+const GRAVITY = { x: 0, y: 5, z: 0 };
+const LIFESPAN = 10.2;
 const REFRESH_RATE = 0;
 const TICKS_PER_SECOND = 1000;
 const MISSLES_PER_LAUNCH = 10;
@@ -9,6 +9,10 @@ type DDD = { x: number; y: number, z: number };
 type BorderEdge = "top" | "left" | "bottom" | "right";
 type Ticks = { ticks: number };
 type FractalRange = [number, number];
+
+function rand(min: number, max: number) {
+    return min + (max - min) * Math.random();
+}
 
 async function sleep(timeout: number) {
     return new Promise((good, bad) => {
@@ -286,7 +290,7 @@ class Fractal {
         let parent = this.initialState.canvas;
         let velocity = this.computeCurrentVelocity();
         let offspring = this.initialState.offspringRange[0];
-        let lifespan = { ticks: Date.now() + (0.1 * + 0.9 * Math.random()) * LIFESPAN * TICKS_PER_SECOND };
+        let lifespan = { ticks: Date.now() + rand(0.1, 0.9) * LIFESPAN * TICKS_PER_SECOND };
         let position = this.computeCurrentPosition();
         let children = range(offspring)
             .map(() => parent.cloneNode(true) as unknown as SVGCircleElement)
@@ -296,7 +300,7 @@ class Fractal {
                     grandSpring = 0;
                 }
                 parent.parentElement?.appendChild(canvas);
-                let angle = 0.9 * Math.PI * (Math.random() - 0.5);
+                let angle = 0.9 * Math.PI * rand(-0.5, 0.5);
                 let v = rotate([velocity], angle)[0];
                 return new Fractal({
                     canvas,
@@ -332,7 +336,7 @@ async function run() {
             let clone = fractal.cloneNode(true) as SVGGeometryElement;
             clone.classList.add(className);
             fractal.parentElement?.appendChild(clone);
-            let vx = 6 - Math.random() * 12;
+            let vx = rand(-6, 6);
             let vy = - Math.sqrt((0.1 + Math.random()) * MAXPOWER * MAXPOWER - vx * vx);
             let animator = new Fractal({
                 canvas: <any>clone,
@@ -382,3 +386,41 @@ async function run() {
     }
 
 }
+
+(function () {
+
+    function zoomTarget(selector: string, points: number) {
+        let offset = 0.5 * points % 2;
+        const target = document.querySelector(selector) as SVGElement;
+        if (!target) return;
+        const animation = target.querySelector("animate") as SVGAnimateElement;
+        if (!animation) return;
+        let starPoints = xySvg(star(100, 50, points, offset));
+        let circlePoints = xySvg(circle(80, 2 * points, offset - 0.5));
+        animation.setAttribute("from", circlePoints);
+        animation.setAttribute("to", starPoints);
+        animation.beginElementAt(0);
+        setTimeout(() => {
+            animation.setAttribute("to", circlePoints);
+            animation.setAttribute("from", starPoints);
+            animation.beginElementAt(0);
+        }, 3000);
+    }
+
+    // it is possible to @keyframes "d" on a path
+    // would like to morph down to a circle with same point count
+    // then to a circle with new point count
+    // then to a star with new point count
+    let count = 3;
+    zoomTarget("#moon1", count++);
+    let h = setInterval(() => {
+        try {
+            if (count > 10) count = 3;
+            zoomTarget("#moon1", count++);
+        } catch {
+            clearInterval(h);
+        }
+    }, 5000);
+
+    run();
+})();
