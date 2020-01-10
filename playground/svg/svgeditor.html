@@ -1,61 +1,116 @@
 <html>
 
 <head>
-    <title>SVG Editor</title>
-    <style>
-        body {
-            color: darkgray;
-            background-color: black;
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
+  <title>SVG Editor</title>
+  <style>
+    body {
+      color: darkgray;
+      background-color: black;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
 
-        textarea {
-            width: 100vmin;
-            height: 25vh;
-            background-color: black;
-            color: darkgray;
-            display: block;
-        }
+    svg {
+      position: absolute;
+      border: 1px solid white;
+      width: 50vmax;
+      height: 50vmax;
+    }
 
-        section label {
-            display: block;
-        }
-    </style>
+    textarea {
+      min-width: 12em;
+      max-width: 36em;
+      width: 25vw;
+      background-color: black;
+      color: darkgray;
+      display: block;
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      font-size: 1.5em;
+    }
+
+    section label {
+      display: block;
+    }
+  </style>
 </head>
 
 <body>
-    <textarea id="svg-input">Enter SVG Path Here (200x200 centered at 0,0)</textarea>
-    <svg viewBox="-100 -100 200 200" width="50vmin" height="50vmin">
+  <textarea id="svg-input" spellcheck="false">Enter SVG Path Here (200x200 centered at 0,0)</textarea>
+  <svg viewBox="-100 -100 200 200">
 
-        <path id="svg-path" fill="blue" stroke="white" stroke-width="1"
-            d="M 0 0 c 40 -100 50 80 0 0 z"></path>
-    </svg>
-    <section>
-        <label title="move to absolute position">M x y</label>
-        <label title="move by">m dx dy</label>
-        <label title="horizontal line to X">H x</label>
-        <label title="horizontal line">h dx</label>
-        <label title="vertical line to Y">V y</label>
-        <label title="vertical line">v dy</label>
-        <label title="line to">L x y</label>
-        <label title="line by">l dx dy</label>
-        <label title="return to start">Z</label>
-        <label title="curve to P parallel with line from current location to A and with line from B to P">c Ax Ay Bx By Px Py</label>
-    </section>
-    <script>
-        (function () {
-            let path = document.querySelector("#svg-path");
-            let input = document.getElementById("svg-input");
-            input.addEventListener("keyup", () => {
-                path.setAttribute("d", input.value);
-            });
-            input.value = path.getAttribute("d");
-        })();
-    </script>
+    <path id="svg-path" fill="blue" stroke="white" stroke-width="1" d="M 0 0 c 40 -100 50 80 0 0 z"></path>
+  </svg>
+  <section>
+    <p>
+    </p>
+    <label title="move to absolute position">M x y</label>
+    <label title="move by">m dx dy</label>
+    <label title="horizontal line to X">H x</label>
+    <label title="horizontal line">h dx</label>
+    <label title="vertical line to Y">V y</label>
+    <label title="vertical line">v dy</label>
+    <label title="line to">L x y</label>
+    <label title="line by">l dx dy</label>
+    <label title="return to start">Z</label>
+    <label title="curve to P parallel with line from current location to A and with line from B to P">c Ax Ay Bx By Px
+      Py</label>
+    <label title="curve to P which follows C and assumes A">S Bx By Px Py</label>
+    <label title="Q">Q</label>
+    <label title="quadratic fit to P">T Px Py</label>
+    <label title="ellipse to P, CW=1 is clockwise (0 ccw)">A rx ry 0 0 CW Px Py</label>
+  </section>
+  <script>
+    const d = `
+    M -20 0
+a 1 15 0 0 1 0 -20
+a 10 5 0 0 1 0 20
+z
+
+M -50 0
+a 15 10 0 0 1 -20 0
+a 5 10 0 0 1 20 0
+z
+
+M 30 0
+l -4 -10
+t -2 -5
+t 5 -5
+t 1 0
+t 1 0
+t 5 5
+l -2 5
+l -4 10
+z
+
+M 6.3 0
+C 6.3 0 0 0.1 0 7.5
+C 0 11.3 6.3 20.1 6.3 20.1
+S 12.6 11.3 12.6 7.4
+C 12.6 0.1 6.3 0 6.3 0
+Z`.trim();
+
+    (function() {
+      let path = document.querySelector("#svg-path");
+      const dump = () => {
+        console.log(getComputedStyle(path).d);
+      };
+
+      path.setAttribute("d", localStorage.getItem("path") || d);
+      let input = document.getElementById("svg-input");
+      input.addEventListener("keyup", () => {
+        path.setAttribute("d", input.value);
+        localStorage.setItem("path", input.value);
+        dump();
+      });
+      input.value = path.getAttribute("d");
+    })();
+  </script>
 </body>
 
 </html>
