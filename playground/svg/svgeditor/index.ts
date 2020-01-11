@@ -1,23 +1,9 @@
-interface Dictionary<T> {
-    [Key: string]: T;
-}
+import { range } from "./range";
+import { asDom } from "./asDom";
+import { Dictionary } from "./Dictionary";
+import { Command } from "./Command";
 
-type Command = {
-    command: string;
-    args: number[]
-};
-
-function range(n: number) {
-    return Array(n).fill(0).map((v, i) => i);
-}
-
-function asDom(html: string) {
-    let div = document.createElement("div");
-    div.innerHTML = html.trim();
-    return div.firstElementChild as HTMLElement;
-}
-
-class SvgEditor {
+export class SvgEditor {
 
     private css = `
     <style>

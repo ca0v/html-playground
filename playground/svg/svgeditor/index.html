@@ -32,14 +32,14 @@
         }
 
         .grid {
-            min-width: 12em;
-            max-width: 36em;
-            width: 25vw;
             position: absolute;
             top: 0;
             right: 0;
             bottom: 0;
-            overflow: auto;
+            padding: 0.5em;
+            overflow: hidden;
+            background-color: black;
+            border: 1px solid white;
         }
 
         .grid .cell {
@@ -47,6 +47,7 @@
             color: darkgray;
             display: block;
             font-size: 1.5rem;
+
         }
 
         .grid .cell input {
@@ -92,9 +93,10 @@
         <label title="quadratic fit to P">T Px Py</label>
         <label title="ellipse to P, CW=1 is clockwise (0 ccw)">A rx ry 0 0 CW Px Py</label>
     </section>
-    <script src="./svgeditor.js"></script>
+    <script src="./almond.js"></script>
+    <script src="./index.js"></script>
     <script>
-        (function () {
+        require(["index"], App => {
             const d = `
 M -20 0
 a 1 15 0 0 1 0 -20
@@ -126,7 +128,7 @@ Z`.trim();
 
             let path = document.querySelector("#svg-path");
             let input = document.getElementById("svg-input");
-            let editor = new SvgEditor(path.parentElement, input);
+            let editor = new App.SvgEditor(path.parentElement, input);
             let pathData = localStorage.getItem("path") || d;
 
             path.setAttribute("d", pathData);
@@ -139,7 +141,7 @@ Z`.trim();
             //     //editor.show();
             // });
             editor.show();
-        })();
+        });
     </script>
 </body>
 
