@@ -1,23 +1,21 @@
-import { range } from "./range";
-import { asDom } from "./asDom";
-import { Dictionary } from "./Dictionary";
-import { Command } from "./Command";
+import { range } from "./fun/range";
+import { asDom } from "./fun/asDom";
+import { Dictionary } from "./fun/Dictionary";
+import { Command } from "./fun/Command";
+import { stringify } from "./fun/stringify";
+import { parse } from "./fun/parse";
+import { createPath } from "./fun/createPath";
+import { parsePath } from "./fun/parsePath";
 
 export class SvgEditor {
-
-    private css = `
-    <style>
-    </style>`;
 
     private gridOverlay: SVGSVGElement;
     private workPath: SVGPathElement;
     private cursorPath: SVGPathElement;
     private sourcePath: SVGPathElement;
-    private gridScale = 10;
     private currentIndex = -1;
 
     constructor(public workview: SVGSVGElement, public input: HTMLElement) {
-        document.head.appendChild(asDom(this.css));
         this.sourcePath = this.workview.querySelector("path") as SVGPathElement;
         if (!this.sourcePath) throw "workview must have a path";
 
@@ -25,13 +23,13 @@ export class SvgEditor {
         this.gridOverlay = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         this.gridOverlay.setAttribute("viewBox", `${x} ${y} ${width} ${height}`);
         workview.parentElement?.appendChild(this.gridOverlay);
-        this.workPath = this.createPath();
+        this.workPath = createPath();
         this.gridOverlay.appendChild(this.workPath);
         this.workPath.style.setProperty("fill", "rgb(0,255,128)");
         this.workPath.style.setProperty("stroke", "rgb(0,255,128)");
         this.workPath.style.setProperty("stroke-width", "0.5");
         this.showGrid();
-        this.cursorPath = this.createPath({
+        this.cursorPath = createPath({
             stroke: "rgb(0, 255, 0)",
             "stroke-width": "0.2",
         });
@@ -162,7 +160,7 @@ export class SvgEditor {
         let index = this.currentIndex;
         let path = this.getPath().split("\n");
         let command = { command: "m", args: [0, 0] };
-        path.splice(index, 0, this.stringify(command));
+        path.splice(index, 0, stringify(command));
         this.setPath(this.sourcePath, path.join("\n"));
         this.renderEditor();
         this.focus(this.input.children[index]);
@@ -180,10 +178,9 @@ export class SvgEditor {
 
     private replaceActiveCommand(commandText: string) {
         let index = this.currentIndex;
-        let [head, ...tail] = commandText.split(" ");
-        let command = { command: head, args: tail.map(parseFloat) };
+        let command = parse(commandText);
         let path = this.getPath().split("\n");
-        path[index] = this.stringify(command);
+        path[index] = stringify(command);
         this.setPath(this.sourcePath, path.join("\n"));
     }
 
@@ -191,14 +188,13 @@ export class SvgEditor {
         let index = this.currentIndex;
         let path = this.getPath().split("\n");
         if (!path) throw "use targetPath";
-        let [c, ...a] = path[index].split(" ");
-        let command = { command: c, args: a.map(parseFloat) };
+        let command = parse(path[index]);
         switch (command.command) {
             case "A": {
                 let [rx, ry, a, b, cw, x, y] = command.args;
                 x += translate.dx;
                 y += translate.dy;
-                path[index] = this.stringify({ command: command.command, args: [rx, ry, a, b, cw, x, y] });
+                path[index] = stringify({ command: command.command, args: [rx, ry, a, b, cw, x, y] });
                 this.setPath(this.cursorPath, this.drawCursor({ x, y }));
                 break;
             }
@@ -206,7 +202,7 @@ export class SvgEditor {
                 let [ax, ay, bx, by, x, y] = command.args;
                 x += translate.dx;
                 y += translate.dy;
-                path[index] = this.stringify({ command: command.command, args: [ax, ay, bx, by, x, y] });
+                path[index] = stringify({ command: command.command, args: [ax, ay, bx, by, x, y] });
                 this.setPath(this.cursorPath, this.drawCursor({ x, y }));
                 break;
             }
@@ -216,17 +212,13 @@ export class SvgEditor {
                 let [x, y] = command.args;
                 x += translate.dx;
                 y += translate.dy;
-                path[index] = this.stringify({ command: command.command, args: [x, y] });
+                path[index] = stringify({ command: command.command, args: [x, y] });
                 this.setPath(this.cursorPath, this.drawCursor({ x, y }));
                 break;
             }
         }
         (this.input.children[index] as HTMLDivElement).innerText = path[index];
         return path;
-    }
-
-    stringify(command: Command) {
-        return `${command.command} ${command.args.join(" ")}`;
     }
 
     focus(element: any) {
@@ -239,8 +231,7 @@ export class SvgEditor {
         this.currentIndex = index;
         let path = this.getPath().split("\n");
         if (!path) return;
-        let [c, ...a] = path[index].split(" ");
-        let command = { command: c, args: a.map(parseFloat) };
+        let command = parse(path[index]);
 
         switch (command.command) {
             case "A": {
@@ -264,22 +255,9 @@ export class SvgEditor {
         pathElement.setAttribute("d", d);
     }
 
-    private createPath(styles?: Partial<{
-        stroke: string;
-        "stroke-width": string;
-    }>): SVGPathElement {
-        let path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        if (styles) {
-            Object.keys(styles).forEach(key => {
-                path.style.setProperty(key, (<any>styles)[key]);
-            });
-        }
-        return path;
-    }
-
     getPath(path = this.sourcePath) {
         let d = getComputedStyle(path).getPropertyValue("d");
-        let commands = this.parsePath(d);
+        let commands = parsePath(d);
         return commands.map(c => `${c.command} ${c.args.join(" ")}`).join("\n");
     }
 
@@ -310,16 +288,17 @@ export class SvgEditor {
         let { x, y, width, height } = this.gridOverlay.viewBox.baseVal;
         let vLines = range(count).map(v => `M ${x + offset + dx * v} ${x} V ${y + height}`).join("\n");
         let hLines = range(count).map(v => `M ${x} ${y + offset + dx * v} H ${x + width}`).join("\n");
-        let path = this.createPath();
-        path.style.setProperty("stroke", "rgba(128,128,128,0.5)");
-        path.style.setProperty("stroke-width", "0.1");
+        let path = createPath({
+            stroke: "rgba(128,128,128,0.5)",
+            "stroke-width": "0.1"
+        });
         this.setPath(path, `${vLines}\n${hLines}`);
         this.gridOverlay.appendChild(path);
     }
 
     showMarkers() {
         let d = getComputedStyle(this.sourcePath).getPropertyValue("d");
-        let commands = this.parsePath(d);
+        let commands = parsePath(d);
         let overlayPath = this.createOverlayPoint(commands);
         overlayPath.unshift("M 0 0");
         this.setPath(this.workPath, overlayPath.join(" "));
@@ -393,32 +372,4 @@ export class SvgEditor {
         return `M ${x} ${y} l -5 -5 l 10 10 l -5 -5 l 5 -5 l -10 10 z`;
     }
 
-    private parsePath(path: string) {
-        let firstQuote = path.indexOf("\"");
-        if (firstQuote < 0) throw "no quote found";
-        let lastQuote = path.lastIndexOf("\"");
-        if (lastQuote <= firstQuote) throw "no end quote found";
-        path = path.substring(firstQuote + 1, lastQuote);
-        let tokens = path.split("");
-        let commands = [] as Array<{ command: string, args: number[] }>;
-        let commandArgs = [];
-        while (tokens.length) {
-            let ch = tokens.pop();
-            if (!ch) throw "expected a token";
-            if (ch >= "A" && ch <= "Z") {
-                commandArgs.reverse();
-                let args = commandArgs
-                    .join("")
-                    .split(" ")
-                    .map(v => v.trim())
-                    .filter(v => v !== "")
-                    .map(v => parseFloat(v));
-                commands.push({ command: ch, args });
-                commandArgs = [];
-            } else {
-                commandArgs.push(ch);
-            }
-        }
-        return commands.reverse();
-    }
 }
