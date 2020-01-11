@@ -2,13 +2,22 @@
 function range(n) {
     return Array(n).fill(0).map((v, i) => i);
 }
+function asDom(html) {
+    let div = document.createElement("div");
+    div.innerHTML = html.trim();
+    return div.firstElementChild;
+}
 class SvgEditor {
     constructor(workview, input) {
         var _a;
         this.workview = workview;
         this.input = input;
+        this.css = `
+    <style>
+    </style>`;
         this.gridScale = 10;
         this.currentIndex = -1;
+        document.head.appendChild(asDom(this.css));
         this.sourcePath = this.workview.querySelector("path");
         if (!this.sourcePath)
             throw "workview must have a path";
@@ -31,44 +40,135 @@ class SvgEditor {
         input.addEventListener("keyup", event => {
             keystate[event.code] = false;
         });
+        const moveit = (location) => {
+            this.setPath(this.sourcePath, this.transformActiveCommand(location).join(""));
+            this.showMarkers();
+        };
+        const keyCommands = {
+            "Delete": () => {
+                this.deleteActiveCommand();
+            },
+            "F2": () => {
+                keyCommands["Enter"]();
+            },
+            "Enter": () => {
+                this.editActiveCommand();
+            },
+            "ArrowDown": () => {
+                var _a;
+                this.focus((_a = document.activeElement) === null || _a === void 0 ? void 0 : _a.nextElementSibling);
+            },
+            "ArrowDown+ControlLeft": () => {
+                keyCommands["KeyS"]();
+            },
+            "ArrowLeft+ControlLeft": () => {
+                keyCommands["KeyA"]();
+            },
+            "ArrowRight+ControlLeft": () => {
+                keyCommands["KeyD"]();
+            },
+            "ArrowUp": () => {
+                var _a;
+                this.focus((_a = document.activeElement) === null || _a === void 0 ? void 0 : _a.previousElementSibling);
+            },
+            "ArrowUp+ControlLeft": () => {
+                keyCommands["KeyW"]();
+            },
+            "KeyA": () => {
+                moveit({ dx: -1, dy: 0 });
+            },
+            "KeyA+KeyS": () => {
+                moveit({ dx: -1, dy: 1 });
+            },
+            "KeyA+KeyW": () => {
+                moveit({ dx: -1, dy: -1 });
+            },
+            "KeyD": () => {
+                moveit({ dx: 1, dy: 0 });
+            },
+            "KeyD+KeyS": () => {
+                moveit({ dx: 1, dy: 1 });
+            },
+            "KeyD+KeyW": () => {
+                moveit({ dx: 1, dy: -1 });
+            },
+            "KeyS": () => {
+                moveit({ dx: 0, dy: 1 });
+            },
+            "KeyW": () => {
+                moveit({ dx: 0, dy: -1 });
+            },
+        };
+        input.addEventListener("focus", () => {
+            keystate = {};
+        });
         input.addEventListener("keydown", event => {
-            var _a, _b;
             keystate[event.code] = true;
-            switch (event.code) {
-                case "ArrowUp":
-                    if (keystate["ControlLeft"]) {
-                        this.setPath(this.sourcePath, this.transform({ dx: 0, dy: -1 }).join(""));
-                    }
-                    else {
-                        this.focus((_a = document.activeElement) === null || _a === void 0 ? void 0 : _a.previousElementSibling);
-                    }
-                    break;
-                case "ArrowDown":
-                    if (keystate["ControlLeft"]) {
-                        this.setPath(this.sourcePath, this.transform({ dx: 0, dy: 1 }).join(""));
-                    }
-                    else {
-                        this.focus((_b = document.activeElement) === null || _b === void 0 ? void 0 : _b.nextElementSibling);
-                    }
-                    break;
-                case "ArrowLeft":
-                    if (keystate["ControlLeft"]) {
-                        let path = this.transform({ dx: -1, dy: 0 }).join("\n");
-                        this.setPath(this.sourcePath, path);
-                        break;
-                    }
-                case "ArrowRight":
-                    if (keystate["ControlLeft"]) {
-                        let path = this.transform({ dx: 1, dy: 0 });
-                        this.setPath(this.sourcePath, path.join("\n"));
-                        break;
-                    }
-                default:
-                    console.log(event.code);
+            let code = Object.keys(keystate).filter(k => keystate[k]).sort().join("+");
+            if (keyCommands[code]) {
+                keyCommands[code]();
+                event.preventDefault();
+                return;
+            }
+            else {
+                console.log(event.code, code);
             }
         });
     }
-    transform(translate) {
+    editActiveCommand() {
+        let index = this.currentIndex;
+        let commandEditor = this.input.children[index];
+        let input = document.createElement("input");
+        input.value = commandEditor.innerText;
+        let originalText = commandEditor.innerText;
+        commandEditor.innerText = "";
+        commandEditor.appendChild(input);
+        input.select();
+        input.focus();
+        input.onblur = () => {
+            commandEditor.innerText = originalText;
+            input.remove();
+            commandEditor.focus();
+        };
+        input.onkeydown = (event) => {
+            event.cancelBubble = true;
+            switch (event.code) {
+                case "Escape":
+                    commandEditor.focus(); // causes a blur
+                    commandEditor.innerText = originalText;
+                    break;
+                case "NumpadEnter":
+                case "Enter":
+                    let newText = input.value;
+                    commandEditor.focus(); // causes a blur
+                    commandEditor.innerText = newText;
+                    this.replaceActiveCommand(newText);
+                    event.cancelBubble = true;
+                    event.preventDefault();
+                    break;
+            }
+            console.log(event.code);
+        };
+    }
+    deleteActiveCommand() {
+        var _a, _b;
+        let index = this.currentIndex;
+        let path = this.getPath().split("\n");
+        path.splice(index, 1);
+        this.setPath(this.sourcePath, path.join("\n"));
+        let nextFocusItem = ((_a = document.activeElement) === null || _a === void 0 ? void 0 : _a.nextElementSibling) || ((_b = document.activeElement) === null || _b === void 0 ? void 0 : _b.previousElementSibling);
+        this.input.children[index].remove();
+        this.focus(nextFocusItem);
+    }
+    replaceActiveCommand(commandText) {
+        let index = this.currentIndex;
+        let [head, ...tail] = commandText.split(" ");
+        let command = { command: head, args: tail.map(parseFloat) };
+        let path = this.getPath().split("\n");
+        path[index] = this.stringify(command);
+        this.setPath(this.sourcePath, path.join("\n"));
+    }
+    transformActiveCommand(translate) {
         let index = this.currentIndex;
         let path = this.getPath().split("\n");
         if (!path)
@@ -103,7 +203,6 @@ class SvgEditor {
                 break;
             }
         }
-        this.showMarkers();
         this.input.children[index].innerText = path[index];
         return path;
     }

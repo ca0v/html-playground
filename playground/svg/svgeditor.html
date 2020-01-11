@@ -15,9 +15,12 @@
 
         .layers {
             position: absolute;
-            border: 1px solid white;
-            width: 50vmax;
-            height: 50vmax;
+            top: 0;
+            left: 0;
+            margin: 0;
+            padding: 0;
+            width: 100vmin;
+            height: 100vmin;
         }
 
         .layers svg {
@@ -28,13 +31,6 @@
             bottom: 0;
         }
 
-        .grid .cell {
-            background-color: black;
-            color: darkgray;
-            display: block;
-            font-size: 1.5em;
-        }
-
         .grid {
             min-width: 12em;
             max-width: 36em;
@@ -43,6 +39,23 @@
             top: 0;
             right: 0;
             bottom: 0;
+            overflow: auto;
+        }
+
+        .grid .cell {
+            background-color: black;
+            color: darkgray;
+            display: block;
+            font-size: 1.5rem;
+        }
+
+        .grid .cell input {
+            background-color: black;
+            color: darkgray;
+            display: block;
+            font-size: 1.5rem;
+            border: none;
+            padding: none;
         }
 
         section label {
@@ -52,14 +65,14 @@
 </head>
 
 <body>
-    <div id="svg-input" class="grid"></div>
     <div class="layers">
         <svg viewBox="-100 -100 200 200">
 
             <path id="svg-path" fill="blue" stroke="white" stroke-width="1" d="M 0 0 c 40 -100 50 80 0 0 z"></path>
         </svg>
     </div>
-    <section>
+    <div id="svg-input" class="grid"></div>
+    <section style="display:none">
         <p>
         </p>
         <label title="move to absolute position">M x y</label>
@@ -128,9 +141,12 @@ Z`.trim();
             editor.show();
             let cells = editor.getPath().split("\n").map(v => `<div class="cell">${v}</div>`);
             input.innerHTML = cells.join("\n");
-            Array.from(input.querySelectorAll(".cell")).forEach((cell, i) => {
+            Array.from(input.querySelectorAll(".cell")).forEach(cell => {
                 cell.tabIndex = 0;
-                cell.addEventListener("focus", () => editor.goto(i));
+                cell.addEventListener("focus", () => {
+                    let i = Array.from(input.querySelectorAll(".cell")).indexOf(cell);
+                    editor.goto(i);
+                });
             });
         })();
     </script>
