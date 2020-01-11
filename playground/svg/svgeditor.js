@@ -48,6 +48,9 @@ class SvgEditor {
             "Delete": () => {
                 this.deleteActiveCommand();
             },
+            "Insert": () => {
+                this.insertBeforeActiveCommand();
+            },
             "F2": () => {
                 keyCommands["Enter"]();
             },
@@ -99,10 +102,9 @@ class SvgEditor {
                 moveit({ dx: 0, dy: -1 });
             },
         };
-        input.addEventListener("focus", () => {
-            keystate = {};
-        });
         input.addEventListener("keydown", event => {
+            if (event.code === "Escape")
+                keystate = {};
             keystate[event.code] = true;
             let code = Object.keys(keystate).filter(k => keystate[k]).sort().join("+");
             if (keyCommands[code]) {
@@ -149,6 +151,15 @@ class SvgEditor {
             }
             console.log(event.code);
         };
+    }
+    insertBeforeActiveCommand() {
+        let index = this.currentIndex;
+        let path = this.getPath().split("\n");
+        let command = { command: "m", args: [0, 0] };
+        path.splice(index, 0, this.stringify(command));
+        this.setPath(this.sourcePath, path.join("\n"));
+        this.renderEditor();
+        this.focus(this.input.children[index]);
     }
     deleteActiveCommand() {
         var _a, _b;
@@ -259,6 +270,19 @@ class SvgEditor {
     }
     show() {
         this.showMarkers();
+        this.renderEditor();
+    }
+    renderEditor() {
+        let cells = this.getPath().split("\n").map(v => `<div class="cell">${v}</div>`);
+        let input = this.input;
+        input.innerHTML = cells.join("\n");
+        Array.from(input.querySelectorAll(".cell")).forEach(cell => {
+            cell.tabIndex = 0;
+            cell.addEventListener("focus", () => {
+                let i = Array.from(input.querySelectorAll(".cell")).indexOf(cell);
+                this.goto(i);
+            });
+        });
     }
     showGrid() {
         this.createGrid(10, 10, 20);

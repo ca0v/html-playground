@@ -139,15 +139,6 @@ Z`.trim();
             //     //editor.show();
             // });
             editor.show();
-            let cells = editor.getPath().split("\n").map(v => `<div class="cell">${v}</div>`);
-            input.innerHTML = cells.join("\n");
-            Array.from(input.querySelectorAll(".cell")).forEach(cell => {
-                cell.tabIndex = 0;
-                cell.addEventListener("focus", () => {
-                    let i = Array.from(input.querySelectorAll(".cell")).indexOf(cell);
-                    editor.goto(i);
-                });
-            });
         })();
     </script>
 </body>
