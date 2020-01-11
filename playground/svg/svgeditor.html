@@ -13,25 +13,36 @@
             overflow: hidden;
         }
 
-        svg {
+        .layers {
             position: absolute;
             border: 1px solid white;
             width: 50vmax;
             height: 50vmax;
         }
 
-        textarea {
-            min-width: 12em;
-            max-width: 36em;
-            width: 25vw;
+        .layers svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .grid .cell {
             background-color: black;
             color: darkgray;
             display: block;
+            font-size: 1.5em;
+        }
+
+        .grid {
+            min-width: 12em;
+            max-width: 36em;
+            width: 25vw;
             position: absolute;
             top: 0;
             right: 0;
             bottom: 0;
-            font-size: 1.5em;
         }
 
         section label {
@@ -41,11 +52,13 @@
 </head>
 
 <body>
-    <textarea id="svg-input" spellcheck="false">Enter SVG Path Here (200x200 centered at 0,0)</textarea>
-    <svg viewBox="-100 -100 200 200">
+    <div id="svg-input" class="grid"></div>
+    <div class="layers">
+        <svg viewBox="-100 -100 200 200">
 
-        <path id="svg-path" fill="blue" stroke="white" stroke-width="1" d="M 0 0 c 40 -100 50 80 0 0 z"></path>
-    </svg>
+            <path id="svg-path" fill="blue" stroke="white" stroke-width="1" d="M 0 0 c 40 -100 50 80 0 0 z"></path>
+        </svg>
+    </div>
     <section>
         <p>
         </p>
@@ -98,23 +111,28 @@ S 12.6 11.3 12.6 7.4
 C 12.6 0.1 6.3 0 6.3 0
 Z`.trim();
 
-        let path = document.querySelector("#svg-path");
-        const dump = () => {
-            console.log(getComputedStyle(path).d);
-        };
+            let path = document.querySelector("#svg-path");
+            let editor = new SvgEditor(path.parentElement);
+            let pathData = localStorage.getItem("path") || d;
 
-        path.setAttribute("d", localStorage.getItem("path") || d);
-        let input = document.getElementById("svg-input");
-        input.addEventListener("keyup", () => {
-            path.setAttribute("d", input.value);
-            localStorage.setItem("path", input.value);
-            dump();
-        });
-        input.value = path.getAttribute("d");
-
-        let editor = new SvgEditor(path.parentElement);
-        editor.show();
-    })();
+            path.setAttribute("d", pathData);
+            let input = document.getElementById("svg-input");
+            // input.addEventListener("keydown", (args) => {
+            //     console.log(input, args);
+            //     input.selectionStart
+            //     debugger;
+            //     //path.setAttribute("d", input.value);
+            //     //localStorage.setItem("path", input.value);
+            //     //editor.show();
+            // });
+            editor.show();
+            let cells = editor.getPath().split("\n").map(v => `<div class="cell">${v}</div>`);
+            input.innerHTML = cells.join("\n");
+            Array.from(input.querySelectorAll(".cell")).forEach((cell, i) => {
+                cell.tabIndex = 0;
+                cell.addEventListener("focus", () => editor.goto(i));
+            });
+        })();
     </script>
 </body>
 
