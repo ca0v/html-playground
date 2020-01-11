@@ -112,11 +112,11 @@ C 12.6 0.1 6.3 0 6.3 0
 Z`.trim();
 
             let path = document.querySelector("#svg-path");
-            let editor = new SvgEditor(path.parentElement);
+            let input = document.getElementById("svg-input");
+            let editor = new SvgEditor(path.parentElement, input);
             let pathData = localStorage.getItem("path") || d;
 
             path.setAttribute("d", pathData);
-            let input = document.getElementById("svg-input");
             // input.addEventListener("keydown", (args) => {
             //     console.log(input, args);
             //     input.selectionStart
