@@ -1,4 +1,5 @@
 export function createPath(styles?: Partial<{
+    fill: string;
     stroke: string;
     "stroke-width": string;
 }>): SVGPathElement {

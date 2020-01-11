@@ -30,11 +30,12 @@ export class SvgEditor {
         this.gridOverlay = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         this.gridOverlay.setAttribute("viewBox", `${x} ${y} ${width} ${height}`);
         workview.parentElement?.appendChild(this.gridOverlay);
-        this.workPath = createPath();
+        this.workPath = createPath({
+            "fill": "rgb(0,255,128)",
+            "stroke": "rgb(0,255,128)",
+            "stroke-width": "0.5"
+        });
         this.gridOverlay.appendChild(this.workPath);
-        this.workPath.style.setProperty("fill", "rgb(0,255,128)");
-        this.workPath.style.setProperty("stroke", "rgb(0,255,128)");
-        this.workPath.style.setProperty("stroke-width", "0.5");
         this.showGrid();
         this.cursorPath = createPath({
             stroke: "rgb(0, 255, 0)",
