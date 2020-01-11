@@ -12,6 +12,7 @@ import { focus } from "./fun/focus";
 import { drawX } from "./fun/drawX";
 import { drawCursor } from "./fun/drawCursor";
 import { setPath } from "./fun/setPath";
+import { getPathCommands } from "./fun/getPathCommands";
 
 export class SvgEditor {
 
@@ -164,7 +165,7 @@ export class SvgEditor {
 
     private insertBeforeActiveCommand() {
         let index = this.currentIndex;
-        let path = this.getPath().split("\n");
+        let path = this.getSourcePath();
         let command = { command: "m", args: [0, 0] };
         path.splice(index, 0, stringify(command));
         setPath(this.sourcePath, path.join("\n"));
@@ -174,7 +175,7 @@ export class SvgEditor {
 
     private deleteActiveCommand() {
         let index = this.currentIndex;
-        let path = this.getPath().split("\n");
+        let path = this.getSourcePath();
         path.splice(index, 1);
         setPath(this.sourcePath, path.join("\n"));
         let nextFocusItem = document.activeElement?.nextElementSibling || document.activeElement?.previousElementSibling;
@@ -185,14 +186,14 @@ export class SvgEditor {
     private replaceActiveCommand(commandText: string) {
         let index = this.currentIndex;
         let command = parse(commandText);
-        let path = this.getPath().split("\n");
+        let path = this.getSourcePath();
         path[index] = stringify(command);
         setPath(this.sourcePath, path.join("\n"));
     }
 
     private transformActiveCommand(translate: { dx: number, dy: number }) {
         let index = this.currentIndex;
-        let path = this.getPath().split("\n");
+        let path = this.getSourcePath();
         if (!path) throw "use targetPath";
         let command = parse(path[index]);
         switch (command.command) {
@@ -229,7 +230,7 @@ export class SvgEditor {
 
     goto(index: number) {
         this.currentIndex = index;
-        let path = this.getPath().split("\n");
+        let path = this.getSourcePath();
         if (!path) return;
         let command = parse(path[index]);
 
@@ -251,10 +252,8 @@ export class SvgEditor {
         }
     }
 
-    getPath(path = this.sourcePath) {
-        let d = getComputedStyle(path).getPropertyValue("d");
-        let commands = parsePath(d);
-        return commands.map(c => `${c.command} ${c.args.join(" ")}`).join("\n");
+    getSourcePath() {
+        return getPathCommands(this.sourcePath);
     }
 
     show() {
@@ -263,7 +262,7 @@ export class SvgEditor {
     }
 
     private renderEditor() {
-        let cells = this.getPath().split("\n").map(v => `<div class="cell">${v}</div>`);
+        let cells = this.getSourcePath().map(v => `<div class="cell">${v}</div>`);
         let input = this.input;
         input.innerHTML = cells.join("\n");
         (Array.from(input.querySelectorAll(".cell")) as HTMLElement[]).forEach(cell => {

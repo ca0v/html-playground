@@ -1,11 +1,4 @@
 export function parsePath(path: string) {
-    let firstQuote = path.indexOf("\"");
-    if (firstQuote < 0)
-        throw "no quote found";
-    let lastQuote = path.lastIndexOf("\"");
-    if (lastQuote <= firstQuote)
-        throw "no end quote found";
-    path = path.substring(firstQuote + 1, lastQuote);
     let tokens = path.split("");
     let commands = [] as Array<{
         command: string;
