@@ -1,3 +1,5 @@
+import "./data/marker";
+
 import { range } from "./fun/range";
 import { asDom } from "./fun/asDom";
 import { Dictionary } from "./fun/Dictionary";
@@ -6,6 +8,10 @@ import { stringify } from "./fun/stringify";
 import { parse } from "./fun/parse";
 import { createPath } from "./fun/createPath";
 import { parsePath } from "./fun/parsePath";
+import { focus } from "./fun/focus";
+import { drawX } from "./fun/drawX";
+import { drawCursor } from "./fun/drawCursor";
+import { setPath } from "./fun/setPath";
 
 export class SvgEditor {
 
@@ -42,7 +48,7 @@ export class SvgEditor {
         });
 
         const moveit = (location: { dx: number, dy: number }) => {
-            this.setPath(this.sourcePath, this.transformActiveCommand(location).join(""));
+            setPath(this.sourcePath, this.transformActiveCommand(location).join(""));
             this.showMarkers();
         }
 
@@ -60,7 +66,7 @@ export class SvgEditor {
                 this.editActiveCommand();
             },
             "ArrowDown": () => {
-                this.focus(document.activeElement?.nextElementSibling);
+                focus(document.activeElement?.nextElementSibling);
             },
             "ArrowDown+ControlLeft": () => {
                 keyCommands["KeyS"]();
@@ -72,7 +78,7 @@ export class SvgEditor {
                 keyCommands["KeyD"]();
             },
             "ArrowUp": () => {
-                this.focus(document.activeElement?.previousElementSibling);
+                focus(document.activeElement?.previousElementSibling);
             },
             "ArrowUp+ControlLeft": () => {
                 keyCommands["KeyW"]();
@@ -161,19 +167,19 @@ export class SvgEditor {
         let path = this.getPath().split("\n");
         let command = { command: "m", args: [0, 0] };
         path.splice(index, 0, stringify(command));
-        this.setPath(this.sourcePath, path.join("\n"));
+        setPath(this.sourcePath, path.join("\n"));
         this.renderEditor();
-        this.focus(this.input.children[index]);
+        focus(this.input.children[index]);
     }
 
     private deleteActiveCommand() {
         let index = this.currentIndex;
         let path = this.getPath().split("\n");
         path.splice(index, 1);
-        this.setPath(this.sourcePath, path.join("\n"));
+        setPath(this.sourcePath, path.join("\n"));
         let nextFocusItem = document.activeElement?.nextElementSibling || document.activeElement?.previousElementSibling;
         this.input.children[index].remove();
-        this.focus(nextFocusItem);
+        focus(nextFocusItem);
     }
 
     private replaceActiveCommand(commandText: string) {
@@ -181,7 +187,7 @@ export class SvgEditor {
         let command = parse(commandText);
         let path = this.getPath().split("\n");
         path[index] = stringify(command);
-        this.setPath(this.sourcePath, path.join("\n"));
+        setPath(this.sourcePath, path.join("\n"));
     }
 
     private transformActiveCommand(translate: { dx: number, dy: number }) {
@@ -195,7 +201,7 @@ export class SvgEditor {
                 x += translate.dx;
                 y += translate.dy;
                 path[index] = stringify({ command: command.command, args: [rx, ry, a, b, cw, x, y] });
-                this.setPath(this.cursorPath, this.drawCursor({ x, y }));
+                setPath(this.cursorPath, drawCursor({ x, y }));
                 break;
             }
             case "C": {
@@ -203,7 +209,7 @@ export class SvgEditor {
                 x += translate.dx;
                 y += translate.dy;
                 path[index] = stringify({ command: command.command, args: [ax, ay, bx, by, x, y] });
-                this.setPath(this.cursorPath, this.drawCursor({ x, y }));
+                setPath(this.cursorPath, drawCursor({ x, y }));
                 break;
             }
             case "M":
@@ -213,18 +219,12 @@ export class SvgEditor {
                 x += translate.dx;
                 y += translate.dy;
                 path[index] = stringify({ command: command.command, args: [x, y] });
-                this.setPath(this.cursorPath, this.drawCursor({ x, y }));
+                setPath(this.cursorPath, drawCursor({ x, y }));
                 break;
             }
         }
         (this.input.children[index] as HTMLDivElement).innerText = path[index];
         return path;
-    }
-
-    focus(element: any) {
-        if (!element) return;
-        if (!element.focus) return;
-        element.focus();
     }
 
     goto(index: number) {
@@ -236,7 +236,7 @@ export class SvgEditor {
         switch (command.command) {
             case "A": {
                 let [rx, ry, a, b, cw, x, y] = command.args;
-                this.setPath(this.cursorPath, this.drawCursor({ x, y }));
+                setPath(this.cursorPath, drawCursor({ x, y }));
                 break;
             }
             case "C":
@@ -245,14 +245,10 @@ export class SvgEditor {
             case "S":
             case "T": {
                 let [x, y] = command.args;
-                this.setPath(this.cursorPath, this.drawCursor({ x, y }));
+                setPath(this.cursorPath, drawCursor({ x, y }));
                 break;
             }
         }
-    }
-
-    private setPath(pathElement: SVGPathElement, d: string) {
-        pathElement.setAttribute("d", d);
     }
 
     getPath(path = this.sourcePath) {
@@ -292,7 +288,7 @@ export class SvgEditor {
             stroke: "rgba(128,128,128,0.5)",
             "stroke-width": "0.1"
         });
-        this.setPath(path, `${vLines}\n${hLines}`);
+        setPath(path, `${vLines}\n${hLines}`);
         this.gridOverlay.appendChild(path);
     }
 
@@ -301,7 +297,7 @@ export class SvgEditor {
         let commands = parsePath(d);
         let overlayPath = this.createOverlayPoint(commands);
         overlayPath.unshift("M 0 0");
-        this.setPath(this.workPath, overlayPath.join(" "));
+        setPath(this.workPath, overlayPath.join(" "));
     }
 
     private createOverlayPoint(commands: Command[]) {
@@ -312,21 +308,21 @@ export class SvgEditor {
                 case "A": {
                     let [rx, ry, a, b, cw, x, y] = command.args;
                     priorLocation = { x, y }
-                    path.push(this.drawX(priorLocation));
+                    path.push(drawX(priorLocation));
                     break;
                 }
                 case "C": {
                     let [ax, ay, bx, by, x, y] = command.args;
-                    path.push(this.drawX({ x: ax, y: ay }));
-                    path.push(this.drawX({ x: bx, y: by }));
+                    path.push(drawX({ x: ax, y: ay }));
+                    path.push(drawX({ x: bx, y: by }));
                     priorLocation = { x, y }
-                    path.push(this.drawX(priorLocation));
+                    path.push(drawX(priorLocation));
                     break;
                 }
                 case "H": {
                     let [x] = command.args;
                     priorLocation.x = x;
-                    path.push(this.drawX(priorLocation));
+                    path.push(drawX(priorLocation));
                     break;
                 }
                 case "L":
@@ -335,20 +331,20 @@ export class SvgEditor {
                     {
                         let [x, y] = command.args;
                         priorLocation = { x, y }
-                        path.push(this.drawX(priorLocation));
+                        path.push(drawX(priorLocation));
                         break;
                     }
                 case "S": {
                     let [bx, by, x, y] = command.args;
-                    path.push(this.drawX({ x: bx, y: by }));
+                    path.push(drawX({ x: bx, y: by }));
                     priorLocation = { x, y }
-                    path.push(this.drawX(priorLocation));
+                    path.push(drawX(priorLocation));
                     break;
                 }
                 case "V": {
                     let [y] = command.args;
                     priorLocation.y = y;
-                    path.push(this.drawX(priorLocation));
+                    path.push(drawX(priorLocation));
                     break;
                 }
                 case "Z": {
@@ -360,16 +356,6 @@ export class SvgEditor {
             }
         });
         return path;
-    }
-
-    private drawX(location: { x: number; y: number }) {
-        let { x, y } = location;
-        return `M ${x} ${y} l ` + `-1 -1 l 2 2 l -1 -1 l 1 -1 l -2 2 z`;
-    }
-
-    private drawCursor(location: { x: number; y: number }, scale = 1) {
-        let { x, y } = location;
-        return `M ${x} ${y} l -5 -5 l 10 10 l -5 -5 l 5 -5 l -10 10 z`;
     }
 
 }

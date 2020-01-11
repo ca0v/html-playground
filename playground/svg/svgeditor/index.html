@@ -2,7 +2,7 @@
 
 <head>
     <title>SVG Editor</title>
-    <link rel="stylesheet" type="text/css" href="index.css"/>
+    <link rel="stylesheet" type="text/css" href="index.css" />
 </head>
 
 <body>
@@ -36,50 +36,14 @@
     <script src="./static/almond.js"></script>
     <script src="./index.js"></script>
     <script>
-        require(["index"], App => {
-            const d = `
-M -20 0
-a 1 15 0 0 1 0 -20
-a 10 5 0 0 1 0 20
-z
-
-M -50 0
-a 15 10 0 0 1 -20 0
-a 5 10 0 0 1 20 0
-z
-
-M 30 0
-l -4 -10
-t -2 -5
-t 5 -5
-t 1 0
-t 1 0
-t 5 5
-l -2 5
-l -4 10
-z
-
-M 6.3 0
-C 6.3 0 0 0.1 0 7.5
-C 0 11.3 6.3 20.1 6.3 20.1
-S 12.6 11.3 12.6 7.4
-C 12.6 0.1 6.3 0 6.3 0
-Z`.trim();
-
+        require(["index", "data/marker"], (App, marker) => {
+            let d = Object.keys(marker).map(k => marker[k]).join("\n").trim();
             let path = document.querySelector("#svg-path");
+            path.setAttribute("d", d);
             let input = document.getElementById("svg-input");
             let editor = new App.SvgEditor(path.parentElement, input);
-            let pathData = localStorage.getItem("path") || d;
-
-            path.setAttribute("d", pathData);
-            // input.addEventListener("keydown", (args) => {
-            //     console.log(input, args);
-            //     input.selectionStart
-            //     debugger;
-            //     //path.setAttribute("d", input.value);
-            //     //localStorage.setItem("path", input.value);
-            //     //editor.show();
-            // });
+            // let pathData = localStorage.getItem("path") || d;
+            // localStorage.setItem("path", input.value);
             editor.show();
         });
     </script>
