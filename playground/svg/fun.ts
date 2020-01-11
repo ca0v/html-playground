@@ -407,7 +407,7 @@ async function run() {
         }, 3000);
     }
 
-    // it is possible to @keyframes "d" on a path
+    // it is possible to @keyframes "d" on a path (e.g. transition: d 1s;)
     // would like to morph down to a circle with same point count
     // then to a circle with new point count
     // then to a star with new point count
