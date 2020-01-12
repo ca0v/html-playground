@@ -40,10 +40,6 @@ export class SvgEditorControl implements SvgEditor {
         //
     }
 
-    hideMarkers(): void {
-        setPath(this.workPath, "");
-    }
-
     hideGrid(): void {
         this.gridOverlay.remove();
     }
@@ -188,7 +184,10 @@ export class SvgEditorControl implements SvgEditor {
 
     private publish(topic: string) {
         let subscribers = this.topics[topic];
-        if (!subscribers) return;
+        if (!subscribers) {
+            console.log(topic);
+            return;
+        }
         subscribers.forEach(subscriber => subscriber());
     }
 
@@ -361,11 +360,20 @@ export class SvgEditorControl implements SvgEditor {
         createGrid(this.gridOverlay, 20, 0, 10);
     }
 
+    hideMarkers(): void {
+        setPath(this.workPath, "");
+    }
+
+    isMarkersVisible() {
+        return !!this.workPath.getAttribute("d");
+    }
+
     showMarkers() {
         let d = getComputedStyle(this.sourcePath).getPropertyValue("d");
         let commands = parsePath(d);
         let overlayPath = this.createOverlayPoint(commands);
         overlayPath.unshift("M 0 0");
+        overlayPath.push("Z");
         setPath(this.workPath, overlayPath.join(" "));
     }
 

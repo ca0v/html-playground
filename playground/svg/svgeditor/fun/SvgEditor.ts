@@ -14,8 +14,10 @@ export interface SvgEditor {
     };
     hideCursor(): void;
     hideCommandEditor(): void;
-    hideMarkers(): void;
     hideGrid(): void;
     showGrid(): void;
     isGridVisible(): boolean;
+    hideMarkers(): void;
+    showMarkers(): void;
+    isMarkersVisible(): boolean;
 }

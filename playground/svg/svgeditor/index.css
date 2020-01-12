@@ -1,59 +1,65 @@
-        body {
-            color: darkgray;
-            background-color: black;
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
+body {
+  color: darkgray;
+  background-color: black;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
 
-        .layers {
-            position: absolute;
-            top: 0;
-            left: 0;
-            margin: 0;
-            padding: 0;
-            width: 100vmin;
-            height: 100vmin;
-        }
+.F1 label {
+  display: block;
+}
 
-        .layers svg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-        }
+.F1.hidden {
+  display: none;
+}
 
-        .grid {
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            padding: 0.5em;
-            overflow: hidden;
-            background-color: black;
-            border: 1px solid white;
-        }
+.layers {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
+  padding: 0;
+  width: 100vmin;
+  height: 100vmin;
+}
 
-        .grid .cell {
-            background-color: black;
-            color: darkgray;
-            display: block;
-            font-size: 1.5rem;
+.layers svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
 
-        }
+.grid {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0.5em;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.5);
+  min-width: 12em;
+}
 
-        .grid .cell input {
-            background-color: black;
-            color: darkgray;
-            display: block;
-            font-size: 1.5rem;
-            border: none;
-            padding: none;
-        }
+.grid .cell {
+  color: darkgray;
+  display: block;
+  font-size: 1.5rem;
+}
 
-        section label {
-            display: block;
-        }
+.grid .cell input {
+  background-color: black;
+  color: darkgray;
+  display: block;
+  font-size: 1.5rem;
+  border: none;
+  padding: none;
+}
+
+section label {
+  display: block;
+}

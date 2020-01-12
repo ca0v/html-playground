@@ -35,6 +35,24 @@ L 2 -2
 M 0 0
 L 2 2
 M 0 0
+Z`,
+        marker4: `M 0 -24
+C 0 -24 -6 -24 -6 -16
+C -6 -13 0 -4 0 -4
+S 6 -13 6 -16
+C 6 -24 0 -24 0 -24
+M 0 0
+L -2 -2
+M 0 0
+L -2 2
+M 0 0
+L 2 -2
+M 0 0
+L 2 2
+M 0 -13
+A 2 2 0 0 1 0 -22
+A 2 2 0 0 1 0 -13
+M 0 0
 Z`
     };
 });
@@ -351,9 +369,6 @@ define("svgeditor", ["require", "exports", "fun/stringify", "fun/parse", "fun/cr
         hideCommandEditor() {
             //
         }
-        hideMarkers() {
-            setPath_2.setPath(this.workPath, "");
-        }
         hideGrid() {
             this.gridOverlay.remove();
         }
@@ -366,8 +381,10 @@ define("svgeditor", ["require", "exports", "fun/stringify", "fun/parse", "fun/cr
         }
         publish(topic) {
             let subscribers = this.topics[topic];
-            if (!subscribers)
+            if (!subscribers) {
+                console.log(topic);
                 return;
+            }
             subscribers.forEach(subscriber => subscriber());
         }
         editActiveCommand() {
@@ -530,11 +547,18 @@ define("svgeditor", ["require", "exports", "fun/stringify", "fun/parse", "fun/cr
             createGrid_1.createGrid(this.gridOverlay, 10, 10, 20);
             createGrid_1.createGrid(this.gridOverlay, 20, 0, 10);
         }
+        hideMarkers() {
+            setPath_2.setPath(this.workPath, "");
+        }
+        isMarkersVisible() {
+            return !!this.workPath.getAttribute("d");
+        }
         showMarkers() {
             let d = getComputedStyle(this.sourcePath).getPropertyValue("d");
             let commands = parsePath_2.parsePath(d);
             let overlayPath = this.createOverlayPoint(commands);
             overlayPath.unshift("M 0 0");
+            overlayPath.push("Z");
             setPath_2.setPath(this.workPath, overlayPath.join(" "));
         }
         createOverlayPoint(commands) {
@@ -602,6 +626,12 @@ define("fun/CoreRules", ["require", "exports"], function (require, exports) {
     Object.defineProperty(exports, "__esModule", { value: true });
     class CoreRules {
         initialize(editor) {
+            // "?"
+            editor.subscribe("ShiftRight+Slash", () => {
+                var _a;
+                let help = document.querySelector(".F1");
+                (_a = help) === null || _a === void 0 ? void 0 : _a.classList.toggle("hidden");
+            });
             editor.subscribe("Escape", () => {
                 editor.hideCursor();
                 editor.hideCommandEditor();
@@ -613,6 +643,15 @@ define("fun/CoreRules", ["require", "exports"], function (require, exports) {
                 }
                 else {
                     editor.showGrid();
+                }
+            });
+            editor.subscribe("KeyM", () => {
+                if (editor.isMarkersVisible()) {
+                    editor.hideMarkers();
+                }
+                else {
+                    editor.showGrid();
+                    editor.showMarkers();
                 }
             });
         }

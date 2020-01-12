@@ -2,19 +2,28 @@
 
 <head>
     <title>SVG Editor</title>
-    <link rel="stylesheet" type="text/css" href="index.css" />
+    <link rel="stylesheet" type="text/css" href="./index.css" />
+    <style>
+        body {
+            background-color: black;
+        }
+    </style>
 </head>
 
 <body>
     <div class="layers">
         <svg viewBox="-100 -100 200 200">
-            <path id="svg-path" fill="blue" stroke="white" stroke-width="1" d="M 0 0 c 40 -100 50 80 0 0 z"></path>
+            <path id="svg-path"></path>
         </svg>
     </div>
     <div id="svg-input" class="grid"></div>
-    <section style="display:block">
-        <p>
-        </p>
+    <div class="F1">
+        <button style="padding:0;background:gray;border:1px solid dark-gray;border-radius:0.5em;">
+            <svg style="width:4em;height:4em;" viewBox="-18 -18 36 36">
+                <use style="transform:translate(0, 25%);fill:black;stroke:white;stroke-width:1" href="#svg-path"></use>
+            </svg>
+        </button>
+
         <label title="move to absolute position">M x y</label>
         <label title="move by">m dx dy</label>
         <label title="horizontal line to X">H x</label>
@@ -31,7 +40,7 @@
         <label title="Q">Q</label>
         <label title="quadratic fit to P">T Px Py</label>
         <label title="ellipse to P, CW=1 is clockwise (0 ccw)">A rx ry 0 0 CW Px Py</label>
-    </section>
+    </div>
     <script src="./static/almond.js"></script>
     <script src="./index.js"></script>
     <script>
