@@ -27,24 +27,16 @@ C -6 -13 0 -4 0 -4
 S 6 -13 6 -16
 C 6 -24 0 -24 0 -24
 M 0 0
-L -1 -1
+L -2 -2
 M 0 0
-L -1 1
+L -2 2
 M 0 0
-L 1 -1
+L 2 -2
 M 0 0
-L 1 1
+L 2 2
 M 0 0
 Z`
     };
-});
-define("fun/range", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    function range(n) {
-        return Array(n).fill(0).map((v, i) => i);
-    }
-    exports.range = range;
 });
 define("fun/Dictionary", ["require", "exports"], function (require, exports) {
     "use strict";
@@ -179,27 +171,37 @@ define("fun/getPathCommands", ["require", "exports", "fun/stringify", "fun/parse
     }
     exports.getPathCommands = getPathCommands;
 });
-define("svgeditor", ["require", "exports", "fun/range", "fun/stringify", "fun/parse", "fun/createPath", "fun/parsePath", "fun/focus", "fun/drawX", "fun/drawCursor", "fun/setPath", "fun/getPathCommands"], function (require, exports, range_1, stringify_2, parse_1, createPath_1, parsePath_2, focus_1, drawX_1, drawCursor_1, setPath_1, getPathCommands_1) {
+define("fun/range", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    class CoreRules {
-        initialize(editor) {
-            editor.subscribe("Escape", () => {
-                editor.hideCursor();
-                editor.hideCommandEditor();
-                editor.hideMarkers();
-            });
-            editor.subscribe("KeyG", () => {
-                if (editor.isGridVisible()) {
-                    editor.hideGrid();
-                }
-                else {
-                    editor.showGrid();
-                }
-            });
-        }
+    function range(n) {
+        return Array(n).fill(0).map((v, i) => i);
     }
-    exports.CoreRules = CoreRules;
+    exports.range = range;
+});
+define("fun/createGrid", ["require", "exports", "fun/range", "fun/createPath", "fun/setPath"], function (require, exports, range_1, createPath_1, setPath_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    function createGrid(gridOverlay, count, offset, dx) {
+        let { x, y, width, height } = gridOverlay.viewBox.baseVal;
+        let vLines = range_1.range(count).map(v => `M ${x + offset + dx * v} ${x} V ${y + height}`).join("\n");
+        let hLines = range_1.range(count).map(v => `M ${x} ${y + offset + dx * v} H ${x + width}`).join("\n");
+        let path = createPath_1.createPath({
+            stroke: "rgba(128,128,128,0.5)",
+            "stroke-width": "0.1"
+        });
+        setPath_1.setPath(path, `${vLines}\n${hLines}`);
+        gridOverlay.appendChild(path);
+    }
+    exports.createGrid = createGrid;
+});
+define("fun/SvgEditor", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+});
+define("svgeditor", ["require", "exports", "fun/stringify", "fun/parse", "fun/createPath", "fun/parsePath", "fun/focus", "fun/drawX", "fun/drawCursor", "fun/setPath", "fun/getPathCommands", "fun/createGrid"], function (require, exports, stringify_2, parse_1, createPath_2, parsePath_2, focus_1, drawX_1, drawCursor_1, setPath_2, getPathCommands_1, createGrid_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
     class SvgEditorControl {
         constructor(workview, input) {
             var _a;
@@ -214,14 +216,14 @@ define("svgeditor", ["require", "exports", "fun/range", "fun/stringify", "fun/pa
             this.gridOverlay = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
             this.gridOverlay.setAttribute("viewBox", `${x} ${y} ${width} ${height}`);
             (_a = workview.parentElement) === null || _a === void 0 ? void 0 : _a.appendChild(this.gridOverlay);
-            this.workPath = createPath_1.createPath({
+            this.workPath = createPath_2.createPath({
                 "fill": "rgb(0,255,128)",
                 "stroke": "rgb(0,255,128)",
                 "stroke-width": "0.5"
             });
             this.gridOverlay.appendChild(this.workPath);
-            this.showGrid();
-            this.cursorPath = createPath_1.createPath({
+            this.createGrid();
+            this.cursorPath = createPath_2.createPath({
                 stroke: "rgb(0, 255, 0)",
                 "stroke-width": "0.2",
             });
@@ -231,7 +233,7 @@ define("svgeditor", ["require", "exports", "fun/range", "fun/stringify", "fun/pa
                 keystate[event.code] = false;
             });
             const moveit = (location) => {
-                setPath_1.setPath(this.sourcePath, this.transformActiveCommand(location).join(""));
+                setPath_2.setPath(this.sourcePath, this.transformActiveCommand(location).join(""));
                 this.showMarkers();
             };
             const keyCommands = {
@@ -255,7 +257,7 @@ define("svgeditor", ["require", "exports", "fun/range", "fun/stringify", "fun/pa
                     let pathData = localStorage.getItem("path");
                     if (!pathData)
                         return;
-                    setPath_1.setPath(this.sourcePath, pathData);
+                    setPath_2.setPath(this.sourcePath, pathData);
                     this.renderEditor();
                     this.showMarkers();
                     focus_1.focus(this.input.children[0]);
@@ -344,19 +346,23 @@ define("svgeditor", ["require", "exports", "fun/range", "fun/stringify", "fun/pa
             };
         }
         hideCursor() {
-            this.cursorPath.remove();
+            setPath_2.setPath(this.cursorPath, "");
         }
         hideCommandEditor() {
             //
         }
         hideMarkers() {
-            //
+            setPath_2.setPath(this.workPath, "");
         }
         hideGrid() {
-            //
+            this.gridOverlay.remove();
+        }
+        showGrid() {
+            var _a, _b;
+            (_b = (_a = this.workview) === null || _a === void 0 ? void 0 : _a.parentElement) === null || _b === void 0 ? void 0 : _b.appendChild(this.gridOverlay);
         }
         isGridVisible() {
-            return true;
+            return !!this.gridOverlay.parentElement;
         }
         publish(topic) {
             let subscribers = this.topics[topic];
@@ -404,7 +410,7 @@ define("svgeditor", ["require", "exports", "fun/range", "fun/stringify", "fun/pa
             let path = this.getSourcePath();
             let command = { command: "m", args: [0, 0] };
             path.splice(index, 0, stringify_2.stringify(command));
-            setPath_1.setPath(this.sourcePath, path.join("\n"));
+            setPath_2.setPath(this.sourcePath, path.join("\n"));
             this.renderEditor();
             focus_1.focus(this.input.children[index]);
         }
@@ -413,7 +419,7 @@ define("svgeditor", ["require", "exports", "fun/range", "fun/stringify", "fun/pa
             let index = this.currentIndex;
             let path = this.getSourcePath();
             path.splice(index, 1);
-            setPath_1.setPath(this.sourcePath, path.join("\n"));
+            setPath_2.setPath(this.sourcePath, path.join("\n"));
             let nextFocusItem = ((_a = document.activeElement) === null || _a === void 0 ? void 0 : _a.nextElementSibling) || ((_b = document.activeElement) === null || _b === void 0 ? void 0 : _b.previousElementSibling);
             this.input.children[index].remove();
             focus_1.focus(nextFocusItem);
@@ -423,7 +429,7 @@ define("svgeditor", ["require", "exports", "fun/range", "fun/stringify", "fun/pa
             let command = parse_1.parse(commandText);
             let path = this.getSourcePath();
             path[index] = stringify_2.stringify(command);
-            setPath_1.setPath(this.sourcePath, path.join("\n"));
+            setPath_2.setPath(this.sourcePath, path.join("\n"));
         }
         transformActiveCommand(translate) {
             let index = this.currentIndex;
@@ -437,7 +443,7 @@ define("svgeditor", ["require", "exports", "fun/range", "fun/stringify", "fun/pa
                     x += translate.dx;
                     y += translate.dy;
                     path[index] = stringify_2.stringify({ command: command.command, args: [rx, ry, a, b, cw, x, y] });
-                    setPath_1.setPath(this.cursorPath, drawCursor_1.drawCursor({ x, y }));
+                    setPath_2.setPath(this.cursorPath, drawCursor_1.drawCursor({ x, y }));
                     break;
                 }
                 case "C": {
@@ -449,7 +455,7 @@ define("svgeditor", ["require", "exports", "fun/range", "fun/stringify", "fun/pa
                     x += translate.dx;
                     y += translate.dy;
                     path[index] = stringify_2.stringify({ command: command.command, args: [ax, ay, bx, by, x, y] });
-                    setPath_1.setPath(this.cursorPath, drawCursor_1.drawCursor({ x, y }));
+                    setPath_2.setPath(this.cursorPath, drawCursor_1.drawCursor({ x, y }));
                     break;
                 }
                 case "S":
@@ -460,7 +466,7 @@ define("svgeditor", ["require", "exports", "fun/range", "fun/stringify", "fun/pa
                         x += translate.dx;
                         y += translate.dy;
                         path[index] = stringify_2.stringify({ command: command.command, args: [bx, by, x, y] });
-                        setPath_1.setPath(this.cursorPath, drawCursor_1.drawCursor({ x, y }));
+                        setPath_2.setPath(this.cursorPath, drawCursor_1.drawCursor({ x, y }));
                         break;
                     }
                 case "L":
@@ -471,7 +477,7 @@ define("svgeditor", ["require", "exports", "fun/range", "fun/stringify", "fun/pa
                         x += translate.dx;
                         y += translate.dy;
                         path[index] = stringify_2.stringify({ command: command.command, args: [x, y] });
-                        setPath_1.setPath(this.cursorPath, drawCursor_1.drawCursor({ x, y }));
+                        setPath_2.setPath(this.cursorPath, drawCursor_1.drawCursor({ x, y }));
                         break;
                     }
             }
@@ -487,7 +493,7 @@ define("svgeditor", ["require", "exports", "fun/range", "fun/stringify", "fun/pa
             switch (command.command) {
                 case "A": {
                     let [rx, ry, a, b, cw, x, y] = command.args;
-                    setPath_1.setPath(this.cursorPath, drawCursor_1.drawCursor({ x, y }));
+                    setPath_2.setPath(this.cursorPath, drawCursor_1.drawCursor({ x, y }));
                     break;
                 }
                 case "C":
@@ -496,7 +502,7 @@ define("svgeditor", ["require", "exports", "fun/range", "fun/stringify", "fun/pa
                 case "S":
                 case "T": {
                     let [x, y] = command.args;
-                    setPath_1.setPath(this.cursorPath, drawCursor_1.drawCursor({ x, y }));
+                    setPath_2.setPath(this.cursorPath, drawCursor_1.drawCursor({ x, y }));
                     break;
                 }
             }
@@ -520,27 +526,16 @@ define("svgeditor", ["require", "exports", "fun/range", "fun/stringify", "fun/pa
                 });
             });
         }
-        showGrid() {
-            this.createGrid(10, 10, 20);
-            this.createGrid(20, 0, 10);
-        }
-        createGrid(count, offset, dx) {
-            let { x, y, width, height } = this.gridOverlay.viewBox.baseVal;
-            let vLines = range_1.range(count).map(v => `M ${x + offset + dx * v} ${x} V ${y + height}`).join("\n");
-            let hLines = range_1.range(count).map(v => `M ${x} ${y + offset + dx * v} H ${x + width}`).join("\n");
-            let path = createPath_1.createPath({
-                stroke: "rgba(128,128,128,0.5)",
-                "stroke-width": "0.1"
-            });
-            setPath_1.setPath(path, `${vLines}\n${hLines}`);
-            this.gridOverlay.appendChild(path);
+        createGrid() {
+            createGrid_1.createGrid(this.gridOverlay, 10, 10, 20);
+            createGrid_1.createGrid(this.gridOverlay, 20, 0, 10);
         }
         showMarkers() {
             let d = getComputedStyle(this.sourcePath).getPropertyValue("d");
             let commands = parsePath_2.parsePath(d);
             let overlayPath = this.createOverlayPoint(commands);
             overlayPath.unshift("M 0 0");
-            setPath_1.setPath(this.workPath, overlayPath.join(" "));
+            setPath_2.setPath(this.workPath, overlayPath.join(" "));
         }
         createOverlayPoint(commands) {
             let path = [];
@@ -602,7 +597,29 @@ define("svgeditor", ["require", "exports", "fun/range", "fun/stringify", "fun/pa
     }
     exports.SvgEditorControl = SvgEditorControl;
 });
-define("index", ["require", "exports", "data/marker", "svgeditor"], function (require, exports, marker_1, svgeditor_1) {
+define("fun/CoreRules", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class CoreRules {
+        initialize(editor) {
+            editor.subscribe("Escape", () => {
+                editor.hideCursor();
+                editor.hideCommandEditor();
+                editor.hideMarkers();
+            });
+            editor.subscribe("KeyG", () => {
+                if (editor.isGridVisible()) {
+                    editor.hideGrid();
+                }
+                else {
+                    editor.showGrid();
+                }
+            });
+        }
+    }
+    exports.CoreRules = CoreRules;
+});
+define("index", ["require", "exports", "data/marker", "svgeditor", "fun/CoreRules"], function (require, exports, marker_1, svgeditor_1, CoreRules_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     marker_1 = __importDefault(marker_1);
@@ -619,7 +636,7 @@ define("index", ["require", "exports", "data/marker", "svgeditor"], function (re
         path.setAttribute("d", d);
         let input = document.getElementById("svg-input");
         let editor = createSvgEditor(svg, input);
-        editor.use(new svgeditor_1.CoreRules());
+        editor.use(new CoreRules_1.CoreRules());
         editor.show();
     }
     exports.run = run;

@@ -1,5 +1,7 @@
 import markers from "./data/marker";
-import { SvgEditor, SvgEditorControl, CoreRules } from "./svgeditor";
+import { SvgEditorControl } from "./svgeditor";
+import { SvgEditor } from "./fun/SvgEditor";
+import { CoreRules } from "./fun/CoreRules";
 
 function createSvgEditor(workview: SVGSVGElement, input: HTMLElement) {
     let editor = new SvgEditorControl(workview, input);

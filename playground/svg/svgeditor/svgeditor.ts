@@ -1,4 +1,3 @@
-import { range } from "./fun/range";
 import { Dictionary } from "./fun/Dictionary";
 import { Command } from "./fun/Command";
 import { stringify } from "./fun/stringify";
@@ -10,44 +9,8 @@ import { drawX } from "./fun/drawX";
 import { drawCursor } from "./fun/drawCursor";
 import { setPath } from "./fun/setPath";
 import { getPathCommands } from "./fun/getPathCommands";
-
-export interface SvgEditor {
-    use(rule: SvgEditorRule): SvgEditor;
-    show(): void;
-    subscribe(topic: string, callback: () => void): { unsubscribe: () => void };
-    hideCursor(): void;
-    hideCommandEditor(): void;
-    hideMarkers(): void;
-    hideGrid(): void;
-    showGrid(): void;
-    isGridVisible(): boolean;
-}
-
-/**
- * rules
- * escape => clear markers, clear editors
- */
-export interface SvgEditorRule {
-    initialize(editor: SvgEditor): void;
-}
-
-export class CoreRules implements SvgEditorRule {
-    initialize(editor: SvgEditor) {
-        editor.subscribe("Escape", () => {
-            editor.hideCursor();
-            editor.hideCommandEditor();
-            editor.hideMarkers();
-        });
-
-        editor.subscribe("KeyG", () => {
-            if (editor.isGridVisible()) {
-                editor.hideGrid();
-            } else {
-                editor.showGrid();
-            }
-        });
-    }
-}
+import { createGrid } from "./fun/createGrid";
+import { SvgEditor, SvgEditorRule } from "./fun/SvgEditor";
 
 export class SvgEditorControl implements SvgEditor {
     private topics: Dictionary<Array<() => void>> = {};
@@ -70,19 +33,27 @@ export class SvgEditorControl implements SvgEditor {
     }
 
     hideCursor(): void {
-        this.cursorPath.remove();
+        setPath(this.cursorPath, "");
     }
+
     hideCommandEditor(): void {
         //
     }
+
     hideMarkers(): void {
-        //
+        setPath(this.workPath, "");
     }
+
     hideGrid(): void {
-        //
+        this.gridOverlay.remove();
     }
+
+    showGrid(): void {
+        this.workview?.parentElement?.appendChild(this.gridOverlay);
+    }
+
     isGridVisible(): boolean {
-        return true;
+        return !!this.gridOverlay.parentElement;
     }
 
     private gridOverlay: SVGSVGElement;
@@ -105,7 +76,7 @@ export class SvgEditorControl implements SvgEditor {
             "stroke-width": "0.5"
         });
         this.gridOverlay.appendChild(this.workPath);
-        this.showGrid();
+        this.createGrid();
         this.cursorPath = createPath({
             stroke: "rgb(0, 255, 0)",
             "stroke-width": "0.2",
@@ -385,21 +356,9 @@ export class SvgEditorControl implements SvgEditor {
         });
     }
 
-    showGrid() {
-        this.createGrid(10, 10, 20);
-        this.createGrid(20, 0, 10);
-    }
-
-    private createGrid(count: number, offset: number, dx: number) {
-        let { x, y, width, height } = this.gridOverlay.viewBox.baseVal;
-        let vLines = range(count).map(v => `M ${x + offset + dx * v} ${x} V ${y + height}`).join("\n");
-        let hLines = range(count).map(v => `M ${x} ${y + offset + dx * v} H ${x + width}`).join("\n");
-        let path = createPath({
-            stroke: "rgba(128,128,128,0.5)",
-            "stroke-width": "0.1"
-        });
-        setPath(path, `${vLines}\n${hLines}`);
-        this.gridOverlay.appendChild(path);
+    createGrid() {
+        createGrid(this.gridOverlay, 10, 10, 20);
+        createGrid(this.gridOverlay, 20, 0, 10);
     }
 
     showMarkers() {
