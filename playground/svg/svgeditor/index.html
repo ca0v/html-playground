@@ -8,12 +8,11 @@
 <body>
     <div class="layers">
         <svg viewBox="-100 -100 200 200">
-
             <path id="svg-path" fill="blue" stroke="white" stroke-width="1" d="M 0 0 c 40 -100 50 80 0 0 z"></path>
         </svg>
     </div>
     <div id="svg-input" class="grid"></div>
-    <section style="display:none">
+    <section style="display:block">
         <p>
         </p>
         <label title="move to absolute position">M x y</label>
@@ -36,15 +35,8 @@
     <script src="./static/almond.js"></script>
     <script src="./index.js"></script>
     <script>
-        require(["index", "data/marker"], (App, marker) => {
-            let d = Object.keys(marker).map(k => marker[k]).join("\n").trim();
-            let path = document.querySelector("#svg-path");
-            path.setAttribute("d", d);
-            let input = document.getElementById("svg-input");
-            let editor = new App.SvgEditor(path.parentElement, input);
-            // let pathData = localStorage.getItem("path") || d;
-            // localStorage.setItem("path", input.value);
-            editor.show();
+        require(["index"], (App) => {
+            App.run();
         });
     </script>
 </body>

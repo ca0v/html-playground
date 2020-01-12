@@ -1,26 +1,40 @@
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 define("data/marker", ["require", "exports"], function (require, exports) {
     "use strict";
     return {
-        marker1: `M 6.3 0
-C 6.3 0 0 0.1 0 7.5
-C 0 11.3 6.3 20.1 6.3 20.1
-S 12.6 11.3 12.6 7.4
-C 12.6 0.1 6.3 0 6.3 0
+        marker1: `M 0 -20
+C 0 -20 -6 -20 -6 -12
+C -6 -9 0 0 0 0
+S 6 -9 6 -12
+C 6 -20 0 -20 0 -20
+M 0 0
 Z`,
-        marker2: `M 30 0
-L 24 -15
-L 29 -20
-L 31 -20
-T 36 -15
-L 30 0
+        marker2: `M 0 -24
+C 0 -24 -6 -24 -6 -16
+C -6 -13 0 -4 0 -4
+S 6 -13 6 -16
+C 6 -24 0 -24 0 -24
+M 0 -2
+A 1 1 0 0 1 0 2
+A 1 1 0 0 1 0 -2
+M 0 0
 Z`,
-        marker3: `M -20 0
-A 1 15 0 0 1 -20 -20
-A 10 5 0 0 1 -20 0
-Z
-M -50 0
-A 15 10 0 0 1 -70 0
-A 5 10 0 0 1 -50 0
+        marker3: `M 0 -24
+C 0 -24 -6 -24 -6 -16
+C -6 -13 0 -4 0 -4
+S 6 -13 6 -16
+C 6 -24 0 -24 0 -24
+M 0 0
+L -1 -1
+M 0 0
+L -1 1
+M 0 0
+L 1 -1
+M 0 0
+L 1 1
+M 0 0
 Z`
     };
 });
@@ -31,16 +45,6 @@ define("fun/range", ["require", "exports"], function (require, exports) {
         return Array(n).fill(0).map((v, i) => i);
     }
     exports.range = range;
-});
-define("fun/asDom", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    function asDom(html) {
-        let div = document.createElement("div");
-        div.innerHTML = html.trim();
-        return div.firstElementChild;
-    }
-    exports.asDom = asDom;
 });
 define("fun/Dictionary", ["require", "exports"], function (require, exports) {
     "use strict";
@@ -53,8 +57,11 @@ define("fun/Command", ["require", "exports"], function (require, exports) {
 define("fun/stringify", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    function round2(n) {
+        return Math.round(n * 1000) / 1000;
+    }
     function stringify(command) {
-        return `${command.command} ${command.args.join(" ")}`;
+        return `${command.command} ${command.args.map(v => round2(v)).join(" ")}`;
     }
     exports.stringify = stringify;
 });
@@ -172,14 +179,33 @@ define("fun/getPathCommands", ["require", "exports", "fun/stringify", "fun/parse
     }
     exports.getPathCommands = getPathCommands;
 });
-define("index", ["require", "exports", "fun/range", "fun/stringify", "fun/parse", "fun/createPath", "fun/parsePath", "fun/focus", "fun/drawX", "fun/drawCursor", "fun/setPath", "fun/getPathCommands", "data/marker"], function (require, exports, range_1, stringify_2, parse_1, createPath_1, parsePath_2, focus_1, drawX_1, drawCursor_1, setPath_1, getPathCommands_1) {
+define("svgeditor", ["require", "exports", "fun/range", "fun/stringify", "fun/parse", "fun/createPath", "fun/parsePath", "fun/focus", "fun/drawX", "fun/drawCursor", "fun/setPath", "fun/getPathCommands"], function (require, exports, range_1, stringify_2, parse_1, createPath_1, parsePath_2, focus_1, drawX_1, drawCursor_1, setPath_1, getPathCommands_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    class SvgEditor {
+    class CoreRules {
+        initialize(editor) {
+            editor.subscribe("Escape", () => {
+                editor.hideCursor();
+                editor.hideCommandEditor();
+                editor.hideMarkers();
+            });
+            editor.subscribe("KeyG", () => {
+                if (editor.isGridVisible()) {
+                    editor.hideGrid();
+                }
+                else {
+                    editor.showGrid();
+                }
+            });
+        }
+    }
+    exports.CoreRules = CoreRules;
+    class SvgEditorControl {
         constructor(workview, input) {
             var _a;
             this.workview = workview;
             this.input = input;
+            this.topics = {};
             this.currentIndex = -1;
             this.sourcePath = this.workview.querySelector("path");
             if (!this.sourcePath)
@@ -212,11 +238,31 @@ define("index", ["require", "exports", "fun/range", "fun/stringify", "fun/parse"
                 "Delete": () => {
                     this.deleteActiveCommand();
                 },
+                "End": () => {
+                    focus_1.focus(this.input.lastElementChild);
+                },
+                "Home": () => {
+                    focus_1.focus(this.input.firstElementChild);
+                },
                 "Insert": () => {
                     this.insertBeforeActiveCommand();
                 },
                 "F2": () => {
                     keyCommands["Enter"]();
+                },
+                "F5": () => {
+                    // open
+                    let pathData = localStorage.getItem("path");
+                    if (!pathData)
+                        return;
+                    setPath_1.setPath(this.sourcePath, pathData);
+                    this.renderEditor();
+                    this.showMarkers();
+                    focus_1.focus(this.input.children[0]);
+                },
+                "F11": () => {
+                    // save
+                    localStorage.setItem("path", this.getSourcePath().join("\n"));
                 },
                 "Enter": () => {
                     this.editActiveCommand();
@@ -277,9 +323,46 @@ define("index", ["require", "exports", "fun/range", "fun/stringify", "fun/parse"
                     return;
                 }
                 else {
-                    console.log(event.code, code);
+                    this.publish(code);
                 }
             });
+        }
+        use(rule) {
+            rule.initialize(this);
+            return this;
+        }
+        subscribe(topic, callback) {
+            let subscribers = this.topics[topic] = this.topics[topic] || [];
+            subscribers.push(callback);
+            return {
+                unsubscribe: () => {
+                    let i = subscribers.indexOf(callback);
+                    if (i < 0)
+                        return;
+                    subscribers.splice(i, 1);
+                }
+            };
+        }
+        hideCursor() {
+            this.cursorPath.remove();
+        }
+        hideCommandEditor() {
+            //
+        }
+        hideMarkers() {
+            //
+        }
+        hideGrid() {
+            //
+        }
+        isGridVisible() {
+            return true;
+        }
+        publish(topic) {
+            let subscribers = this.topics[topic];
+            if (!subscribers)
+                return;
+            subscribers.forEach(subscriber => subscriber());
         }
         editActiveCommand() {
             let index = this.currentIndex;
@@ -359,22 +442,38 @@ define("index", ["require", "exports", "fun/range", "fun/stringify", "fun/parse"
                 }
                 case "C": {
                     let [ax, ay, bx, by, x, y] = command.args;
+                    ax += translate.dx;
+                    ay += translate.dy;
+                    bx += translate.dx;
+                    by += translate.dy;
                     x += translate.dx;
                     y += translate.dy;
                     path[index] = stringify_2.stringify({ command: command.command, args: [ax, ay, bx, by, x, y] });
                     setPath_1.setPath(this.cursorPath, drawCursor_1.drawCursor({ x, y }));
                     break;
                 }
+                case "S":
+                    {
+                        let [bx, by, x, y] = command.args;
+                        bx += translate.dx;
+                        by += translate.dy;
+                        x += translate.dx;
+                        y += translate.dy;
+                        path[index] = stringify_2.stringify({ command: command.command, args: [bx, by, x, y] });
+                        setPath_1.setPath(this.cursorPath, drawCursor_1.drawCursor({ x, y }));
+                        break;
+                    }
+                case "L":
                 case "M":
                 case "T":
-                case "L": {
-                    let [x, y] = command.args;
-                    x += translate.dx;
-                    y += translate.dy;
-                    path[index] = stringify_2.stringify({ command: command.command, args: [x, y] });
-                    setPath_1.setPath(this.cursorPath, drawCursor_1.drawCursor({ x, y }));
-                    break;
-                }
+                    {
+                        let [x, y] = command.args;
+                        x += translate.dx;
+                        y += translate.dy;
+                        path[index] = stringify_2.stringify({ command: command.command, args: [x, y] });
+                        setPath_1.setPath(this.cursorPath, drawCursor_1.drawCursor({ x, y }));
+                        break;
+                    }
             }
             this.input.children[index].innerText = path[index];
             return path;
@@ -501,5 +600,27 @@ define("index", ["require", "exports", "fun/range", "fun/stringify", "fun/parse"
             return path;
         }
     }
-    exports.SvgEditor = SvgEditor;
+    exports.SvgEditorControl = SvgEditorControl;
+});
+define("index", ["require", "exports", "data/marker", "svgeditor"], function (require, exports, marker_1, svgeditor_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    marker_1 = __importDefault(marker_1);
+    function createSvgEditor(workview, input) {
+        let editor = new svgeditor_1.SvgEditorControl(workview, input);
+        return editor;
+    }
+    function run() {
+        let d = Object.keys(marker_1.default).map(k => marker_1.default[k]).join("\n").trim();
+        let path = document.querySelector("path");
+        let svg = path.ownerSVGElement;
+        if (!svg)
+            throw "path must be in an svg container";
+        path.setAttribute("d", d);
+        let input = document.getElementById("svg-input");
+        let editor = createSvgEditor(svg, input);
+        editor.use(new svgeditor_1.CoreRules());
+        editor.show();
+    }
+    exports.run = run;
 });
