@@ -1,4 +1,4 @@
-body {
+body.svgeditor {
   color: darkgray;
   background-color: black;
   width: 100%;
@@ -8,15 +8,26 @@ body {
   overflow: hidden;
 }
 
-.F1 label {
+.svgeditor .F1 label {
   display: block;
 }
 
-.F1.hidden {
-  display: none;
+.svgeditor .hidden {
+  display: none !important;
 }
 
-.layers {
+.svgeditor .toolbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  max-width: 100vw;
+  max-height: 100vh;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 4em);
+  overflow: auto;
+}
+
+.svgeditor .layers {
   position: absolute;
   top: 0;
   left: 0;
@@ -26,7 +37,7 @@ body {
   height: 100vmin;
 }
 
-.layers svg {
+.svgeditor .layers svg {
   position: absolute;
   top: 0;
   left: 0;
@@ -36,7 +47,7 @@ body {
   stroke: white;
 }
 
-.grid {
+.svgeditor .grid {
   position: absolute;
   top: 0;
   right: 0;
@@ -47,13 +58,13 @@ body {
   min-width: 12em;
 }
 
-.grid .cell {
+.svgeditor .grid .cell {
   color: darkgray;
   display: block;
   font-size: 1.5rem;
 }
 
-.grid .cell input {
+.svgeditor .grid .cell input {
   background-color: black;
   color: darkgray;
   display: block;
@@ -62,6 +73,6 @@ body {
   padding: none;
 }
 
-section label {
+.svgeditor section label {
   display: block;
 }

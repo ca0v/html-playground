@@ -274,13 +274,13 @@ define("svgeditor", ["require", "exports", "fun/stringify", "fun/parse", "fun/cr
             if (!this.sourcePath)
                 throw "workview must have a path";
             let { x, y, width, height } = workview.viewBox.baseVal;
-            this.gridOverlay = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            this.gridOverlay = document.createElementNS("http://www.w3.org/2000/svg", "svg");
             this.gridOverlay.setAttribute("viewBox", `${x} ${y} ${width} ${height}`);
             (_a = workview.parentElement) === null || _a === void 0 ? void 0 : _a.appendChild(this.gridOverlay);
             this.workPath = createPath_2.createPath({
-                "fill": "rgb(0,255,128)",
-                "stroke": "rgb(0,255,128)",
-                "stroke-width": "0.2"
+                fill: "rgb(0,255,128)",
+                stroke: "rgb(0,255,128)",
+                "stroke-width": "0.2",
             });
             this.gridOverlay.appendChild(this.workPath);
             this.createGrid();
@@ -298,22 +298,22 @@ define("svgeditor", ["require", "exports", "fun/stringify", "fun/parse", "fun/cr
                 this.showMarkers();
             };
             const keyCommands = {
-                "Delete": () => {
+                Delete: () => {
                     this.deleteActiveCommand();
                 },
-                "End": () => {
+                End: () => {
                     focus_1.focus(this.input.lastElementChild);
                 },
-                "Home": () => {
+                Home: () => {
                     focus_1.focus(this.input.firstElementChild);
                 },
-                "Insert": () => {
+                Insert: () => {
                     this.insertBeforeActiveCommand();
                 },
-                "F2": () => {
+                F2: () => {
                     keyCommands["Enter"]();
                 },
-                "F5": () => {
+                F5: () => {
                     // open
                     let pathData = localStorage.getItem("path");
                     if (!pathData)
@@ -323,14 +323,14 @@ define("svgeditor", ["require", "exports", "fun/stringify", "fun/parse", "fun/cr
                     this.showMarkers();
                     focus_1.focus(this.input.children[0]);
                 },
-                "F11": () => {
+                F11: () => {
                     // save
                     localStorage.setItem("path", this.getSourcePath().join("\n"));
                 },
-                "Enter": () => {
+                Enter: () => {
                     this.editActiveCommand();
                 },
-                "ArrowDown": () => {
+                ArrowDown: () => {
                     var _a;
                     focus_1.focus((_a = document.activeElement) === null || _a === void 0 ? void 0 : _a.nextElementSibling);
                 },
@@ -343,14 +343,14 @@ define("svgeditor", ["require", "exports", "fun/stringify", "fun/parse", "fun/cr
                 "ArrowRight+ControlLeft": () => {
                     keyCommands["KeyD"]();
                 },
-                "ArrowUp": () => {
+                ArrowUp: () => {
                     var _a;
                     focus_1.focus((_a = document.activeElement) === null || _a === void 0 ? void 0 : _a.previousElementSibling);
                 },
                 "ArrowUp+ControlLeft": () => {
                     keyCommands["KeyW"]();
                 },
-                "KeyA": () => {
+                KeyA: () => {
                     moveit({ dx: -1, dy: 0 });
                 },
                 "KeyA+KeyS": () => {
@@ -359,7 +359,7 @@ define("svgeditor", ["require", "exports", "fun/stringify", "fun/parse", "fun/cr
                 "KeyA+KeyW": () => {
                     moveit({ dx: -1, dy: -1 });
                 },
-                "KeyD": () => {
+                KeyD: () => {
                     moveit({ dx: 1, dy: 0 });
                 },
                 "KeyD+KeyS": () => {
@@ -368,10 +368,10 @@ define("svgeditor", ["require", "exports", "fun/stringify", "fun/parse", "fun/cr
                 "KeyD+KeyW": () => {
                     moveit({ dx: 1, dy: -1 });
                 },
-                "KeyS": () => {
+                KeyS: () => {
                     moveit({ dx: 0, dy: 1 });
                 },
-                "KeyW": () => {
+                KeyW: () => {
                     moveit({ dx: 0, dy: -1 });
                 },
             };
@@ -379,7 +379,10 @@ define("svgeditor", ["require", "exports", "fun/stringify", "fun/parse", "fun/cr
                 if (event.code === "Escape")
                     keystate = {};
                 keystate[event.code] = true;
-                let code = Object.keys(keystate).filter(k => keystate[k]).sort().join("+");
+                let code = Object.keys(keystate)
+                    .filter(k => keystate[k])
+                    .sort()
+                    .join("+");
                 if (keyCommands[code]) {
                     keyCommands[code]();
                     event.preventDefault();
@@ -395,11 +398,10 @@ define("svgeditor", ["require", "exports", "fun/stringify", "fun/parse", "fun/cr
             return this;
         }
         setActiveIndex(index) {
-            this.goto(index);
             focus_1.focus(this.input.children[index]);
         }
         subscribe(topic, callback) {
-            let subscribers = this.topics[topic] = this.topics[topic] || [];
+            let subscribers = (this.topics[topic] = this.topics[topic] || []);
             subscribers.push(callback);
             return {
                 unsubscribe: () => {
@@ -407,7 +409,7 @@ define("svgeditor", ["require", "exports", "fun/stringify", "fun/parse", "fun/cr
                     if (i < 0)
                         return;
                     subscribers.splice(i, 1);
-                }
+                },
             };
         }
         hideCursor() {
@@ -449,7 +451,7 @@ define("svgeditor", ["require", "exports", "fun/stringify", "fun/parse", "fun/cr
                 input.remove();
                 commandEditor.focus();
             };
-            input.onkeydown = (event) => {
+            input.onkeydown = event => {
                 event.cancelBubble = true;
                 switch (event.code) {
                     case "Escape":
@@ -522,28 +524,26 @@ define("svgeditor", ["require", "exports", "fun/stringify", "fun/parse", "fun/cr
                     setPath_2.setPath(this.cursorPath, drawCursor_1.drawCursor({ x, y }));
                     break;
                 }
-                case "S":
-                    {
-                        let [bx, by, x, y] = command.args;
-                        bx += translate.dx;
-                        by += translate.dy;
-                        x += translate.dx;
-                        y += translate.dy;
-                        path[index] = stringify_2.stringify({ command: command.command, args: [bx, by, x, y] });
-                        setPath_2.setPath(this.cursorPath, drawCursor_1.drawCursor({ x, y }));
-                        break;
-                    }
+                case "S": {
+                    let [bx, by, x, y] = command.args;
+                    bx += translate.dx;
+                    by += translate.dy;
+                    x += translate.dx;
+                    y += translate.dy;
+                    path[index] = stringify_2.stringify({ command: command.command, args: [bx, by, x, y] });
+                    setPath_2.setPath(this.cursorPath, drawCursor_1.drawCursor({ x, y }));
+                    break;
+                }
                 case "L":
                 case "M":
-                case "T":
-                    {
-                        let [x, y] = command.args;
-                        x += translate.dx;
-                        y += translate.dy;
-                        path[index] = stringify_2.stringify({ command: command.command, args: [x, y] });
-                        setPath_2.setPath(this.cursorPath, drawCursor_1.drawCursor({ x, y }));
-                        break;
-                    }
+                case "T": {
+                    let [x, y] = command.args;
+                    x += translate.dx;
+                    y += translate.dy;
+                    path[index] = stringify_2.stringify({ command: command.command, args: [x, y] });
+                    setPath_2.setPath(this.cursorPath, drawCursor_1.drawCursor({ x, y }));
+                    break;
+                }
             }
             this.input.children[index].innerText = path[index];
             return path;
@@ -635,13 +635,12 @@ define("svgeditor", ["require", "exports", "fun/stringify", "fun/parse", "fun/cr
                     }
                     case "L":
                     case "M":
-                    case "T":
-                        {
-                            let [x, y] = command.args;
-                            priorLocation = { x, y };
-                            path.push(priorLocation);
-                            break;
-                        }
+                    case "T": {
+                        let [x, y] = command.args;
+                        priorLocation = { x, y };
+                        path.push(priorLocation);
+                        break;
+                    }
                     case "S": {
                         let [bx, by, x, y] = command.args;
                         path.push({ x: bx, y: by });
@@ -679,6 +678,12 @@ define("fun/CoreRules", ["require", "exports"], function (require, exports) {
                 let help = document.querySelector(".F1");
                 (_a = help) === null || _a === void 0 ? void 0 : _a.classList.toggle("hidden");
             });
+            editor.subscribe("KeyT", () => {
+                let toolbar = document.querySelector(".toolbar");
+                if (!toolbar)
+                    return;
+                toolbar.classList.toggle("hidden");
+            });
             editor.subscribe("Escape", () => {
                 editor.hideCursor();
                 editor.hideCommandEditor();
@@ -709,9 +714,9 @@ define("fun/CoreRules", ["require", "exports"], function (require, exports) {
                     currentScale = "";
                 layers.style.transform = `${currentScale} translate(100%,100%) scale(2) translate(-50%,-50%)`;
                 // zoom 2x
-                // translate(100%,100%) scale(2) translate(-50%,-50%) 
+                // translate(100%,100%) scale(2) translate(-50%,-50%)
                 // zoom 3x
-                // translate(150%,150%) scale(3) translate(-50%,-50%) 
+                // translate(150%,150%) scale(3) translate(-50%,-50%)
             });
             editor.subscribe("NumpadSubtract", () => {
                 let layers = document.querySelector(".layers");
@@ -762,7 +767,7 @@ define("index", ["require", "exports", "data/marker", "svgeditor", "fun/CoreRule
         let editor = createSvgEditor(svg, input);
         editor.use(new CoreRules_1.CoreRules());
         editor.show();
-        let toolbar = asDom_1.asDom(`<div class="toolbar"></div>`);
+        let toolbar = asDom_1.asDom(`<div class="toolbar hidden"></div>`);
         document.body.appendChild(toolbar);
         toolbar.appendChild(asDom_1.asDom(`<button class="F1"><svg viewBox="-18 -18 36 36"><use href="#svg-path"></use></svg></button>`));
         keys(marker_1.default).forEach(marker => {

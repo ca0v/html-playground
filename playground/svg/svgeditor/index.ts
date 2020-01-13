@@ -29,7 +29,7 @@ export function run() {
   editor.use(new CoreRules());
   editor.show();
 
-  let toolbar = asDom(`<div class="toolbar"></div>`);
+  let toolbar = asDom(`<div class="toolbar hidden"></div>`);
   document.body.appendChild(toolbar);
   toolbar.appendChild(
     asDom(`<button class="F1"><svg viewBox="-18 -18 36 36"><use href="#svg-path"></use></svg></button>`)
