@@ -20,6 +20,11 @@ export class SvgEditorControl implements SvgEditor {
         return this;
     }
 
+    setActiveIndex(index: number) {
+        this.goto(index);
+        focus(this.input.children[index]);
+    }
+    
     subscribe(topic: string, callback: () => void): { unsubscribe: () => void; } {
         let subscribers = this.topics[topic] = this.topics[topic] || [];
         subscribers.push(callback);

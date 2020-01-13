@@ -20,4 +20,5 @@ export interface SvgEditor {
     hideMarkers(): void;
     showMarkers(): void;
     isMarkersVisible(): boolean;
+    setActiveIndex(index: number): void;
 }

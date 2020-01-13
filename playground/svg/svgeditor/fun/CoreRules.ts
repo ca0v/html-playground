@@ -13,6 +13,7 @@ export class CoreRules implements SvgEditorRule {
             editor.hideCursor();
             editor.hideCommandEditor();
             editor.hideMarkers();
+            editor.setActiveIndex(0);
         });
 
         editor.subscribe("KeyG", () => {

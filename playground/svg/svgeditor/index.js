@@ -394,6 +394,10 @@ define("svgeditor", ["require", "exports", "fun/stringify", "fun/parse", "fun/cr
             rule.initialize(this);
             return this;
         }
+        setActiveIndex(index) {
+            this.goto(index);
+            focus_1.focus(this.input.children[index]);
+        }
         subscribe(topic, callback) {
             let subscribers = this.topics[topic] = this.topics[topic] || [];
             subscribers.push(callback);
@@ -679,6 +683,7 @@ define("fun/CoreRules", ["require", "exports"], function (require, exports) {
                 editor.hideCursor();
                 editor.hideCommandEditor();
                 editor.hideMarkers();
+                editor.setActiveIndex(0);
             });
             editor.subscribe("KeyG", () => {
                 if (editor.isGridVisible()) {
