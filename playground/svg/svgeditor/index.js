@@ -746,6 +746,12 @@ define("index", ["require", "exports", "data/marker", "svgeditor", "fun/CoreRule
         let editor = new svgeditor_1.SvgEditorControl(workview, input);
         return editor;
     }
+    function pasteFromClipboard(clipboard) {
+        let svgText = clipboard.value.trim();
+        let svg = asDom_1.asDom(`<svg>${svgText}</svg>`);
+        console.log(svg.innerHTML);
+        return Array.from(svg.querySelectorAll("symbol"));
+    }
     function run() {
         let path = document.querySelector("path");
         let svg = path.ownerSVGElement;
@@ -767,6 +773,27 @@ define("index", ["require", "exports", "data/marker", "svgeditor", "fun/CoreRule
                 editor.show();
             });
         });
+        const clipboard = document.querySelector(".clipboard");
+        if (clipboard) {
+            const doit = () => {
+                const symbols = pasteFromClipboard(clipboard);
+                if (symbols) {
+                    symbols.forEach(symbol => {
+                        let { x, y, width, height } = symbol.viewBox.baseVal;
+                        let b = asDom_1.asDom(`<button class="F2"><svg viewBox="${x} ${y} ${width} ${height}"><g>${symbol.innerHTML}</g></svg></button>`);
+                        toolbar.appendChild(b);
+                        b.addEventListener("click", () => {
+                            var _a;
+                            let pathData = symbol.querySelector("path");
+                            path.setAttribute("d", (_a = pathData.getAttribute("d"), (_a !== null && _a !== void 0 ? _a : "")));
+                            editor.show();
+                        });
+                    });
+                }
+            };
+            doit();
+            clipboard.addEventListener("change", doit);
+        }
     }
     exports.run = run;
 });
