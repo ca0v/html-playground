@@ -69,7 +69,7 @@ export class SvgEditorControl implements SvgEditor {
         this.workPath = createPath({
             "fill": "rgb(0,255,128)",
             "stroke": "rgb(0,255,128)",
-            "stroke-width": "0.5"
+            "stroke-width": "0.2"
         });
         this.gridOverlay.appendChild(this.workPath);
         this.createGrid();
@@ -166,7 +166,7 @@ export class SvgEditorControl implements SvgEditor {
             },
         }
 
-        input.addEventListener("keydown", event => {
+        input.parentElement?.addEventListener("keydown", event => {
             if (event.code === "Escape") keystate = {};
             keystate[event.code] = true;
 
@@ -378,28 +378,28 @@ export class SvgEditorControl implements SvgEditor {
     }
 
     private createOverlayPoint(commands: Command[]) {
-        let path: Array<string> = [];
+        let path: Array<{ x: number; y: number }> = [];
         let priorLocation = { x: 0, y: 0 };
         commands.forEach(command => {
             switch (command.command) {
                 case "A": {
                     let [rx, ry, a, b, cw, x, y] = command.args;
                     priorLocation = { x, y }
-                    path.push(drawX(priorLocation));
+                    path.push(priorLocation);
                     break;
                 }
                 case "C": {
                     let [ax, ay, bx, by, x, y] = command.args;
-                    path.push(drawX({ x: ax, y: ay }));
-                    path.push(drawX({ x: bx, y: by }));
+                    path.push({ x: ax, y: ay });
+                    path.push({ x: bx, y: by });
                     priorLocation = { x, y }
-                    path.push(drawX(priorLocation));
+                    path.push(priorLocation);
                     break;
                 }
                 case "H": {
                     let [x] = command.args;
                     priorLocation.x = x;
-                    path.push(drawX(priorLocation));
+                    path.push(priorLocation);
                     break;
                 }
                 case "L":
@@ -408,20 +408,20 @@ export class SvgEditorControl implements SvgEditor {
                     {
                         let [x, y] = command.args;
                         priorLocation = { x, y }
-                        path.push(drawX(priorLocation));
+                        path.push(priorLocation);
                         break;
                     }
                 case "S": {
                     let [bx, by, x, y] = command.args;
-                    path.push(drawX({ x: bx, y: by }));
+                    path.push({ x: bx, y: by });
                     priorLocation = { x, y }
-                    path.push(drawX(priorLocation));
+                    path.push(priorLocation);
                     break;
                 }
                 case "V": {
                     let [y] = command.args;
                     priorLocation.y = y;
-                    path.push(drawX(priorLocation));
+                    path.push(priorLocation);
                     break;
                 }
                 case "Z": {
@@ -432,7 +432,7 @@ export class SvgEditorControl implements SvgEditor {
                 }
             }
         });
-        return path;
+        return path.map(p => drawX(p, { scale: 0.5 }));
     }
 
 }

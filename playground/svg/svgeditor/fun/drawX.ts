@@ -1,7 +1,10 @@
 export function drawX(location: {
     x: number;
     y: number;
+}, options?: {
+    scale?: number;
 }) {
     let { x, y } = location;
-    return `M ${x} ${y} l ` + `-1 -1 l 2 2 l -1 -1 l 1 -1 l -2 2 z`;
+    let scale = options?.scale ?? 1;
+    return `M ${x} ${y} l ` + `-${scale} -${scale} l ${2*scale} ${2*scale} l -${scale} -${scale} l ${scale} -${scale} l -${2*scale} ${2*scale} z`;
 }

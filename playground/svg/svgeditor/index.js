@@ -36,23 +36,64 @@ M 0 0
 L 2 2
 M 0 0
 Z`,
-        marker4: `M 0 -24
+        marker4: `M 0 -20
+Z
+M 0 -24
 C 0 -24 -6 -24 -6 -16
 C -6 -13 0 -4 0 -4
 S 6 -13 6 -16
 C 6 -24 0 -24 0 -24
 M 0 0
-L -2 -2
-M 0 0
-L -2 2
-M 0 0
-L 2 -2
-M 0 0
-L 2 2
+L -3 -3
+L -4 -3
+L -1 0
+L -4 3
+L -3 3
+L 0 0
+L 3 3
+L 4 3
+L 1 0
+L 4 -3
+L 3 -3
+L 0 0
 M 0 -13
-A 2 2 0 0 1 0 -22
+A 2 2 0 0 1 0 -21
 A 2 2 0 0 1 0 -13
 M 0 0
+Z`,
+        marker5: `M 0 -20
+Z
+M 0 -24
+C 0 -24 -6 -24 -6 -16
+C -6 -13 0 -4 0 -4
+S 6 -13 6 -16
+C 6 -24 0 -24 0 -24
+M 0 -1
+L -1 -2
+L -4 -3
+L -2 0
+L -4 3
+L -1 2
+L 0 1
+L 1 2
+L 4 3
+L 2 0
+L 4 -3
+L 1 -2
+L 0 -1
+M 0 -13
+A 2 2 0 0 1 0 -21
+A 2 2 0 0 1 0 -13
+M 0 0
+Z`,
+        marker6: `M 0 -3
+L -3 -23
+L 3 -23
+L 0 -3
+z
+M 0 0
+L 2 4
+L -2 4
 Z`
     };
 });
@@ -143,9 +184,11 @@ define("fun/focus", ["require", "exports"], function (require, exports) {
 define("fun/drawX", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    function drawX(location) {
+    function drawX(location, options) {
+        var _a, _b;
         let { x, y } = location;
-        return `M ${x} ${y} l ` + `-1 -1 l 2 2 l -1 -1 l 1 -1 l -2 2 z`;
+        let scale = (_b = (_a = options) === null || _a === void 0 ? void 0 : _a.scale, (_b !== null && _b !== void 0 ? _b : 1));
+        return `M ${x} ${y} l ` + `-${scale} -${scale} l ${2 * scale} ${2 * scale} l -${scale} -${scale} l ${scale} -${scale} l -${2 * scale} ${2 * scale} z`;
     }
     exports.drawX = drawX;
 });
@@ -222,7 +265,7 @@ define("svgeditor", ["require", "exports", "fun/stringify", "fun/parse", "fun/cr
     Object.defineProperty(exports, "__esModule", { value: true });
     class SvgEditorControl {
         constructor(workview, input) {
-            var _a;
+            var _a, _b;
             this.workview = workview;
             this.input = input;
             this.topics = {};
@@ -237,7 +280,7 @@ define("svgeditor", ["require", "exports", "fun/stringify", "fun/parse", "fun/cr
             this.workPath = createPath_2.createPath({
                 "fill": "rgb(0,255,128)",
                 "stroke": "rgb(0,255,128)",
-                "stroke-width": "0.5"
+                "stroke-width": "0.2"
             });
             this.gridOverlay.appendChild(this.workPath);
             this.createGrid();
@@ -332,7 +375,7 @@ define("svgeditor", ["require", "exports", "fun/stringify", "fun/parse", "fun/cr
                     moveit({ dx: 0, dy: -1 });
                 },
             };
-            input.addEventListener("keydown", event => {
+            (_b = input.parentElement) === null || _b === void 0 ? void 0 : _b.addEventListener("keydown", event => {
                 if (event.code === "Escape")
                     keystate = {};
                 keystate[event.code] = true;
@@ -569,21 +612,21 @@ define("svgeditor", ["require", "exports", "fun/stringify", "fun/parse", "fun/cr
                     case "A": {
                         let [rx, ry, a, b, cw, x, y] = command.args;
                         priorLocation = { x, y };
-                        path.push(drawX_1.drawX(priorLocation));
+                        path.push(priorLocation);
                         break;
                     }
                     case "C": {
                         let [ax, ay, bx, by, x, y] = command.args;
-                        path.push(drawX_1.drawX({ x: ax, y: ay }));
-                        path.push(drawX_1.drawX({ x: bx, y: by }));
+                        path.push({ x: ax, y: ay });
+                        path.push({ x: bx, y: by });
                         priorLocation = { x, y };
-                        path.push(drawX_1.drawX(priorLocation));
+                        path.push(priorLocation);
                         break;
                     }
                     case "H": {
                         let [x] = command.args;
                         priorLocation.x = x;
-                        path.push(drawX_1.drawX(priorLocation));
+                        path.push(priorLocation);
                         break;
                     }
                     case "L":
@@ -592,20 +635,20 @@ define("svgeditor", ["require", "exports", "fun/stringify", "fun/parse", "fun/cr
                         {
                             let [x, y] = command.args;
                             priorLocation = { x, y };
-                            path.push(drawX_1.drawX(priorLocation));
+                            path.push(priorLocation);
                             break;
                         }
                     case "S": {
                         let [bx, by, x, y] = command.args;
-                        path.push(drawX_1.drawX({ x: bx, y: by }));
+                        path.push({ x: bx, y: by });
                         priorLocation = { x, y };
-                        path.push(drawX_1.drawX(priorLocation));
+                        path.push(priorLocation);
                         break;
                     }
                     case "V": {
                         let [y] = command.args;
                         priorLocation.y = y;
-                        path.push(drawX_1.drawX(priorLocation));
+                        path.push(priorLocation);
                         break;
                     }
                     case "Z": {
@@ -616,7 +659,7 @@ define("svgeditor", ["require", "exports", "fun/stringify", "fun/parse", "fun/cr
                     }
                 }
             });
-            return path;
+            return path.map(p => drawX_1.drawX(p, { scale: 0.5 }));
         }
     }
     exports.SvgEditorControl = SvgEditorControl;
@@ -654,29 +697,71 @@ define("fun/CoreRules", ["require", "exports"], function (require, exports) {
                     editor.showMarkers();
                 }
             });
+            editor.subscribe("NumpadAdd", () => {
+                let layers = document.querySelector(".layers");
+                let currentScale = getComputedStyle(layers).transform;
+                if (currentScale === "none")
+                    currentScale = "";
+                layers.style.transform = `${currentScale} translate(100%,100%) scale(2) translate(-50%,-50%)`;
+                // zoom 2x
+                // translate(100%,100%) scale(2) translate(-50%,-50%) 
+                // zoom 3x
+                // translate(150%,150%) scale(3) translate(-50%,-50%) 
+            });
+            editor.subscribe("NumpadSubtract", () => {
+                let layers = document.querySelector(".layers");
+                let currentScale = getComputedStyle(layers).transform;
+                if (currentScale === "none")
+                    currentScale = "";
+                // inverse zoom-in
+                layers.style.transform = `${currentScale} translate(50%, 50%) scale(0.5) translate(-100%,-100%)`;
+            });
         }
     }
     exports.CoreRules = CoreRules;
 });
-define("index", ["require", "exports", "data/marker", "svgeditor", "fun/CoreRules"], function (require, exports, marker_1, svgeditor_1, CoreRules_1) {
+define("fun/asDom", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    function asDom(html) {
+        let div = document.createElement("div");
+        div.innerHTML = html.trim();
+        return div.firstElementChild;
+    }
+    exports.asDom = asDom;
+});
+define("index", ["require", "exports", "data/marker", "svgeditor", "fun/CoreRules", "fun/asDom"], function (require, exports, marker_1, svgeditor_1, CoreRules_1, asDom_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     marker_1 = __importDefault(marker_1);
+    function keys(o) {
+        return Object.keys(o);
+    }
     function createSvgEditor(workview, input) {
         let editor = new svgeditor_1.SvgEditorControl(workview, input);
         return editor;
     }
     function run() {
-        let d = Object.keys(marker_1.default).map(k => marker_1.default[k]).join("\n").trim();
         let path = document.querySelector("path");
         let svg = path.ownerSVGElement;
         if (!svg)
             throw "path must be in an svg container";
-        path.setAttribute("d", d);
+        path.setAttribute("d", marker_1.default.marker5);
         let input = document.getElementById("svg-input");
         let editor = createSvgEditor(svg, input);
         editor.use(new CoreRules_1.CoreRules());
         editor.show();
+        let toolbar = asDom_1.asDom(`<div class="toolbar"></div>`);
+        document.body.appendChild(toolbar);
+        toolbar.appendChild(asDom_1.asDom(`<button class="F1"><svg viewBox="-18 -18 36 36"><use href="#svg-path"></use></svg></button>`));
+        keys(marker_1.default).forEach(marker => {
+            let b = asDom_1.asDom(`<button id="${marker}" class="F1"><svg viewBox="-18 -18 36 36"><path d="${marker_1.default[marker]}"></path></svg></button>`);
+            toolbar.appendChild(b);
+            b.addEventListener("click", () => {
+                path.setAttribute("d", marker_1.default[marker]);
+                editor.show();
+            });
+        });
     }
     exports.run = run;
 });

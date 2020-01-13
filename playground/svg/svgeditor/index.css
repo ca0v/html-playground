@@ -32,6 +32,8 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
+  fill: blue;
+  stroke: white;
 }
 
 .grid {
