@@ -11,6 +11,9 @@ import { setPath } from "./fun/setPath";
 import { getPathCommands } from "./fun/getPathCommands";
 import { createGrid } from "./fun/createGrid";
 import { SvgEditor, SvgEditorRule } from "./fun/SvgEditor";
+import { getLocation } from "./fun/getLocation";
+
+let keystate: Dictionary<boolean> = {};
 
 export class SvgEditorControl implements SvgEditor {
   private topics: Dictionary<Array<() => void>> = {};
@@ -83,14 +86,12 @@ export class SvgEditorControl implements SvgEditor {
     });
     this.gridOverlay.appendChild(this.cursorPath);
 
-    let keystate = <any>{};
-
     input.addEventListener("keyup", event => {
       keystate[event.code] = false;
     });
 
-    const moveit = (location: { dx: number; dy: number }) => {
-      setPath(this.sourcePath, this.transformActiveCommand(location).join(""));
+    const moveit = (location: { dx: number; dy: number }, options?: { primary?: boolean; secondary?: boolean; tertiary?: boolean }) => {
+      setPath(this.sourcePath, this.transformActiveCommand(location, options || { primary: true }).join(""));
       this.showMarkers();
     };
 
@@ -119,14 +120,14 @@ export class SvgEditorControl implements SvgEditor {
         this.showMarkers();
         focus(this.input.children[0]);
       },
-      F11: () => {
+      "F11": () => {
         // save
         localStorage.setItem("path", this.getSourcePath().join("\n"));
       },
-      Enter: () => {
+      "Enter": () => {
         this.editActiveCommand();
       },
-      ArrowDown: () => {
+      "ArrowDown": () => {
         focus(document.activeElement?.nextElementSibling);
       },
       "ArrowDown+ControlLeft": () => {
@@ -138,14 +139,20 @@ export class SvgEditorControl implements SvgEditor {
       "ArrowRight+ControlLeft": () => {
         keyCommands["KeyD"]();
       },
-      ArrowUp: () => {
+      "ArrowUp": () => {
         focus(document.activeElement?.previousElementSibling);
       },
       "ArrowUp+ControlLeft": () => {
         keyCommands["KeyW"]();
       },
-      KeyA: () => {
+      "KeyA": () => {
         moveit({ dx: -1, dy: 0 });
+      },
+      "KeyA+Numpad2": () => {
+        moveit({ dx: -1, dy: 0 }, { secondary: true });
+      },
+      "KeyA+Numpad3": () => {
+        moveit({ dx: -1, dy: 0 }, { tertiary: true });
       },
       "KeyA+KeyS": () => {
         moveit({ dx: -1, dy: 1 });
@@ -153,8 +160,14 @@ export class SvgEditorControl implements SvgEditor {
       "KeyA+KeyW": () => {
         moveit({ dx: -1, dy: -1 });
       },
-      KeyD: () => {
+      "KeyD": () => {
         moveit({ dx: 1, dy: 0 });
+      },
+      "KeyD+Numpad2": () => {
+        moveit({ dx: 1, dy: 0 }, { secondary: true });
+      },
+      "KeyD+Numpad3": () => {
+        moveit({ dx: 1, dy: 0 }, { tertiary: true });
       },
       "KeyD+KeyS": () => {
         moveit({ dx: 1, dy: 1 });
@@ -162,11 +175,23 @@ export class SvgEditorControl implements SvgEditor {
       "KeyD+KeyW": () => {
         moveit({ dx: 1, dy: -1 });
       },
-      KeyS: () => {
+      "KeyS": () => {
         moveit({ dx: 0, dy: 1 });
       },
-      KeyW: () => {
+      "KeyS+Numpad2": () => {
+        moveit({ dx: 0, dy: 1 }, { secondary: true });
+      },
+      "KeyS+Numpad3": () => {
+        moveit({ dx: 0, dy: 1 }, { tertiary: true });
+      },
+      "KeyW": () => {
         moveit({ dx: 0, dy: -1 });
+      },
+      "KeyW+Numpad2": () => {
+        moveit({ dx: 0, dy: -1 }, { secondary: true });
+      },
+      "KeyW+Numpad3": () => {
+        moveit({ dx: 0, dy: -1 }, { tertiary: true });
       },
     };
 
@@ -262,7 +287,7 @@ export class SvgEditorControl implements SvgEditor {
     setPath(this.sourcePath, path.join("\n"));
   }
 
-  private transformActiveCommand(translate: { dx: number; dy: number }) {
+  private transformActiveCommand(translate: { dx: number; dy: number }, options: { primary?: boolean; secondary?: boolean; tertiary?: boolean }) {
     let index = this.currentIndex;
     let path = this.getSourcePath();
     if (!path) throw "use targetPath";
@@ -270,30 +295,68 @@ export class SvgEditorControl implements SvgEditor {
     switch (command.command) {
       case "A": {
         let [rx, ry, a, b, cw, x, y] = command.args;
-        x += translate.dx;
-        y += translate.dy;
+        if (options.primary) {
+          x += translate.dx;
+          y += translate.dy;
+        }
+        if (options.secondary) {
+          rx += translate.dx;
+          ry += translate.dy;
+        }
         path[index] = stringify({ command: command.command, args: [rx, ry, a, b, cw, x, y] });
         setPath(this.cursorPath, drawCursor({ x, y }));
         break;
       }
       case "C": {
         let [ax, ay, bx, by, x, y] = command.args;
-        ax += translate.dx;
-        ay += translate.dy;
-        bx += translate.dx;
-        by += translate.dy;
-        x += translate.dx;
-        y += translate.dy;
+        if (options.primary) {
+          ax += translate.dx;
+          ay += translate.dy;
+          bx += translate.dx;
+          by += translate.dy;
+          x += translate.dx;
+          y += translate.dy;
+        }
+        if (options.secondary) {
+          ax += translate.dx;
+          ay += translate.dy;
+        }
+        if (options.tertiary) {
+          bx += translate.dx;
+          by += translate.dy;
+        }
         path[index] = stringify({ command: command.command, args: [ax, ay, bx, by, x, y] });
         setPath(this.cursorPath, drawCursor({ x, y }));
         break;
       }
+      case "H": {
+        let [x] = command.args;
+        x += translate.dx;
+        path[index] = stringify({ command: command.command, args: [x] });
+        // prior has to have a "Y" component so cannot be another "H"
+        setPath(this.cursorPath, drawCursor({ x, y: getLocation(index - 1, path).y }));
+        break;
+      }
+      case "V": {
+        let [y] = command.args;
+        y += translate.dy;
+        path[index] = stringify({ command: command.command, args: [y] });
+        // prior has to have a "Y" component so cannot be another "H"
+        setPath(this.cursorPath, drawCursor({ x: getLocation(index - 1, path).x, y }));
+        break;
+      }
       case "S": {
         let [bx, by, x, y] = command.args;
-        bx += translate.dx;
-        by += translate.dy;
-        x += translate.dx;
-        y += translate.dy;
+        if (options.primary) {
+          bx += translate.dx;
+          by += translate.dy;
+          x += translate.dx;
+          y += translate.dy;
+        }
+        if (options.secondary) {
+          bx += translate.dx;
+          by += translate.dy;
+        }
         path[index] = stringify({ command: command.command, args: [bx, by, x, y] });
         setPath(this.cursorPath, drawCursor({ x, y }));
         break;
@@ -317,24 +380,7 @@ export class SvgEditorControl implements SvgEditor {
     this.currentIndex = index;
     let path = this.getSourcePath();
     if (!path) return;
-    let command = parse(path[index]);
-
-    switch (command.command) {
-      case "A": {
-        let [rx, ry, a, b, cw, x, y] = command.args;
-        setPath(this.cursorPath, drawCursor({ x, y }));
-        break;
-      }
-      case "C":
-      case "L":
-      case "M":
-      case "S":
-      case "T": {
-        let [x, y] = command.args;
-        setPath(this.cursorPath, drawCursor({ x, y }));
-        break;
-      }
-    }
+    setPath(this.cursorPath, drawCursor(getLocation(index, path)));
   }
 
   getSourcePath() {
@@ -431,7 +477,7 @@ export class SvgEditorControl implements SvgEditor {
           break;
         }
         default: {
-          console.warn("ignored: ", command);
+          throw `unknown command: ${command}`;
         }
       }
     });
