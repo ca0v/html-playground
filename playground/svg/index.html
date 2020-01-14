@@ -3,14 +3,33 @@
 <head>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <style>
+    :root {
+      --path1: "M 14 15 A 8 8 0 1 1 17 12 L 22 17 A 3 3 0 0 1 19 20 L 14 15 Z M 11 13 L 14 6 A 3 3 0 0 0 7 6 L 10 13 Z M 10 6 A 1 1 0 1 0 11 6 Z";
+      --svg_path_test2: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-1 -1 24 24' fill='darkgray' stroke='black'><path d='M 14 15 A 8 8 0 1 1 17 12 L 22 17 A 3 3 0 0 1 19 20 L 14 15 Z M 11 13 L 14 6 A 3 3 0 0 0 7 6 L 10 13 Z M 10 6 A 1 1 0 1 0 11 6 Z' /></svg>");
+    }
+
     @media screen and (max-width: 520px) {
       body {
         background-color: rgba(40, 40, 0, 1) !important;
       }
     }
 
+    button.svg_path_test2 {
+      background-image: var(--svg_path_test2);
+      background-repeat: no-repeat;
+      background-size: contain;
+      background-position-x: 1em;
+      background-color: rgba(250, 250, 250, 0.8);
+    }
+
+
+    button.svg_path_test2:focus,
+    button.svg_path_test2:hover {
+      background-color: rgba(250, 250, 250, 1);
+    }
+
     path.svg_path_test {
-      d: path("M 14 15 A 8 8 0 1 1 17 12 L 22 17 A 3 3 0 0 1 19 20 L 14 15 Z M 11 13 L 14 6 A 3 3 0 0 0 7 6 L 10 13 Z M 10 6 A 1 1 0 1 0 11 6 Z");
+      d: path(var(--path1));
     }
 
     body {
@@ -216,9 +235,10 @@
   </svg>
   <div>
     <h1>SVG Button Test</h1>
+    <button class="button svg_path_test2"></button>
     <button class="button">
       <svg>
-        <path style="transform:translate(4px, 4px) scale(2.5  )" class="svg_path_test"></path>
+        <path style="transform:translate(4px, 4px) scale(2.5)" class="svg_path_test"></path>
       </svg>
     </button>
     <button class="button">
