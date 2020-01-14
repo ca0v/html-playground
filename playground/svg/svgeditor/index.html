@@ -46,12 +46,36 @@
     .toolbar button.F1 svg use {
       transform: translate(0, 25%);
     }
+
+    .inset {
+      background-color: white;
+      width: 32px;
+      height: 32px;
+      opacity: 0.8;
+      padding: 0;
+      margin: 0;
+    }
+
+    .svgeditor .pixels-to-digitize {
+      display: none;
+    }
+
+    .svgeditor.digitizer .pixels-to-digitize {
+      display: block;
+      transform: scale(8) translate(-450px, 25px);
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
   </style>
 </head>
 
-<body class="svgeditor">
+<body class="svgeditor digitizer">
   <div class="layers">
-    <svg viewBox="-32 -32 64 64">
+    <img class="pixels-to-digitize" src="digitize-me.jpg"></img>
+    <svg viewBox="-8 -8 40 40">
       <path id="svg-path"></path>
     </svg>
   </div>
@@ -944,6 +968,7 @@
       });
     });
   </script>
+  <img src="" class="inset" />
 </body>
 
 </html>

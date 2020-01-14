@@ -235,6 +235,12 @@
   </svg>
   <div>
     <h1>SVG Button Test</h1>
+    <button class="button backgroundImageData">
+      <svg xmlns='http://www.w3.org/2000/svg' viewBox='-1 -1 24 24' fill='darkgray' stroke='black'>
+        <path
+          d='M 14 15 A 8 8 0 1 1 17 12 L 22 17 A 3 3 0 0 1 19 20 L 14 15 Z M 11 13 L 14 6 A 3 3 0 0 0 7 6 L 10 13 Z M 10 6 A 1 1 0 1 0 11 6 Z' />
+      </svg>
+    </button>
     <button class="button svg_path_test2"></button>
     <button class="button">
       <svg>
@@ -405,6 +411,10 @@
       mq.addListener(doit);
       doit();
 
+      let btn = document.querySelector(".backgroundImageData");
+      let imageData = btn.querySelector("svg");
+      let backgroundImageUrl = "url('data:image/svg+xml," + encodeURIComponent(imageData.outerHTML) + "');";
+      console.log(backgroundImageUrl);
     })();
   </script>
 

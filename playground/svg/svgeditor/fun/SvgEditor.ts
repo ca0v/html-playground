@@ -1,24 +1,31 @@
+import { Command } from "./Command";
+
 /**
  * rules
  * escape => clear markers, clear editors
  */
 export interface SvgEditorRule {
-    initialize(editor: SvgEditor): void;
+  initialize(editor: SvgEditor): void;
 }
 
 export interface SvgEditor {
-    use(rule: SvgEditorRule): SvgEditor;
-    show(): void;
-    subscribe(topic: string, callback: () => void): {
-        unsubscribe: () => void;
-    };
-    hideCursor(): void;
-    hideCommandEditor(): void;
-    hideGrid(): void;
-    showGrid(): void;
-    isGridVisible(): boolean;
-    hideMarkers(): void;
-    showMarkers(): void;
-    isMarkersVisible(): boolean;
-    setActiveIndex(index: number): void;
+  use(rule: SvgEditorRule): SvgEditor;
+  show(): void;
+  execute(command: string): void;
+  subscribe(
+    topic: string,
+    callback: () => void
+  ): {
+    unsubscribe: () => void;
+  };
+  hideCursor(): void;
+  hideCommandEditor(): void;
+  hideGrid(): void;
+  showGrid(): void;
+  isGridVisible(): boolean;
+  hideMarkers(): void;
+  showMarkers(): void;
+  isMarkersVisible(): boolean;
+  setActiveIndex(index: number): void;
+  getPath(): Array<Command>;
 }

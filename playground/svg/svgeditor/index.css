@@ -47,14 +47,21 @@ body.svgeditor {
   stroke: white;
 }
 
+.svgeditor.digitizer .layers svg {
+  stroke: blue;
+  stroke-opacity: 0.5;
+  fill: red;
+  fill-opacity: 0.5;
+}
+
 .svgeditor .grid {
   position: absolute;
   top: 0;
   right: 0;
   bottom: 0;
-  padding: 0.5em;
+  padding-left: 1em;
   overflow: hidden;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.9);
   min-width: 12em;
 }
 

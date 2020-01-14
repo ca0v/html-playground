@@ -12,6 +12,7 @@ import { getPathCommands } from "./fun/getPathCommands";
 import { createGrid } from "./fun/createGrid";
 import { SvgEditor, SvgEditorRule } from "./fun/SvgEditor";
 import { getLocation } from "./fun/getLocation";
+import { getPath } from "./fun/getPath";
 
 let keystate: Dictionary<boolean> = {};
 
@@ -64,6 +65,7 @@ export class SvgEditorControl implements SvgEditor {
   private cursorPath: SVGPathElement;
   private sourcePath: SVGPathElement;
   private currentIndex = -1;
+  private keyCommands: Dictionary<(...args: any[]) => void> = {};
 
   constructor(public workview: SVGSVGElement, public input: HTMLElement) {
     this.sourcePath = this.workview.querySelector("path") as SVGPathElement;
@@ -90,8 +92,11 @@ export class SvgEditorControl implements SvgEditor {
       keystate[event.code] = false;
     });
 
-    const moveit = (location: { dx: number; dy: number }, options?: { primary?: boolean; secondary?: boolean; tertiary?: boolean }) => {
-      setPath(this.sourcePath, this.transformActiveCommand(location, options || { primary: true }).join(""));
+    const moveit = (
+      location: { dx: number; dy: number },
+      options?: { primary?: boolean; secondary?: boolean; tertiary?: boolean }
+    ) => {
+      this.setSourcePath(this.transformActiveCommand(location, options || { primary: true }).join(""));
       this.showMarkers();
     };
 
@@ -112,22 +117,25 @@ export class SvgEditorControl implements SvgEditor {
         keyCommands["Enter"]();
       },
       F5: () => {
+        keyCommands["OpenWorkFile"]();
+      },
+      OpenWorkFile: () => {
         // open
         let pathData = localStorage.getItem("path");
         if (!pathData) return;
-        setPath(this.sourcePath, pathData);
+        this.setSourcePath(pathData);
         this.renderEditor();
         this.showMarkers();
         focus(this.input.children[0]);
       },
-      "F11": () => {
+      F11: () => {
         // save
         localStorage.setItem("path", this.getSourcePath().join("\n"));
       },
-      "Enter": () => {
+      Enter: () => {
         this.editActiveCommand();
       },
-      "ArrowDown": () => {
+      ArrowDown: () => {
         focus(document.activeElement?.nextElementSibling);
       },
       "ArrowDown+ControlLeft": () => {
@@ -139,13 +147,13 @@ export class SvgEditorControl implements SvgEditor {
       "ArrowRight+ControlLeft": () => {
         keyCommands["KeyD"]();
       },
-      "ArrowUp": () => {
+      ArrowUp: () => {
         focus(document.activeElement?.previousElementSibling);
       },
       "ArrowUp+ControlLeft": () => {
         keyCommands["KeyW"]();
       },
-      "KeyA": () => {
+      KeyA: () => {
         moveit({ dx: -1, dy: 0 });
       },
       "KeyA+Numpad2": () => {
@@ -160,7 +168,7 @@ export class SvgEditorControl implements SvgEditor {
       "KeyA+KeyW": () => {
         moveit({ dx: -1, dy: -1 });
       },
-      "KeyD": () => {
+      KeyD: () => {
         moveit({ dx: 1, dy: 0 });
       },
       "KeyD+Numpad2": () => {
@@ -175,7 +183,7 @@ export class SvgEditorControl implements SvgEditor {
       "KeyD+KeyW": () => {
         moveit({ dx: 1, dy: -1 });
       },
-      "KeyS": () => {
+      KeyS: () => {
         moveit({ dx: 0, dy: 1 });
       },
       "KeyS+Numpad2": () => {
@@ -184,7 +192,7 @@ export class SvgEditorControl implements SvgEditor {
       "KeyS+Numpad3": () => {
         moveit({ dx: 0, dy: 1 }, { tertiary: true });
       },
-      "KeyW": () => {
+      KeyW: () => {
         moveit({ dx: 0, dy: -1 });
       },
       "KeyW+Numpad2": () => {
@@ -194,6 +202,8 @@ export class SvgEditorControl implements SvgEditor {
         moveit({ dx: 0, dy: -1 }, { tertiary: true });
       },
     };
+
+    this.keyCommands = keyCommands;
 
     input.parentElement?.addEventListener("keydown", event => {
       if (event.code === "Escape") keystate = {};
@@ -211,6 +221,11 @@ export class SvgEditorControl implements SvgEditor {
         this.publish(code);
       }
     });
+  }
+
+  public execute(command: string, ...args: any[]) {
+    if (!this.keyCommands[command]) return;
+    this.keyCommands[command](...args);
   }
 
   private publish(topic: string) {
@@ -264,7 +279,7 @@ export class SvgEditorControl implements SvgEditor {
     let path = this.getSourcePath();
     let command = { command: "m", args: [0, 0] };
     path.splice(index, 0, stringify(command));
-    setPath(this.sourcePath, path.join("\n"));
+    this.setSourcePath(path.join("\n"));
     this.renderEditor();
     focus(this.input.children[index]);
   }
@@ -273,7 +288,7 @@ export class SvgEditorControl implements SvgEditor {
     let index = this.currentIndex;
     let path = this.getSourcePath();
     path.splice(index, 1);
-    setPath(this.sourcePath, path.join("\n"));
+    this.setSourcePath(path.join("\n"));
     let nextFocusItem = document.activeElement?.nextElementSibling || document.activeElement?.previousElementSibling;
     this.input.children[index].remove();
     focus(nextFocusItem);
@@ -284,10 +299,13 @@ export class SvgEditorControl implements SvgEditor {
     let command = parse(commandText);
     let path = this.getSourcePath();
     path[index] = stringify(command);
-    setPath(this.sourcePath, path.join("\n"));
+    this.setSourcePath(path.join("\n"));
   }
 
-  private transformActiveCommand(translate: { dx: number; dy: number }, options: { primary?: boolean; secondary?: boolean; tertiary?: boolean }) {
+  private transformActiveCommand(
+    translate: { dx: number; dy: number },
+    options: { primary?: boolean; secondary?: boolean; tertiary?: boolean }
+  ) {
     let index = this.currentIndex;
     let path = this.getSourcePath();
     if (!path) throw "use targetPath";
@@ -376,14 +394,23 @@ export class SvgEditorControl implements SvgEditor {
     return path;
   }
 
-  goto(index: number) {
+  private goto(index: number) {
     this.currentIndex = index;
     let path = this.getSourcePath();
     if (!path) return;
     setPath(this.cursorPath, drawCursor(getLocation(index, path)));
   }
 
-  getSourcePath() {
+  getPath() {
+    return parsePath(getPath(this.sourcePath));
+  }
+
+  private setSourcePath(path: string) {
+    setPath(this.sourcePath, path);
+    this.publish("source-path-changed");
+  }
+
+  private getSourcePath() {
     return getPathCommands(this.sourcePath);
   }
 
@@ -405,20 +432,20 @@ export class SvgEditorControl implements SvgEditor {
     });
   }
 
-  createGrid() {
+  private createGrid() {
     createGrid(this.gridOverlay, 10, 10, 20);
     createGrid(this.gridOverlay, 20, 0, 10);
   }
 
-  hideMarkers(): void {
+  public hideMarkers(): void {
     setPath(this.workPath, "");
   }
 
-  isMarkersVisible() {
+  public isMarkersVisible() {
     return !!this.workPath.getAttribute("d");
   }
 
-  showMarkers() {
+  public showMarkers() {
     let d = getComputedStyle(this.sourcePath).getPropertyValue("d");
     let commands = parsePath(d);
     let overlayPath = this.createOverlayPoint(commands);
