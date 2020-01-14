@@ -11,6 +11,7 @@ import { setPath } from "./fun/setPath";
 import { getPathCommands } from "./fun/getPathCommands";
 import { createGrid } from "./fun/createGrid";
 import { SvgEditor, SvgEditorRule } from "./fun/SvgEditor";
+import { getLocation } from "./fun/getLocation";
 
 export class SvgEditorControl implements SvgEditor {
   private topics: Dictionary<Array<() => void>> = {};
@@ -288,6 +289,22 @@ export class SvgEditorControl implements SvgEditor {
         setPath(this.cursorPath, drawCursor({ x, y }));
         break;
       }
+      case "H": {
+        let [x] = command.args;
+        x += translate.dx;
+        path[index] = stringify({ command: command.command, args: [x] });
+        // prior has to have a "Y" component so cannot be another "H"
+        setPath(this.cursorPath, drawCursor({ x, y: getLocation(index - 1, path).y }));
+        break;
+      }
+      case "V": {
+        let [y] = command.args;
+        y += translate.dy;
+        path[index] = stringify({ command: command.command, args: [y] });
+        // prior has to have a "Y" component so cannot be another "H"
+        setPath(this.cursorPath, drawCursor({ x: getLocation(index - 1, path).x, y }));
+        break;
+      }
       case "S": {
         let [bx, by, x, y] = command.args;
         bx += translate.dx;
@@ -317,24 +334,7 @@ export class SvgEditorControl implements SvgEditor {
     this.currentIndex = index;
     let path = this.getSourcePath();
     if (!path) return;
-    let command = parse(path[index]);
-
-    switch (command.command) {
-      case "A": {
-        let [rx, ry, a, b, cw, x, y] = command.args;
-        setPath(this.cursorPath, drawCursor({ x, y }));
-        break;
-      }
-      case "C":
-      case "L":
-      case "M":
-      case "S":
-      case "T": {
-        let [x, y] = command.args;
-        setPath(this.cursorPath, drawCursor({ x, y }));
-        break;
-      }
-    }
+    setPath(this.cursorPath, drawCursor(getLocation(index, path)));
   }
 
   getSourcePath() {
@@ -431,7 +431,7 @@ export class SvgEditorControl implements SvgEditor {
           break;
         }
         default: {
-          console.warn("ignored: ", command);
+          throw `unknown command: ${command}`;
         }
       }
     });
