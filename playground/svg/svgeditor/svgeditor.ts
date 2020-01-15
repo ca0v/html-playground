@@ -10,7 +10,7 @@ import { drawCursor } from "./fun/drawCursor";
 import { setPath } from "./fun/setPath";
 import { getPathCommands } from "./fun/getPathCommands";
 import { createGrid } from "./fun/createGrid";
-import { SvgEditor, SvgEditorRule } from "./fun/SvgEditor";
+import { SvgEditor, SvgEditorRule, CursorLocation, Viewbox } from "./fun/SvgEditor";
 import { getLocation } from "./fun/getLocation";
 import { getPath } from "./fun/getPath";
 
@@ -22,6 +22,15 @@ export class SvgEditorControl implements SvgEditor {
   use(rule: SvgEditorRule): SvgEditor {
     rule.initialize(this);
     return this;
+  }
+
+  getCursorLocation(): CursorLocation {
+    return getLocation(this.currentIndex, this.getSourcePath());
+  }
+
+  getViewbox(): Viewbox {
+    let { x, y, width, height } = this.workview.viewBox.baseVal;
+    return { x, y, width, height };
   }
 
   setActiveIndex(index: number) {
@@ -515,7 +524,7 @@ export class SvgEditorControl implements SvgEditor {
         }
         case "H": {
           let [x] = command.args;
-          priorLocation.x = x;
+          priorLocation = { x, y: priorLocation.y };
           path.push(priorLocation);
           break;
         }
@@ -536,7 +545,7 @@ export class SvgEditorControl implements SvgEditor {
         }
         case "V": {
           let [y] = command.args;
-          priorLocation.y = y;
+          priorLocation = { x: priorLocation.x, y };
           path.push(priorLocation);
           break;
         }

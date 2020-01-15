@@ -1,7 +1,7 @@
 export function drawCursor(location: {
     x: number;
     y: number;
-}, scale = 1) {
+}, scale = 5) {
     let { x, y } = location;
-    return `M ${x} ${y} l -5 -5 l 10 10 l -5 -5 l 5 -5 l -10 10 z`;
+    return `M ${x} ${y} l -${scale} -${scale} l ${2 * scale} ${2 * scale} l -${scale} -${scale} l ${scale} -${scale} l -${2 * scale} ${2 * scale} z`;
 }

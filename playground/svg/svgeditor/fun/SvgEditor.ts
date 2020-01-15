@@ -1,5 +1,8 @@
 import { Command } from "./Command";
 
+export type CursorLocation = { x: number; y: number };
+export type Viewbox = { x: number, y: number; width: number; height: number };
+
 /**
  * rules
  * escape => clear markers, clear editors
@@ -19,6 +22,8 @@ export interface SvgEditor {
     unsubscribe: () => void;
   };
   hideCursor(): void;
+  getCursorLocation(): CursorLocation;
+  getViewbox(): Viewbox;
   hideCommandEditor(): void;
   hideGrid(): void;
   showGrid(): void;
