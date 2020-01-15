@@ -42,9 +42,13 @@
       stroke-width: 1;
     }
 
-    .toolbar button.F1 svg path,
-    .toolbar button.F1 svg use {
+    .toolbar button.F1.marker svg path,
+    .toolbar button.F1.marker svg use {
       transform: translate(0, 25%);
+    }
+
+    .toolbar button.F1.icon svg path {
+      transform: translate(6px, 6px);
     }
 
     .inset {
@@ -62,7 +66,6 @@
 
     .svgeditor.digitizer .pixels-to-digitize {
       display: block;
-      transform: scale(8) translate(-200px, 32px);
       position: absolute;
       top: 0;
       left: 0;
@@ -72,10 +75,10 @@
   </style>
 </head>
 
-<body class="svgeditor digitizer">
+<body class="svgeditor not-digitizer">
   <div class="layers">
-    <img class="pixels-to-digitize" src="digitize-me.jpg"></img>
-    <svg viewBox="-8 -8 40 40">
+    <img class="pixels-to-digitize" src="./data/hand.png"></img>
+    <svg viewBox="-4 -4 40 40">
       <path id="svg-path"></path>
     </svg>
   </div>

@@ -474,8 +474,7 @@ export class SvgEditorControl implements SvgEditor {
   }
 
   private createGrid() {
-    createGrid(this.gridOverlay, 10, 10, 20);
-    createGrid(this.gridOverlay, 20, 0, 10);
+    createGrid(this.gridOverlay, 10);
   }
 
   public hideMarkers(): void {

@@ -1,4 +1,5 @@
 import markers from "./data/marker";
+import icons from "./data/icons";
 import { SvgEditorControl } from "./svgeditor";
 import { SvgEditor } from "./fun/SvgEditor";
 import { CoreRules } from "./fun/CoreRules";
@@ -39,11 +40,22 @@ export function run() {
 
   keys(markers).forEach(marker => {
     let b = asDom(
-      `<button id="${marker}" class="F1"><svg viewBox="-18 -18 36 36"><path d="${markers[marker]}"></path></svg></button>`
+      `<button id="${marker}" class="F1 marker"><svg viewBox="-18 -18 36 36"><path d="${markers[marker]}"></path></svg></button>`
     );
     toolbar.appendChild(b);
     b.addEventListener("click", () => {
       path.setAttribute("d", markers[marker]);
+      editor.show();
+    });
+  });
+
+  keys(icons).forEach(marker => {
+    let b = asDom(
+      `<button id="${marker}" class="F1 icon"><svg viewBox="0 0 36 36"><path d="${icons[marker]}"></path></svg></button>`
+    );
+    toolbar.appendChild(b);
+    b.addEventListener("click", () => {
+      path.setAttribute("d", icons[marker]);
       editor.show();
     });
   });
