@@ -172,8 +172,8 @@ export class Digitizer implements SvgEditorRule {
     }
 
     // zoom about current cursor location
-    editor.subscribe("AltLeft+ControlLeft+NumpadAdd", createScaleAboutCursor(editor, 1.10));
-    editor.subscribe("AltLeft+ControlLeft+NumpadSubtract", createScaleAboutCursor(editor, 1 / 1.10));
+    editor.subscribe("AltLeft+ControlLeft+NumpadAdd", createScaleAboutCursor(editor, 1.01));
+    editor.subscribe("AltLeft+ControlLeft+NumpadSubtract", createScaleAboutCursor(editor, 1 / 1.01));
     editor.subscribe("AltLeft+NumpadAdd", createScaler(1.01));
     editor.subscribe("AltLeft+NumpadSubtract", createScaler(1 / 1.01));
 
