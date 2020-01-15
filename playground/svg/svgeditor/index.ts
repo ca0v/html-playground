@@ -5,10 +5,8 @@ import { CoreRules } from "./fun/CoreRules";
 import { asDom } from "./fun/asDom";
 import { stringify } from "./fun/stringify";
 import { Digitizer } from "./fun/Digitizer";
+import { keys } from "./keys";
 
-function keys<T>(o: T) {
-  return Object.keys(o) as Array<keyof typeof o>;
-}
 function createSvgEditor(workview: SVGSVGElement, input: HTMLElement) {
   let editor = new SvgEditorControl(workview, input);
   return editor as SvgEditor;

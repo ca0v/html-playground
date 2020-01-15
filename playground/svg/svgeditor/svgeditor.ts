@@ -274,6 +274,47 @@ export class SvgEditorControl implements SvgEditor {
     };
   }
 
+  public insertCommand(command: Command) {
+    let index = this.currentIndex;
+    let path = this.getSourcePath();
+    let currentLocation = getLocation(index, path);
+    if (!command.args.length) {
+      switch (command.command) {
+        case "A":
+          command.args = [1, 1, 0, 0, 0, currentLocation.x, currentLocation.y];
+          break;
+        case "C":
+          command.args = [
+            currentLocation.x,
+            currentLocation.y,
+            currentLocation.x,
+            currentLocation.y,
+            currentLocation.x,
+            currentLocation.y,
+          ];
+          break;
+        case "H":
+          command.args = [currentLocation.x];
+          break;
+        case "S":
+          command.args = [currentLocation.x, currentLocation.y, currentLocation.x, currentLocation.y];
+          break;
+        case "V":
+          command.args = [currentLocation.y];
+          break;
+        case "L":
+        case "M":
+        case "T":
+          command.args = [currentLocation.x, currentLocation.y];
+          break;
+      }
+    }
+    path.splice(index + 1, 0, stringify(command));
+    this.setSourcePath(path.join("\n"));
+    this.renderEditor();
+    focus(this.input.children[index + 1]);
+  }
+
   private insertBeforeActiveCommand() {
     let index = this.currentIndex;
     let path = this.getSourcePath();
