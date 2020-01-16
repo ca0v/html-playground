@@ -20,6 +20,7 @@ export interface SvgEditor {
     callback: () => void
   ): {
     unsubscribe: () => void;
+    because(about: string): void;
   };
   hideCursor(): void;
   getCursorLocation(): CursorLocation;
@@ -34,4 +35,5 @@ export interface SvgEditor {
   setActiveIndex(index: number): void;
   getPath(): Array<Command>;
   insertCommand(command: Command): void;
+  insertPath(path: string): void;
 }

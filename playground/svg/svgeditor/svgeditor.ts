@@ -13,6 +13,7 @@ import { createGrid } from "./fun/createGrid";
 import { SvgEditor, SvgEditorRule, CursorLocation, Viewbox } from "./fun/SvgEditor";
 import { getLocation } from "./fun/getLocation";
 import { getPath } from "./fun/getPath";
+import { createSvg } from "./createSvg";
 
 let keystate: Dictionary<boolean> = {};
 
@@ -37,7 +38,7 @@ export class SvgEditorControl implements SvgEditor {
     focus(this.input.children[index]);
   }
 
-  subscribe(topic: string, callback: () => void): { unsubscribe: () => void } {
+  subscribe(topic: string, callback: () => void): { unsubscribe: () => void, because: (about: string) => void } {
     let subscribers = (this.topics[topic] = this.topics[topic] || []);
     subscribers.push(callback);
     return {
@@ -46,6 +47,10 @@ export class SvgEditorControl implements SvgEditor {
         if (i < 0) return;
         subscribers.splice(i, 1);
       },
+      because: (about: string) => {
+        // useful for keyboard shortcut docs?
+        console.log(about);
+      }
     };
   }
 
@@ -81,14 +86,17 @@ export class SvgEditorControl implements SvgEditor {
     if (!this.sourcePath) throw "workview must have a path";
 
     let { x, y, width, height } = workview.viewBox.baseVal;
-    this.gridOverlay = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    this.gridOverlay = createSvg();
     this.gridOverlay.setAttribute("viewBox", `${x} ${y} ${width} ${height}`);
     workview.parentElement?.appendChild(this.gridOverlay);
+
+    // how to get workPath stroke-width to be 0.2 regardless of scale?
     this.workPath = createPath({
       fill: "rgb(0,255,128)",
       stroke: "rgb(0,255,128)",
       "stroke-width": "0.2",
     });
+    
     this.gridOverlay.appendChild(this.workPath);
     this.createGrid();
     this.cursorPath = createPath({
@@ -125,7 +133,7 @@ export class SvgEditorControl implements SvgEditor {
       F2: () => {
         keyCommands["Enter"]();
       },
-      F5: () => {
+      "ControlLeft+KeyO": () => {
         keyCommands["OpenWorkFile"]();
       },
       OpenWorkFile: () => {
@@ -137,7 +145,7 @@ export class SvgEditorControl implements SvgEditor {
         this.showMarkers();
         focus(this.input.children[0]);
       },
-      F11: () => {
+      "ControlLeft+KeyS": () => {
         // save
         localStorage.setItem("path", this.getSourcePath().join("\n"));
       },
@@ -214,6 +222,10 @@ export class SvgEditorControl implements SvgEditor {
 
     this.keyCommands = keyCommands;
 
+    input.parentElement?.addEventListener("blur", () => {
+      keystate = {};
+    });
+
     input.parentElement?.addEventListener("keydown", event => {
       if (event.code === "Escape") keystate = {};
       keystate[event.code] = true;
@@ -227,7 +239,9 @@ export class SvgEditorControl implements SvgEditor {
         event.preventDefault();
         return;
       } else {
-        this.publish(code);
+        if (false !== this.publish(code)) {
+          event.preventDefault();
+        };
       }
     });
   }
@@ -241,9 +255,10 @@ export class SvgEditorControl implements SvgEditor {
     let subscribers = this.topics[topic];
     if (!subscribers) {
       console.log(topic);
-      return;
+      return false;
     }
     subscribers.forEach(subscriber => subscriber());
+    return true;
   }
 
   private editActiveCommand() {
@@ -281,6 +296,16 @@ export class SvgEditorControl implements SvgEditor {
       }
       console.log(event.code);
     };
+  }
+
+  public insertPath(path: string) {
+    const pathCommands = parsePath(path);
+    const pathSegment = pathCommands.map(stringify);
+    const index = this.currentIndex;
+    const sourcePath = this.getSourcePath();
+    sourcePath.splice(index, 0, ...pathSegment);
+    this.setSourcePath(sourcePath.join("\n"));
+    this.renderEditor();
   }
 
   public insertCommand(command: Command) {
@@ -560,3 +585,4 @@ export class SvgEditorControl implements SvgEditor {
     return path.map(p => drawX(p, { scale: 0.5 }));
   }
 }
+

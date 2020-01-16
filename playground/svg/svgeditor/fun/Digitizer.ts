@@ -42,6 +42,7 @@ function zoomInPixels(scale: number) {
 
 function createMove(dx: number, dy: number) {
   return () => {
+    if (!isDigitizing()) return;
     const { top, left } = getPositionOfPixels();
     setPositionOfPixels({ left: left + dx, top: top + dy });
   };
@@ -91,6 +92,11 @@ function createScaleAboutCursor(editor: SvgEditor, scale: number) {
 
 export class Digitizer implements SvgEditorRule {
   initialize(editor: SvgEditor): void {
+
+    editor.subscribe("Escape", () => {
+      getLayers().style.transform = "none";
+    });
+
     editor.subscribe("KeyD+ShiftLeft", () => {
       document.querySelector(".svgeditor")?.classList.toggle("digitizer");
     });

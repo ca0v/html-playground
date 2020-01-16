@@ -7,6 +7,7 @@ import { asDom } from "./fun/asDom";
 import { stringify } from "./fun/stringify";
 import { Digitizer } from "./fun/Digitizer";
 import { keys } from "./keys";
+import { getPath } from "./fun/getPath";
 
 function createSvgEditor(workview: SVGSVGElement, input: HTMLElement) {
   let editor = new SvgEditorControl(workview, input);
@@ -17,6 +18,14 @@ function pasteFromClipboard(clipboard: { value: string }) {
   let svgText = clipboard.value.trim();
   let svg = asDom(`<svg>${svgText}</svg>`);
   return Array.from(svg.querySelectorAll("symbol")) as SVGSymbolElement[];
+}
+
+function insertIntoEditor(editor: SvgEditor, pathData: SVGPathElement) {
+  // not sure why this is necessary...probably the namespace?
+  const svgConverterPathNode: SVGPathElement = <any>document.getElementById("cleanup");
+  svgConverterPathNode.setAttribute("d", <any>pathData.getAttribute("d"));
+  let d = getPath(svgConverterPathNode);
+  editor.insertPath(d);
 }
 
 export function run() {
@@ -44,8 +53,7 @@ export function run() {
     );
     toolbar.appendChild(b);
     b.addEventListener("click", () => {
-      path.setAttribute("d", markers[marker]);
-      editor.show();
+      insertIntoEditor(editor, b.querySelector("path") as SVGPathElement);
     });
   });
 
@@ -55,8 +63,7 @@ export function run() {
     );
     toolbar.appendChild(b);
     b.addEventListener("click", () => {
-      path.setAttribute("d", icons[marker]);
-      editor.show();
+      insertIntoEditor(editor, b.querySelector("path") as SVGPathElement);
     });
   });
 
@@ -73,8 +80,7 @@ export function run() {
           toolbar.appendChild(b);
           b.addEventListener("click", () => {
             let pathData = symbol.querySelector("path") as SVGPathElement;
-            path.setAttribute("d", pathData.getAttribute("d") ?? "");
-            editor.show();
+            insertIntoEditor(editor, pathData);
           });
         });
       }
