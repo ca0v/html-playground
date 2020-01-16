@@ -133,7 +133,7 @@ export class SvgEditorControl implements SvgEditor {
       F2: () => {
         keyCommands["Enter"]();
       },
-      "ControlLeft+KeyO": () => {
+      "AltLeft+ControlLeft+KeyO": () => {
         keyCommands["OpenWorkFile"]();
       },
       OpenWorkFile: () => {
@@ -145,7 +145,13 @@ export class SvgEditorControl implements SvgEditor {
         this.showMarkers();
         focus(this.input.children[0]);
       },
-      "ControlLeft+KeyS": () => {
+      "AltLeft+ControlLeft+KeyN": () => {
+        this.setSourcePath("M 0 0 Z");
+        this.renderEditor();
+        this.showMarkers();
+        focus(this.input.children[0]);
+      },
+      "AltLeft+ControlLeft+KeyS": () => {
         // save
         localStorage.setItem("path", this.getSourcePath().join("\n"));
       },
