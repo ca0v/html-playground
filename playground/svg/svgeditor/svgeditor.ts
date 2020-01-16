@@ -17,6 +17,12 @@ import { createSvg } from "./createSvg";
 
 let keystate: Dictionary<boolean> = {};
 
+function getScale(gridOverlay: SVGSVGElement) {
+  let { width: viewBoxWidth } = gridOverlay.viewBox.baseVal;
+  let { width } = gridOverlay.getBoundingClientRect();
+  return width / viewBoxWidth;
+}
+
 export class SvgEditorControl implements SvgEditor {
   private topics: Dictionary<Array<() => void>> = {};
 
@@ -96,7 +102,13 @@ export class SvgEditorControl implements SvgEditor {
       stroke: "rgb(0,255,128)",
       "stroke-width": "0.2",
     });
-    
+
+    setInterval(() => {
+      const scale = getScale(this.gridOverlay);
+      this.workPath.style.setProperty("stroke-width", (1 / scale) + "");
+  }, 1000);
+
+
     this.gridOverlay.appendChild(this.workPath);
     this.createGrid();
     this.cursorPath = createPath({
@@ -113,6 +125,7 @@ export class SvgEditorControl implements SvgEditor {
       location: { dx: number; dy: number },
       options?: { primary?: boolean; secondary?: boolean; tertiary?: boolean }
     ) => {
+      this.hideCursor();
       this.setSourcePath(this.transformActiveCommand(location, options || { primary: true }).join(""));
       this.showMarkers();
     };
@@ -403,7 +416,6 @@ export class SvgEditorControl implements SvgEditor {
           ry += translate.dy;
         }
         path[index] = stringify({ command: command.command, args: [rx, ry, a, b, cw, x, y] });
-        setPath(this.cursorPath, drawCursor({ x, y }));
         break;
       }
       case "C": {
@@ -425,23 +437,18 @@ export class SvgEditorControl implements SvgEditor {
           by += translate.dy;
         }
         path[index] = stringify({ command: command.command, args: [ax, ay, bx, by, x, y] });
-        setPath(this.cursorPath, drawCursor({ x, y }));
         break;
       }
       case "H": {
         let [x] = command.args;
         x += translate.dx;
         path[index] = stringify({ command: command.command, args: [x] });
-        // prior has to have a "Y" component so cannot be another "H"
-        setPath(this.cursorPath, drawCursor({ x, y: getLocation(index - 1, path).y }));
         break;
       }
       case "V": {
         let [y] = command.args;
         y += translate.dy;
         path[index] = stringify({ command: command.command, args: [y] });
-        // prior has to have a "Y" component so cannot be another "H"
-        setPath(this.cursorPath, drawCursor({ x: getLocation(index - 1, path).x, y }));
         break;
       }
       case "S": {
@@ -457,7 +464,6 @@ export class SvgEditorControl implements SvgEditor {
           by += translate.dy;
         }
         path[index] = stringify({ command: command.command, args: [bx, by, x, y] });
-        setPath(this.cursorPath, drawCursor({ x, y }));
         break;
       }
       case "L":
@@ -467,7 +473,6 @@ export class SvgEditorControl implements SvgEditor {
         x += translate.dx;
         y += translate.dy;
         path[index] = stringify({ command: command.command, args: [x, y] });
-        setPath(this.cursorPath, drawCursor({ x, y }));
         break;
       }
     }
@@ -479,7 +484,8 @@ export class SvgEditorControl implements SvgEditor {
     this.currentIndex = index;
     let path = this.getSourcePath();
     if (!path) return;
-    setPath(this.cursorPath, drawCursor(getLocation(index, path)));
+    const scale = getScale(this.gridOverlay);
+    setPath(this.cursorPath, drawCursor(getLocation(index, path), 25 / scale));
   }
 
   getPath() {
@@ -514,7 +520,7 @@ export class SvgEditorControl implements SvgEditor {
   }
 
   private createGrid() {
-    createGrid(this.gridOverlay, 10);
+    createGrid(this.gridOverlay);
   }
 
   public hideMarkers(): void {
@@ -588,7 +594,9 @@ export class SvgEditorControl implements SvgEditor {
         }
       }
     });
-    return path.map(p => drawX(p, { scale: 0.5 }));
+
+    const scale = getScale(this.gridOverlay);
+    return path.map(p => drawX(p, { scale: 5 / scale }));
   }
 }
 

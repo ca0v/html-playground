@@ -51,19 +51,19 @@ function createMove(dx: number, dy: number) {
 function createTranslator(dx: number, dy: number) {
   return () => {
     let layers = getLayers();
-    let currentScale = getComputedStyle(layers).transform;
-    if (currentScale === "none") currentScale = "";
-    layers.style.transform = `translate(${dx}px,${dy}px) ${currentScale}`;
+    let currentTransform = getComputedStyle(layers).transform;
+    if (currentTransform === "none") currentTransform = "";
+    layers.style.transform = `translate(${dx}px,${dy}px) ${currentTransform}`;
   };
 }
 
 function createScaler(scale: number) {
   return () => {
     let layers = getLayers();
-    let currentScale = getComputedStyle(layers).transform;
-    if (currentScale === "none") currentScale = "";
+    let currentTransform = getComputedStyle(layers).transform;
+    if (currentTransform === "none") currentTransform = "";
     const restoreDx = 100 * (0.5 * scale);
-    layers.style.transform = `${currentScale} translate(${restoreDx}%,${restoreDx}%) scale(${scale}) translate(-50%,-50%)`;
+    layers.style.transform = `${currentTransform} translate(${restoreDx}%,${restoreDx}%) scale(${scale}) translate(-50%,-50%)`;
   };
 }
 
@@ -160,17 +160,17 @@ export class Digitizer implements SvgEditorRule {
      * alt=1, ctrl+alt=10 , ctrl=100
      */
     {
-      let scale = 10;
+      let scale = -10;
       editor.subscribe("AltLeft+ControlLeft+Numpad2", createTranslator(0, scale));
       editor.subscribe("AltLeft+ControlLeft+Numpad8", createTranslator(0, -scale));
       editor.subscribe("AltLeft+ControlLeft+Numpad4", createTranslator(-scale, 0));
       editor.subscribe("AltLeft+ControlLeft+Numpad6", createTranslator(scale, 0));
-      scale = 100;
+      scale = -100;
       editor.subscribe("ControlLeft+Numpad2", createTranslator(0, scale));
       editor.subscribe("ControlLeft+Numpad8", createTranslator(0, -scale));
       editor.subscribe("ControlLeft+Numpad4", createTranslator(-scale, 0));
       editor.subscribe("ControlLeft+Numpad6", createTranslator(scale, 0));
-      scale = 1;
+      scale = -1;
       editor.subscribe("AltLeft+Numpad2", createTranslator(0, scale));
       editor.subscribe("AltLeft+Numpad8", createTranslator(0, -scale));
       editor.subscribe("AltLeft+Numpad4", createTranslator(-scale, 0));
@@ -183,5 +183,28 @@ export class Digitizer implements SvgEditorRule {
     editor.subscribe("AltLeft+NumpadAdd", createScaler(1.01));
     editor.subscribe("AltLeft+NumpadSubtract", createScaler(1 / 1.01));
 
+    editor.subscribe("KeyC", () => {
+      const cursorLocation = editor.getCursorLocation();
+      const viewBox = editor.getViewbox();
+      const layers = getLayers();
+      const layerLocationInPixels = layers.getBoundingClientRect();
+      const x = layerLocationInPixels.x + layerLocationInPixels.width * (cursorLocation.x - viewBox.x) / viewBox.width;
+      const y = layerLocationInPixels.y + layerLocationInPixels.width * (cursorLocation.y - viewBox.y) / viewBox.height;
+      const cx = getPosition(layers).x + getPosition(layers).width / 2;
+      const cy = getPosition(layers).y + getPosition(layers).height / 2;
+      const dx = cx - x;
+      const dy = cy - y;
+      let currentTransform = getComputedStyle(layers).transform;
+      if (currentTransform === "none") currentTransform = "";
+      console.log(cursorLocation.x, viewBox.x, x, cx, dx, currentTransform);
+      layers.style.transform = `translate(${dx}px,${dy}px) ${currentTransform}`;
+
+    }).because("camera center at current location");
+
   }
+}
+
+function getPosition(node: HTMLElement) {
+  let { left, top, width, height } = getComputedStyle(node);
+  return { x: parseFloat(left), y: parseFloat(top), width: parseFloat(width), height: parseFloat(height) };
 }
