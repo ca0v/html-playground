@@ -103,5 +103,5 @@ export function run() {
     });
   }
 
-  editor.execute("OpenWorkFile");
+  editor.execute("File Open");
 }

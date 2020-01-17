@@ -44,7 +44,7 @@ export class SvgEditorControl implements SvgEditor {
     focus(this.input.children[index]);
   }
 
-  subscribe(topic: string, callback: () => void): { unsubscribe: () => void, because: (about: string) => void } {
+  subscribe(topic: string, callback: () => void): { unsubscribe: () => void; because: (about: string) => void } {
     let subscribers = (this.topics[topic] = this.topics[topic] || []);
     subscribers.push(callback);
     return {
@@ -55,7 +55,7 @@ export class SvgEditorControl implements SvgEditor {
       },
       because: (about: string) => {
         this.shortcutManager.registerShortcut(about, callback);
-      }
+      },
     };
   }
 
@@ -105,9 +105,8 @@ export class SvgEditorControl implements SvgEditor {
 
     setInterval(() => {
       const scale = getScale(this.gridOverlay);
-      this.workPath.style.setProperty("stroke-width", (1 / scale) + "");
+      this.workPath.style.setProperty("stroke-width", 1 / scale + "");
     }, 1000);
-
 
     this.gridOverlay.appendChild(this.workPath);
     this.createGrid();
@@ -142,10 +141,7 @@ export class SvgEditorControl implements SvgEditor {
       F2: () => {
         keyCommands["Enter"]();
       },
-      "AltLeft+ControlLeft+KeyO": () => {
-        keyCommands["OpenWorkFile"]();
-      },
-      OpenWorkFile: () => {
+      "File Open": () => {
         // open
         let pathData = localStorage.getItem("path");
         if (!pathData) return;
@@ -154,55 +150,32 @@ export class SvgEditorControl implements SvgEditor {
         this.showMarkers();
         focus(this.input.children[0]);
       },
-      "AltLeft+ControlLeft+KeyN": () => {
+      "File New": () => {
         this.setSourcePath("M 0 0 Z");
         this.renderEditor();
         this.showMarkers();
         focus(this.input.children[0]);
       },
-      "AltLeft+ControlLeft+KeyS": () => {
-        // save
-        localStorage.setItem("path", this.getSourcePath().join("\n"));
-      },
-      Enter: () => {
-        this.editActiveCommand();
-      },
-      ArrowDown: () => {
-        focus(document.activeElement?.nextElementSibling);
-      },
-      ArrowUp: () => {
-        focus(document.activeElement?.previousElementSibling);
-      },
+      "File Save": () => localStorage.setItem("path", this.getSourcePath().join("\n")),
+      Enter: () => this.editActiveCommand(),
+      ArrowDown: () => focus(document.activeElement?.nextElementSibling),
+      ArrowUp: () => focus(document.activeElement?.previousElementSibling),
       "Move 1 A": () => moveit({ dx: -1, dy: 0 }),
-      "Move 2 A": () => moveit({ dx: -1, dy: 0 }, { secondary: true }),
-      "Move 3 A": () => moveit({ dx: -1, dy: 0 }, { tertiary: true }),
-      "Move 1 Z": () => moveit({ dx: -1, dy: 1 }),
-      "Move 1 Q": () => moveit({ dx: -1, dy: -1 }),
-      "Move 1 D": () => moveit({ dx: 1, dy: 0 }),
-      "KeyD+Numpad2": () => {
-        moveit({ dx: 1, dy: 0 }, { secondary: true });
-      },
-      "KeyD+Numpad3": () => {
-        moveit({ dx: 1, dy: 0 }, { tertiary: true });
-      },
       "Move 1 C": () => moveit({ dx: 1, dy: 1 }),
+      "Move 1 D": () => moveit({ dx: 1, dy: 0 }),
       "Move 1 E": () => moveit({ dx: 1, dy: -1 }),
+      "Move 1 Q": () => moveit({ dx: -1, dy: -1 }),
       "Move 1 S": () => moveit({ dx: 0, dy: 1 }),
-      "KeyS+Numpad2": () => {
-        moveit({ dx: 0, dy: 1 }, { secondary: true });
-      },
-      "KeyS+Numpad3": () => {
-        moveit({ dx: 0, dy: 1 }, { tertiary: true });
-      },
-      KeyW: () => {
-        moveit({ dx: 0, dy: -1 });
-      },
-      "KeyW+Numpad2": () => {
-        moveit({ dx: 0, dy: -1 }, { secondary: true });
-      },
-      "KeyW+Numpad3": () => {
-        moveit({ dx: 0, dy: -1 }, { tertiary: true });
-      },
+      "Move 1 W": () => moveit({ dx: 0, dy: -1 }),
+      "Move 1 Z": () => moveit({ dx: -1, dy: 1 }),
+      "Move 2 A": () => moveit({ dx: -1, dy: 0 }, { secondary: true }),
+      "Move 2 D": () => moveit({ dx: 1, dy: 0 }, { secondary: true }),
+      "Move 2 S": () => moveit({ dx: 0, dy: 1 }, { secondary: true }),
+      "Move 2 W": () => moveit({ dx: 0, dy: -1 }, { secondary: true }),
+      "Move 3 A": () => moveit({ dx: -1, dy: 0 }, { tertiary: true }),
+      "Move 3 D": () => moveit({ dx: 1, dy: 0 }, { tertiary: true }),
+      "Move 3 S": () => moveit({ dx: 0, dy: 1 }, { tertiary: true }),
+      "Move 3 W": () => moveit({ dx: 0, dy: -1 }, { tertiary: true }),
     };
 
     this.keyCommands = keyCommands;
@@ -584,4 +557,3 @@ export class SvgEditorControl implements SvgEditor {
     return path.map(p => drawX(p, { scale: 5 / scale }));
   }
 }
-
