@@ -32,17 +32,29 @@
             // depth first
             const findNode = (node, shortcut) => {
                 if (node[shortcut]) {
-                    console.log("found", node, node[shortcut]);
                     return node[shortcut];
                 }
                 return Object.keys(node).filter(k => k.length === 1).map(k => node[k]).map(node => findNode(node, shortcut))[0];
             };
 
-            ["a b c", "a b d", "a a", "a b", "a d b"].forEach(phrase => registerShortcut(phrase, () => {
+            [
+                "ability",
+                "fire gun",
+                "launch 1grenade",
+                "launch 2pulsegrenade",
+                "launch 3trackingmisile",
+                "mellee attack",
+                "move backward",
+                "move forward",
+                "pickup powercoins",
+                "run",
+                "switch gun",
+                "turn left",
+                "turn right",
+                "ultimate ability",
+            ].forEach(phrase => registerShortcut(phrase, () => {
                 console.log(phrase);
             }));
-
-            console.log(shortcuts);
 
             let currentState = shortcuts;
             window.addEventListener("keypress", event => {
@@ -50,9 +62,7 @@
                 const priorState = currentState && currentState.parent;
                 currentState = (currentState || shortcuts)[key] || shortcuts[key] || (priorState && priorState[key]) || findNode(shortcuts, key);
                 if (!currentState) return;
-                console.log("state", currentState);
                 if (!currentState.ops) return;
-                console.log("ops", currentState.ops);
                 currentState.ops.forEach(cb => cb());
             });
         })();
