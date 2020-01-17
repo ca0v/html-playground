@@ -14,8 +14,8 @@ import { SvgEditor, SvgEditorRule, CursorLocation, Viewbox } from "./SvgEditor";
 import { getLocation } from "./getLocation";
 import { getPath } from "./getPath";
 import { createSvg } from "./createSvg";
-
-let keystate: Dictionary<boolean> = {};
+import { keys } from "./keys";
+import { ShortcutManager } from "./KeyboardShortcuts";
 
 function getScale(gridOverlay: SVGSVGElement) {
   let { width: viewBoxWidth } = gridOverlay.viewBox.baseVal;
@@ -54,8 +54,7 @@ export class SvgEditorControl implements SvgEditor {
         subscribers.splice(i, 1);
       },
       because: (about: string) => {
-        // useful for keyboard shortcut docs?
-        console.log(about);
+        this.shortcutManager.registerShortcut(about, callback);
       }
     };
   }
@@ -86,6 +85,7 @@ export class SvgEditorControl implements SvgEditor {
   private sourcePath: SVGPathElement;
   private currentIndex = -1;
   private keyCommands: Dictionary<(...args: any[]) => void> = {};
+  private shortcutManager = new ShortcutManager();
 
   constructor(public workview: SVGSVGElement, public input: HTMLElement) {
     this.sourcePath = this.workview.querySelector("path") as SVGPathElement;
@@ -106,7 +106,7 @@ export class SvgEditorControl implements SvgEditor {
     setInterval(() => {
       const scale = getScale(this.gridOverlay);
       this.workPath.style.setProperty("stroke-width", (1 / scale) + "");
-  }, 1000);
+    }, 1000);
 
 
     this.gridOverlay.appendChild(this.workPath);
@@ -116,10 +116,6 @@ export class SvgEditorControl implements SvgEditor {
       "stroke-width": "0.2",
     });
     this.gridOverlay.appendChild(this.cursorPath);
-
-    input.addEventListener("keyup", event => {
-      keystate[event.code] = false;
-    });
 
     const moveit = (
       location: { dx: number; dy: number },
@@ -174,54 +170,24 @@ export class SvgEditorControl implements SvgEditor {
       ArrowDown: () => {
         focus(document.activeElement?.nextElementSibling);
       },
-      "ArrowDown+ControlLeft": () => {
-        keyCommands["KeyS"]();
-      },
-      "ArrowLeft+ControlLeft": () => {
-        keyCommands["KeyA"]();
-      },
-      "ArrowRight+ControlLeft": () => {
-        keyCommands["KeyD"]();
-      },
       ArrowUp: () => {
         focus(document.activeElement?.previousElementSibling);
       },
-      "ArrowUp+ControlLeft": () => {
-        keyCommands["KeyW"]();
-      },
-      KeyA: () => {
-        moveit({ dx: -1, dy: 0 });
-      },
-      "KeyA+Numpad2": () => {
-        moveit({ dx: -1, dy: 0 }, { secondary: true });
-      },
-      "KeyA+Numpad3": () => {
-        moveit({ dx: -1, dy: 0 }, { tertiary: true });
-      },
-      "KeyA+KeyS": () => {
-        moveit({ dx: -1, dy: 1 });
-      },
-      "KeyA+KeyW": () => {
-        moveit({ dx: -1, dy: -1 });
-      },
-      KeyD: () => {
-        moveit({ dx: 1, dy: 0 });
-      },
+      "Move 1 A": () => moveit({ dx: -1, dy: 0 }),
+      "Move 2 A": () => moveit({ dx: -1, dy: 0 }, { secondary: true }),
+      "Move 3 A": () => moveit({ dx: -1, dy: 0 }, { tertiary: true }),
+      "Move 1 Z": () => moveit({ dx: -1, dy: 1 }),
+      "Move 1 Q": () => moveit({ dx: -1, dy: -1 }),
+      "Move 1 D": () => moveit({ dx: 1, dy: 0 }),
       "KeyD+Numpad2": () => {
         moveit({ dx: 1, dy: 0 }, { secondary: true });
       },
       "KeyD+Numpad3": () => {
         moveit({ dx: 1, dy: 0 }, { tertiary: true });
       },
-      "KeyD+KeyS": () => {
-        moveit({ dx: 1, dy: 1 });
-      },
-      "KeyD+KeyW": () => {
-        moveit({ dx: 1, dy: -1 });
-      },
-      KeyS: () => {
-        moveit({ dx: 0, dy: 1 });
-      },
+      "Move 1 C": () => moveit({ dx: 1, dy: 1 }),
+      "Move 1 E": () => moveit({ dx: 1, dy: -1 }),
+      "Move 1 S": () => moveit({ dx: 0, dy: 1 }),
       "KeyS+Numpad2": () => {
         moveit({ dx: 0, dy: 1 }, { secondary: true });
       },
@@ -241,27 +207,46 @@ export class SvgEditorControl implements SvgEditor {
 
     this.keyCommands = keyCommands;
 
-    input.parentElement?.addEventListener("blur", () => {
-      keystate = {};
-    });
+    keys(keyCommands).forEach(phrase => this.shortcutManager.registerShortcut(<string>phrase, keyCommands[phrase]));
+    const shortcuts = this.shortcutManager.shortcuts;
+    let currentState = shortcuts;
 
     input.parentElement?.addEventListener("keydown", event => {
-      if (event.code === "Escape") keystate = {};
-      keystate[event.code] = true;
+      const key = event.key;
 
-      let code = Object.keys(keystate)
-        .filter(k => keystate[k])
-        .sort()
-        .join("+");
-      if (keyCommands[code]) {
-        keyCommands[code]();
-        event.preventDefault();
-        return;
+      console.log("you pressed: ", key);
+      let nextState = this.shortcutManager.findNode(currentState, key);
+      if (nextState) {
+        console.log("continuation found");
       } else {
-        if (false !== this.publish(code)) {
-          event.preventDefault();
-        };
+        if (currentState.parent) {
+          console.log("scanning parent");
+          nextState = this.shortcutManager.findNode(currentState.parent, key);
+          if (nextState) {
+            console.log("found by searching siblings");
+          }
+        }
       }
+      if (!nextState) {
+        nextState = this.shortcutManager.findNode(shortcuts, key);
+        if (nextState) {
+          console.log("found searching root keys");
+        }
+      }
+      if (!nextState) {
+        if (false !== this.publish(event.code)) event.preventDefault();
+        return;
+      }
+
+      currentState = nextState;
+      event.preventDefault();
+      if (!currentState.ops.length) {
+        console.log("continue using: ", keys(currentState.subkeys).join(" "));
+        return;
+      }
+
+      console.log("executing ops: ", currentState);
+      currentState.ops.forEach(cb => cb());
     });
   }
 
