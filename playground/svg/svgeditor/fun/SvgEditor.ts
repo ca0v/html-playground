@@ -1,7 +1,7 @@
 import { Command } from "./Command";
 
 export type CursorLocation = { x: number; y: number };
-export type Viewbox = { x: number, y: number; width: number; height: number };
+export type Viewbox = { x: number; y: number; width: number; height: number };
 
 /**
  * rules
@@ -16,6 +16,13 @@ export interface SvgEditor {
   show(): void;
   execute(command: string): void;
   subscribe(
+    topic: string,
+    callback: () => void
+  ): {
+    unsubscribe: () => void;
+    because(about: string): void;
+  };
+  shortcut(
     topic: string,
     callback: () => void
   ): {

@@ -17,43 +17,43 @@ function hideHelp() {
 
 export class CoreRules implements SvgEditorRule {
   initialize(editor: SvgEditor) {
-
-    editor.subscribe("Escape", () => {
-      editor.hideCursor();
-      editor.hideCommandEditor();
-      editor.hideMarkers();
-      editor.setActiveIndex(0);
-      editor.showGrid();
-      hideToolbar();
-      hideHelp();
-    }).because("get the editor closer to the initial state");
+    editor
+      .shortcut("Escape", () => {
+        editor.hideCursor();
+        editor.hideCommandEditor();
+        editor.hideMarkers();
+        editor.setActiveIndex(0);
+        editor.showGrid();
+        hideToolbar();
+        hideHelp();
+      })
+      .because("get the editor closer to the initial state");
 
     // "?"
-    editor.subscribe("ShiftRight+Slash", () => {
+    editor.shortcut("Toggle Help", () => {
       let help = document.querySelector(".F1");
       help?.classList.toggle("hidden");
     });
 
-    editor.subscribe("AltLeft+ControlLeft+KeyT", () => {
+    editor.shortcut("Toggle Toolbar", () => {
       getToolbar().classList.toggle("hidden");
-    }).because("toggle toolbar");
+    });
 
-    editor.subscribe("AltLeft+ControlLeft+KeyG", () => {
+    editor.shortcut("Toggle GridLines", () => {
       if (editor.isGridVisible()) {
         editor.hideGrid();
       } else {
         editor.showGrid();
       }
-    }).because("toggle grid lines");
+    });
 
-    editor.subscribe("AltLeft+ControlLeft+KeyM", () => {
+    editor.shortcut("Toggle Markers", () => {
       if (editor.isMarkersVisible()) {
         editor.hideMarkers();
       } else {
         editor.showGrid();
         editor.showMarkers();
       }
-    }).because("toggle markers");
-
+    });
   }
 }

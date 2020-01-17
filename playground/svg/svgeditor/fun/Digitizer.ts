@@ -80,79 +80,45 @@ function createScaleAboutCursor(editor: SvgEditor, scale: number) {
     let { width: pixelWidth, height: pixelHeight } = layerLocationInPixels;
     let { height: viewPortHeight, width: viewPortWidth } = viewBox;
 
-    let dx = layerLocationInPixels.x + (cursorLocationInViewport.x - viewBox.x) * pixelWidth / viewPortWidth;
-    let dy = layerLocationInPixels.y + (cursorLocationInViewport.y - viewBox.y) * pixelHeight / viewPortHeight;
+    let dx = layerLocationInPixels.x + ((cursorLocationInViewport.x - viewBox.x) * pixelWidth) / viewPortWidth;
+    let dy = layerLocationInPixels.y + ((cursorLocationInViewport.y - viewBox.y) * pixelHeight) / viewPortHeight;
 
     dx = Math.round(dx);
     dy = Math.round(dy);
 
     layers.style.transform = `${currentTransform} translate(${dx}px,${dy}px) scale(${scale}) translate(${-dx}px,${-dy}px)`;
-  }
+  };
 }
 
 export class Digitizer implements SvgEditorRule {
   initialize(editor: SvgEditor): void {
-
-    editor.subscribe("Escape", () => {
+    editor.shortcut("Escape", () => {
       getLayers().style.transform = "none";
     });
 
-    editor.subscribe("KeyD+ShiftLeft", () => {
-      document.querySelector(".svgeditor")?.classList.toggle("digitizer");
-    });
+    editor.shortcut("Digitizer Toggle", () => document.querySelector(".svgeditor")?.classList.toggle("digitizer"));
+    editor.shortcut("Digitizer Plus", () => zoomInPixels(1.01));
+    editor.shortcut("Digitizer Minus", () => zoomInPixels(1.0 / 1.01));
 
-    editor.subscribe("NumpadAdd+ShiftLeft", () => {
-      zoomInPixels(1.01);
-    });
+    let scale = 1;
+    editor.shortcut("Digitizer CameraMove 1 ArrowLeft", createMove(scale, 0));
+    editor.shortcut("Digitizer CameraMove 1 ArrowRight", createMove(-scale, 0));
+    editor.shortcut("Digitizer CameraMove 1 ArrowUp", createMove(0, scale));
+    editor.shortcut("Digitizer CameraMove 1 ArrowDown", createMove(0, -scale));
+    scale = 10;
+    editor.shortcut("Digitizer CameraMove ArrowLeft", createMove(scale, 0));
+    editor.shortcut("Digitizer CameraMove ArrowRight", createMove(-scale, 0));
+    editor.shortcut("Digitizer CameraMove ArrowUp", createMove(0, scale));
+    editor.shortcut("Digitizer CameraMove ArrowDown", createMove(0, -scale));
 
-    editor.subscribe("NumpadSubtract+ShiftLeft", () => {
-      zoomInPixels(1.0 / 1.01);
-    });
-
-    editor.subscribe("ArrowLeft+ShiftLeft", createMove(1, 0));
-    editor.subscribe("ArrowRight+ShiftLeft", createMove(-1, 0));
-    editor.subscribe("ArrowUp+ShiftLeft", createMove(0, 1));
-    editor.subscribe("ArrowDown+ShiftLeft", createMove(0, -1));
-
-    const movers = {
-      "ArrowLeft+ControlLeft+ShiftLeft": [10, 0],
-      "ArrowRight+ControlLeft+ShiftLeft": [-10, 0],
-      "ArrowUp+ControlLeft+ShiftLeft": [0, 10],
-      "ArrowDown+ControlLeft+ShiftLeft": [0, -10],
-    };
-
-    keys(movers).forEach(key => {
-      let [dx, dy] = movers[key];
-      editor.subscribe(key, createMove(dx, dy));
-    });
-
-    editor.subscribe("ShiftLeft+Space", () => {
-      editor.insertCommand({ command: "Z", args: [] });
-    });
-
-    editor.subscribe("Space", () => {
-      editor.insertCommand({ command: "M", args: [] });
-    });
-
-    editor.subscribe("Digit1", () => {
-      editor.insertCommand({ command: "L", args: [] });
-    });
-
-    editor.subscribe("Minus", () => {
-      editor.insertCommand({ command: "H", args: [] });
-    });
-
-    editor.subscribe("Digit2", () => {
-      editor.insertCommand({ command: "V", args: [] });
-    });
-
-    editor.subscribe("Digit4", () => {
-      editor.insertCommand({ command: "A", args: [] });
-    });
-
-    editor.subscribe("Digit3", () => {
-      editor.insertCommand({ command: "S", args: [] });
-    });
+    editor.shortcut("Insert ZReturn", () => editor.insertCommand({ command: "Z", args: [] }));
+    editor.shortcut("Insert Move", () => editor.insertCommand({ command: "M", args: [] }));
+    editor.shortcut("Insert Line", () => editor.insertCommand({ command: "L", args: [] }));
+    editor.shortcut("Insert HorizontalLine", () => editor.insertCommand({ command: "H", args: [] }));
+    editor.shortcut("Insert VerticalLine", () => editor.insertCommand({ command: "V", args: [] }));
+    editor.shortcut("Insert Arc", () => editor.insertCommand({ command: "A", args: [] }));
+    editor.shortcut("Insert SmoothCurve", () => editor.insertCommand({ command: "S", args: [] }));
+    editor.shortcut("Insert Curve", () => editor.insertCommand({ command: "C", args: [] }));
 
     /**
      * Moves the digitizing area
@@ -161,46 +127,45 @@ export class Digitizer implements SvgEditorRule {
      */
     {
       let scale = -10;
-      editor.subscribe("AltLeft+ControlLeft+Numpad2", createTranslator(0, scale));
-      editor.subscribe("AltLeft+ControlLeft+Numpad8", createTranslator(0, -scale));
-      editor.subscribe("AltLeft+ControlLeft+Numpad4", createTranslator(-scale, 0));
-      editor.subscribe("AltLeft+ControlLeft+Numpad6", createTranslator(scale, 0));
-      scale = -100;
-      editor.subscribe("ControlLeft+Numpad2", createTranslator(0, scale));
-      editor.subscribe("ControlLeft+Numpad8", createTranslator(0, -scale));
-      editor.subscribe("ControlLeft+Numpad4", createTranslator(-scale, 0));
-      editor.subscribe("ControlLeft+Numpad6", createTranslator(scale, 0));
+      editor.shortcut("Move ArrowDown", createTranslator(0, scale));
+      editor.shortcut("Move ArrowUp", createTranslator(0, -scale));
+      editor.shortcut("Move ArrowLeft", createTranslator(-scale, 0));
+      editor.shortcut("Move ArrowRight", createTranslator(scale, 0));
       scale = -1;
-      editor.subscribe("AltLeft+Numpad2", createTranslator(0, scale));
-      editor.subscribe("AltLeft+Numpad8", createTranslator(0, -scale));
-      editor.subscribe("AltLeft+Numpad4", createTranslator(-scale, 0));
-      editor.subscribe("AltLeft+Numpad6", createTranslator(scale, 0));
+      editor.shortcut("Move 1 ArrowDown", createTranslator(0, scale));
+      editor.shortcut("Move 1 ArrowUp", createTranslator(0, -scale));
+      editor.shortcut("Move 1 ArrowLeft", createTranslator(-scale, 0));
+      editor.shortcut("Move 1 ArrowRight", createTranslator(scale, 0));
     }
 
     // zoom about current cursor location
-    editor.subscribe("AltLeft+ControlLeft+NumpadAdd", createScaleAboutCursor(editor, 1.01));
-    editor.subscribe("AltLeft+ControlLeft+NumpadSubtract", createScaleAboutCursor(editor, 1 / 1.01));
-    editor.subscribe("AltLeft+NumpadAdd", createScaler(1.01));
-    editor.subscribe("AltLeft+NumpadSubtract", createScaler(1 / 1.01));
+    editor.shortcut("Move Plus", createScaleAboutCursor(editor, 1.1));
+    editor.shortcut("Move Minus", createScaleAboutCursor(editor, 1 / 1.1));
+    editor.shortcut("Move 1 Plus", createScaleAboutCursor(editor, 1.01));
+    editor.shortcut("Move 1 Minus", createScaleAboutCursor(editor, 1 / 1.01));
+    editor.shortcut("Plus", createScaler(1.01));
+    editor.shortcut("Minus", createScaler(1 / 1.01));
 
-    editor.subscribe("KeyC", () => {
-      const cursorLocation = editor.getCursorLocation();
-      const viewBox = editor.getViewbox();
-      const layers = getLayers();
-      const layerLocationInPixels = layers.getBoundingClientRect();
-      const x = layerLocationInPixels.x + layerLocationInPixels.width * (cursorLocation.x - viewBox.x) / viewBox.width;
-      const y = layerLocationInPixels.y + layerLocationInPixels.width * (cursorLocation.y - viewBox.y) / viewBox.height;
-      const cx = getPosition(layers).x + getPosition(layers).width / 2;
-      const cy = getPosition(layers).y + getPosition(layers).height / 2;
-      const dx = cx - x;
-      const dy = cy - y;
-      let currentTransform = getComputedStyle(layers).transform;
-      if (currentTransform === "none") currentTransform = "";
-      console.log(cursorLocation.x, viewBox.x, x, cx, dx, currentTransform);
-      layers.style.transform = `translate(${dx}px,${dy}px) ${currentTransform}`;
-
-    }).because("camera center at current location");
-
+    editor
+      .shortcut("Goto C", () => {
+        const cursorLocation = editor.getCursorLocation();
+        const viewBox = editor.getViewbox();
+        const layers = getLayers();
+        const layerLocationInPixels = layers.getBoundingClientRect();
+        const x =
+          layerLocationInPixels.x + (layerLocationInPixels.width * (cursorLocation.x - viewBox.x)) / viewBox.width;
+        const y =
+          layerLocationInPixels.y + (layerLocationInPixels.width * (cursorLocation.y - viewBox.y)) / viewBox.height;
+        const cx = getPosition(layers).x + getPosition(layers).width / 2;
+        const cy = getPosition(layers).y + getPosition(layers).height / 2;
+        const dx = cx - x;
+        const dy = cy - y;
+        let currentTransform = getComputedStyle(layers).transform;
+        if (currentTransform === "none") currentTransform = "";
+        console.log(cursorLocation.x, viewBox.x, x, cx, dx, currentTransform);
+        layers.style.transform = `translate(${dx}px,${dy}px) ${currentTransform}`;
+      })
+      .because("camera center at current location");
   }
 }
 

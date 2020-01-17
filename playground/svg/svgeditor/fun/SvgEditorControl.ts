@@ -44,6 +44,16 @@ export class SvgEditorControl implements SvgEditor {
     focus(this.input.children[index]);
   }
 
+  shortcut(topic: string, callback: () => void): { unsubscribe: () => void; because: (about: string) => void } {
+    const node = this.shortcutManager.registerShortcut(topic, callback);
+    return {
+      unsubscribe: () => {},
+      because: (about: string) => {
+        node.title = about;
+      },
+    };
+  }
+
   subscribe(topic: string, callback: () => void): { unsubscribe: () => void; because: (about: string) => void } {
     let subscribers = (this.topics[topic] = this.topics[topic] || []);
     subscribers.push(callback);
@@ -54,7 +64,7 @@ export class SvgEditorControl implements SvgEditor {
         subscribers.splice(i, 1);
       },
       because: (about: string) => {
-        this.shortcutManager.registerShortcut(about, callback);
+        // use a shortcut instead
       },
     };
   }
@@ -126,18 +136,9 @@ export class SvgEditorControl implements SvgEditor {
     };
 
     const keyCommands: Dictionary<() => void> = {
-      Delete: () => {
-        this.deleteActiveCommand();
-      },
-      End: () => {
-        focus(this.input.lastElementChild);
-      },
-      Home: () => {
-        focus(this.input.firstElementChild);
-      },
-      Insert: () => {
-        this.insertBeforeActiveCommand();
-      },
+      Delete: () => this.deleteActiveCommand(),
+      End: () => focus(this.input.lastElementChild),
+      Home: () => focus(this.input.firstElementChild),
       F2: () => {
         keyCommands["Enter"]();
       },
@@ -185,7 +186,13 @@ export class SvgEditorControl implements SvgEditor {
     let currentState = shortcuts;
 
     input.parentElement?.addEventListener("keydown", event => {
-      const key = event.key;
+      const map = <any>{
+        " ": "Space",
+        "-": "Minus",
+        "+": "Plus",
+      };
+
+      const key = map[event.key] || event.key;
 
       console.log("you pressed: ", key);
       let nextState = this.shortcutManager.findNode(currentState, key);
@@ -207,14 +214,22 @@ export class SvgEditorControl implements SvgEditor {
         }
       }
       if (!nextState) {
-        if (false !== this.publish(event.code)) event.preventDefault();
+        //if (false !== this.publish(event.code)) event.preventDefault();
         return;
       }
 
       currentState = nextState;
       event.preventDefault();
       if (!currentState.ops.length) {
-        console.log("continue using: ", keys(currentState.subkeys).join(" "));
+        console.log(
+          "continue using: ",
+          keys(currentState.subkeys)
+            .map(k => {
+              const title = currentState.subkeys[k].title;
+              return !!title ? `${title}(${k})` : k + "";
+            })
+            .join(", ")
+        );
         return;
       }
 
@@ -324,16 +339,6 @@ export class SvgEditorControl implements SvgEditor {
     this.setSourcePath(path.join("\n"));
     this.renderEditor();
     focus(this.input.children[index + 1]);
-  }
-
-  private insertBeforeActiveCommand() {
-    let index = this.currentIndex;
-    let path = this.getSourcePath();
-    let command = { command: "m", args: [0, 0] };
-    path.splice(index, 0, stringify(command));
-    this.setSourcePath(path.join("\n"));
-    this.renderEditor();
-    focus(this.input.children[index]);
   }
 
   private deleteActiveCommand() {

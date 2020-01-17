@@ -1,7 +1,8 @@
 import { Dictionary } from "./Dictionary";
 import { keys } from "./keys";
 
-const atomicTokens = "ArrowLeft ArrowRight ArrowUp ArrowDown Delete End Enter F1 F2 F3 F4 F5 F6 F7 F8 F9 F10 F11 F12 Home Insert PageUp PageDOwn".split(
+// do not use Alt
+const atomicTokens = "ArrowLeft ArrowRight ArrowUp ArrowDown Control Delete End Enter F1 F2 F3 F4 F5 F6 F7 F8 F9 F10 F11 F12 Home Insert Minus PageUp PageDown Plus Shift Space".split(
   " "
 );
 const isAtomic = (v: string) => 0 <= atomicTokens.indexOf(v);
@@ -20,7 +21,7 @@ export class ShortcutManager {
   public readonly shortcuts: KeyboardShortcut = { ops: [], subkeys: {} };
   private firstLetter = (word: string) => word[0];
   private tokenize = (words: string) =>
-    words.split(/[ +]/).map(v => (isAtomic(v) ? v : isCompound(v) ? v : this.firstLetter(v).toUpperCase()));
+    words.split(/[ ]/).map(v => (isAtomic(v) ? v : isCompound(v) ? v : this.firstLetter(v).toUpperCase()));
 
   private forceNode = (node: KeyboardShortcut, shortcuts: string[]): KeyboardShortcut => {
     if (!shortcuts.length) return node;
@@ -57,5 +58,6 @@ export class ShortcutManager {
     const node = this.forceNode(this.shortcuts, tokens);
     node.ops.push(callback);
     node.title = title;
+    return node;
   }
 }
