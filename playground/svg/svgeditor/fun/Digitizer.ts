@@ -98,17 +98,17 @@ export class Digitizer implements SvgEditorRule {
     });
 
     if (bitmap) {
-      editor.shortcut("Bitmap Toggle", () => document.querySelector(".svgeditor")?.classList.toggle("digitizer"));
+      editor.shortcut("Toggle Bitmap", () => document.querySelector(".svgeditor")?.classList.toggle("digitizer"));
 
       let scale = 1.01;
       editor.shortcut("Bitmap Move Plus", createScaler(bitmap, scale));
       editor.shortcut("Bitmap Move Minus", createScaler(bitmap, 1.0 / scale));
 
-      scale = 1;
-      editor.shortcut("Bitmap Move 1 ArrowLeft", createTranslator(bitmap, -scale, 0));
-      editor.shortcut("Bitmap Move 1 ArrowRight", createTranslator(bitmap, scale, 0));
-      editor.shortcut("Bitmap Move 1 ArrowUp", createTranslator(bitmap, 0, -scale));
-      editor.shortcut("Bitmap Move 1 ArrowDown", createTranslator(bitmap, 0, scale));
+      scale = -1;
+      editor.shortcut("Bitmap Move ArrowLeft 1", createTranslator(bitmap, -scale, 0));
+      editor.shortcut("Bitmap Move ArrowRight 1", createTranslator(bitmap, scale, 0));
+      editor.shortcut("Bitmap Move ArrowUp 1", createTranslator(bitmap, 0, -scale));
+      editor.shortcut("Bitmap Move ArrowDown 1", createTranslator(bitmap, 0, scale));
 
       scale = 10;
       editor.shortcut("Bitmap Move ArrowLeft", createTranslator(bitmap, -scale, 0));

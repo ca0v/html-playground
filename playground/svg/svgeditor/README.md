@@ -1,16 +1,15 @@
 ## Keyboard Shortcuts
 
-Bitmap Move 1 ArrowDown
-Bitmap Move 1 ArrowLeft
-Bitmap Move 1 ArrowRight
-Bitmap Move 1 ArrowUp
 Bitmap Move ArrowDown
+Bitmap Move ArrowDown 1
 Bitmap Move ArrowLeft
+Bitmap Move ArrowLeft 1
 Bitmap Move ArrowRight
+Bitmap Move ArrowRight 1
 Bitmap Move ArrowUp
+Bitmap Move ArrowUp 1
 Bitmap Move Minus
 Bitmap Move Plus
-Bitmap Toggle
 Canvas Move 1 ArrowDown
 Canvas Move 1 ArrowLeft
 Canvas Move 1 ArrowRight
@@ -59,6 +58,7 @@ Path Insert Move
 Path Insert SmoothCurve
 Path Insert VerticalLine
 Path Insert ZReturn
+Toggle Bitmap
 Toggle GridLines
 Toggle Help
 Toggle Markers
