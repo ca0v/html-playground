@@ -1,0 +1,62 @@
+<html>
+
+<head>
+    <style>
+        html,
+        body {
+            background-color: black;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        (function () {
+            const shortcuts = {};
+            const firstLetter = word => word[0];
+            const tokenize = words => words.toUpperCase().split(" ").map(firstLetter);
+            const getNode = (node, shortcuts) => {
+                if (!shortcuts.length) return node;
+                const key = shortcuts.shift();
+                node[key] = node[key] || {};
+                node[key].parent = node;
+                return getNode(node[key], shortcuts);
+            }
+            const registerShortcut = (title, callback, root) => {
+                const tokens = tokenize(title);
+                const node = getNode(shortcuts, tokens);
+                const ops = node["ops"] = node["ops"] || [];
+                ops.push(callback);
+            };
+            // depth first
+            const findNode = (node, shortcut) => {
+                if (node[shortcut]) {
+                    console.log("found", node, node[shortcut]);
+                    return node[shortcut];
+                }
+                return Object.keys(node).filter(k => k.length === 1).map(k => node[k]).map(node => findNode(node, shortcut))[0];
+            };
+
+            ["a b c", "a b d", "a a", "a b", "a d b"].forEach(phrase => registerShortcut(phrase, () => {
+                console.log(phrase);
+            }));
+
+            console.log(shortcuts);
+
+            let currentState = shortcuts;
+            window.addEventListener("keypress", event => {
+                const key = event.key.toUpperCase();
+                const priorState = currentState && currentState.parent;
+                currentState = (currentState || shortcuts)[key] || shortcuts[key] || (priorState && priorState[key]) || findNode(shortcuts, key);
+                if (!currentState) return;
+                console.log("state", currentState);
+                if (!currentState.ops) return;
+                console.log("ops", currentState.ops);
+                currentState.ops.forEach(cb => cb());
+            });
+        })();
+    </script>
+</body>
+
+</html>
