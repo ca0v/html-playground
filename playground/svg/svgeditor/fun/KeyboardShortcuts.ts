@@ -2,7 +2,7 @@ import { Dictionary } from "./Dictionary";
 import { keys } from "./keys";
 
 // do not use Alt
-const atomicTokens = "ArrowLeft ArrowRight ArrowUp ArrowDown Control Delete End Enter F1 F2 F3 F4 F5 F6 F7 F8 F9 F10 F11 F12 Home Insert Minus PageUp PageDown Plus Shift Space".split(
+const atomicTokens = "ArrowLeft ArrowRight ArrowUp ArrowDown Control Delete End Enter Escape F1 F2 F3 F4 F5 F6 F7 F8 F9 F10 F11 F12 Home Insert Minus PageUp PageDown Plus Shift Slash Space".split(
   " "
 );
 const isAtomic = (v: string) => 0 <= atomicTokens.indexOf(v);
@@ -19,6 +19,8 @@ type KeyboardShortcut = {
 
 export class ShortcutManager {
   public readonly shortcuts: KeyboardShortcut = { ops: [], subkeys: {} };
+  private currentState = this.shortcuts;
+
   private firstLetter = (word: string) => word[0];
   private tokenize = (words: string) =>
     words.split(/[ ]/).map(v => (isAtomic(v) ? v : isCompound(v) ? v : this.firstLetter(v).toUpperCase()));
@@ -30,6 +32,83 @@ export class ShortcutManager {
     node.subkeys[key] = node.subkeys[key] || { parent: node, subkeys: {}, ops: [] };
     return this.forceNode(node.subkeys[key], shortcuts);
   };
+
+  private help(root: KeyboardShortcut) {
+    const visitEach = (node: KeyboardShortcut, visit: (node: KeyboardShortcut) => void) => {
+      visit(node);
+      keys(node.subkeys).forEach(key => visitEach(node.subkeys[key], visit));
+    };
+
+    let result: Array<string> = [];
+    visitEach(root, node => {
+      if (node.ops.length && node.title) {
+        result.push(node.title);
+      }
+    });
+    return result.sort().join("\n");
+  }
+
+  watchKeyboard(root: HTMLElement) {
+    // move into keyboard shortcuts
+    root.addEventListener("keydown", event => {
+      if (event.altKey) return; // reserved for the browser
+      if (event.ctrlKey) return; // app constrained not to use ctrl
+
+      const map = <any>{
+        " ": "Space",
+        "-": "Minus",
+        "+": "Plus",
+        "/": "Slash",
+      };
+
+      const key = map[event.key] || event.key;
+
+      console.log("you pressed: ", key, event.code);
+      let currentState = this.currentState;
+      let nextState = this.findNode(currentState, key);
+      if (nextState) {
+        console.log("continuation found");
+      } else {
+        if (currentState.parent) {
+          console.log("scanning parent");
+          nextState = this.findNode(currentState.parent, key);
+          if (nextState) {
+            console.log("found by searching siblings");
+          }
+        }
+      }
+      if (!nextState) {
+        nextState = this.findNode(this.shortcuts, key);
+        if (nextState) {
+          console.log("found searching root keys");
+        }
+      }
+      if (!nextState) {
+        // suggest a key
+        console.log(this.help(this.shortcuts));
+        //if (false !== this.publish(event.code)) event.preventDefault();
+        return;
+      }
+
+      this.currentState = currentState = nextState;
+      event.preventDefault();
+      if (!currentState.ops.length) {
+        console.log(
+          "continue using: ",
+          keys(currentState.subkeys)
+            .map(k => {
+              const title = currentState.subkeys[k].title;
+              return !!title ? `${title}(${k})` : k + "";
+            })
+            .join(", ")
+        );
+        return;
+      }
+
+      console.log("executing ops: ", currentState);
+      currentState.ops.forEach(cb => cb());
+    });
+  }
 
   // depth first
   public findNode(node: KeyboardShortcut, shortcut: string): KeyboardShortcut | null {

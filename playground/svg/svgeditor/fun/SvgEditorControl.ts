@@ -159,8 +159,8 @@ export class SvgEditorControl implements SvgEditor {
       },
       "File Save": () => localStorage.setItem("path", this.getSourcePath().join("\n")),
       Enter: () => this.editActiveCommand(),
-      ArrowDown: () => focus(document.activeElement?.nextElementSibling),
-      ArrowUp: () => focus(document.activeElement?.previousElementSibling),
+      "Move ArrowDown": () => focus(document.activeElement?.nextElementSibling),
+      "Move ArrowUp": () => focus(document.activeElement?.previousElementSibling),
       "Move 1 A": () => moveit({ dx: -1, dy: 0 }),
       "Move 1 C": () => moveit({ dx: 1, dy: 1 }),
       "Move 1 D": () => moveit({ dx: 1, dy: 0 }),
@@ -182,60 +182,7 @@ export class SvgEditorControl implements SvgEditor {
     this.keyCommands = keyCommands;
 
     keys(keyCommands).forEach(phrase => this.shortcutManager.registerShortcut(<string>phrase, keyCommands[phrase]));
-    const shortcuts = this.shortcutManager.shortcuts;
-    let currentState = shortcuts;
-
-    input.parentElement?.addEventListener("keydown", event => {
-      const map = <any>{
-        " ": "Space",
-        "-": "Minus",
-        "+": "Plus",
-      };
-
-      const key = map[event.key] || event.key;
-
-      console.log("you pressed: ", key);
-      let nextState = this.shortcutManager.findNode(currentState, key);
-      if (nextState) {
-        console.log("continuation found");
-      } else {
-        if (currentState.parent) {
-          console.log("scanning parent");
-          nextState = this.shortcutManager.findNode(currentState.parent, key);
-          if (nextState) {
-            console.log("found by searching siblings");
-          }
-        }
-      }
-      if (!nextState) {
-        nextState = this.shortcutManager.findNode(shortcuts, key);
-        if (nextState) {
-          console.log("found searching root keys");
-        }
-      }
-      if (!nextState) {
-        //if (false !== this.publish(event.code)) event.preventDefault();
-        return;
-      }
-
-      currentState = nextState;
-      event.preventDefault();
-      if (!currentState.ops.length) {
-        console.log(
-          "continue using: ",
-          keys(currentState.subkeys)
-            .map(k => {
-              const title = currentState.subkeys[k].title;
-              return !!title ? `${title}(${k})` : k + "";
-            })
-            .join(", ")
-        );
-        return;
-      }
-
-      console.log("executing ops: ", currentState);
-      currentState.ops.forEach(cb => cb());
-    });
+    this.input.parentElement && this.shortcutManager.watchKeyboard(this.input.parentElement);
   }
 
   public execute(command: string, ...args: any[]) {

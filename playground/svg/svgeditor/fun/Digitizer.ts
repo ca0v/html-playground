@@ -10,7 +10,7 @@ function getLayers(): HTMLElement {
 
 function getPixels(): HTMLImageElement | null {
   if (!isDigitizing) return null;
-  return document.querySelector(".svgeditor.digitizer .layers .pixels-to-digitize");
+  return document.querySelector(".svgeditor .layers .pixels-to-digitize");
 }
 
 function isDigitizing() {
@@ -48,22 +48,20 @@ function createMove(dx: number, dy: number) {
   };
 }
 
-function createTranslator(dx: number, dy: number) {
+function createTranslator(target: HTMLElement, dx: number, dy: number) {
   return () => {
-    let layers = getLayers();
-    let currentTransform = getComputedStyle(layers).transform;
+    let currentTransform = getComputedStyle(target).transform;
     if (currentTransform === "none") currentTransform = "";
-    layers.style.transform = `translate(${dx}px,${dy}px) ${currentTransform}`;
+    target.style.transform = `translate(${dx}px,${dy}px) ${currentTransform}`;
   };
 }
 
-function createScaler(scale: number) {
+function createScaler(target: HTMLElement, scale: number) {
   return () => {
-    let layers = getLayers();
-    let currentTransform = getComputedStyle(layers).transform;
+    let currentTransform = getComputedStyle(target).transform;
     if (currentTransform === "none") currentTransform = "";
     const restoreDx = 100 * (0.5 * scale);
-    layers.style.transform = `${currentTransform} translate(${restoreDx}%,${restoreDx}%) scale(${scale}) translate(-50%,-50%)`;
+    target.style.transform = `${currentTransform} translate(${restoreDx}%,${restoreDx}%) scale(${scale}) translate(-50%,-50%)`;
   };
 }
 
@@ -92,33 +90,41 @@ function createScaleAboutCursor(editor: SvgEditor, scale: number) {
 
 export class Digitizer implements SvgEditorRule {
   initialize(editor: SvgEditor): void {
+    const layers = getLayers();
+    const bitmap = getPixels();
+
     editor.shortcut("Escape", () => {
-      getLayers().style.transform = "none";
+      layers.style.transform = "none";
     });
 
-    editor.shortcut("Digitizer Toggle", () => document.querySelector(".svgeditor")?.classList.toggle("digitizer"));
-    editor.shortcut("Digitizer Plus", () => zoomInPixels(1.01));
-    editor.shortcut("Digitizer Minus", () => zoomInPixels(1.0 / 1.01));
+    if (bitmap) {
+      editor.shortcut("Bitmap Toggle", () => document.querySelector(".svgeditor")?.classList.toggle("digitizer"));
 
-    let scale = 1;
-    editor.shortcut("Digitizer CameraMove 1 ArrowLeft", createMove(scale, 0));
-    editor.shortcut("Digitizer CameraMove 1 ArrowRight", createMove(-scale, 0));
-    editor.shortcut("Digitizer CameraMove 1 ArrowUp", createMove(0, scale));
-    editor.shortcut("Digitizer CameraMove 1 ArrowDown", createMove(0, -scale));
-    scale = 10;
-    editor.shortcut("Digitizer CameraMove ArrowLeft", createMove(scale, 0));
-    editor.shortcut("Digitizer CameraMove ArrowRight", createMove(-scale, 0));
-    editor.shortcut("Digitizer CameraMove ArrowUp", createMove(0, scale));
-    editor.shortcut("Digitizer CameraMove ArrowDown", createMove(0, -scale));
+      let scale = 1.01;
+      editor.shortcut("Bitmap Move Plus", createScaler(bitmap, scale));
+      editor.shortcut("Bitmap Move Minus", createScaler(bitmap, 1.0 / scale));
 
-    editor.shortcut("Insert ZReturn", () => editor.insertCommand({ command: "Z", args: [] }));
-    editor.shortcut("Insert Move", () => editor.insertCommand({ command: "M", args: [] }));
-    editor.shortcut("Insert Line", () => editor.insertCommand({ command: "L", args: [] }));
-    editor.shortcut("Insert HorizontalLine", () => editor.insertCommand({ command: "H", args: [] }));
-    editor.shortcut("Insert VerticalLine", () => editor.insertCommand({ command: "V", args: [] }));
-    editor.shortcut("Insert Arc", () => editor.insertCommand({ command: "A", args: [] }));
-    editor.shortcut("Insert SmoothCurve", () => editor.insertCommand({ command: "S", args: [] }));
-    editor.shortcut("Insert Curve", () => editor.insertCommand({ command: "C", args: [] }));
+      scale = 1;
+      editor.shortcut("Bitmap Move 1 ArrowLeft", createTranslator(bitmap, -scale, 0));
+      editor.shortcut("Bitmap Move 1 ArrowRight", createTranslator(bitmap, scale, 0));
+      editor.shortcut("Bitmap Move 1 ArrowUp", createTranslator(bitmap, 0, -scale));
+      editor.shortcut("Bitmap Move 1 ArrowDown", createTranslator(bitmap, 0, scale));
+
+      scale = 10;
+      editor.shortcut("Bitmap Move ArrowLeft", createTranslator(bitmap, -scale, 0));
+      editor.shortcut("Bitmap Move ArrowRight", createTranslator(bitmap, scale, 0));
+      editor.shortcut("Bitmap Move ArrowUp", createTranslator(bitmap, 0, -scale));
+      editor.shortcut("Bitmap Move ArrowDown", createTranslator(bitmap, 0, scale));
+    }
+
+    editor.shortcut("Path Insert ZReturn", () => editor.insertCommand({ command: "Z", args: [] }));
+    editor.shortcut("Path Insert Move", () => editor.insertCommand({ command: "M", args: [] }));
+    editor.shortcut("Path Insert Line", () => editor.insertCommand({ command: "L", args: [] }));
+    editor.shortcut("Path Insert HorizontalLine", () => editor.insertCommand({ command: "H", args: [] }));
+    editor.shortcut("Path Insert VerticalLine", () => editor.insertCommand({ command: "V", args: [] }));
+    editor.shortcut("Path Insert Arc", () => editor.insertCommand({ command: "A", args: [] }));
+    editor.shortcut("Path Insert SmoothCurve", () => editor.insertCommand({ command: "S", args: [] }));
+    editor.shortcut("Path Insert Curve", () => editor.insertCommand({ command: "C", args: [] }));
 
     /**
      * Moves the digitizing area
@@ -127,45 +133,41 @@ export class Digitizer implements SvgEditorRule {
      */
     {
       let scale = -10;
-      editor.shortcut("Move ArrowDown", createTranslator(0, scale));
-      editor.shortcut("Move ArrowUp", createTranslator(0, -scale));
-      editor.shortcut("Move ArrowLeft", createTranslator(-scale, 0));
-      editor.shortcut("Move ArrowRight", createTranslator(scale, 0));
+      editor.shortcut("Canvas Move ArrowDown", createTranslator(layers, 0, scale));
+      editor.shortcut("Canvas Move ArrowUp", createTranslator(layers, 0, -scale));
+      editor.shortcut("Canvas Move ArrowLeft", createTranslator(layers, -scale, 0));
+      editor.shortcut("Canvas Move ArrowRight", createTranslator(layers, scale, 0));
       scale = -1;
-      editor.shortcut("Move 1 ArrowDown", createTranslator(0, scale));
-      editor.shortcut("Move 1 ArrowUp", createTranslator(0, -scale));
-      editor.shortcut("Move 1 ArrowLeft", createTranslator(-scale, 0));
-      editor.shortcut("Move 1 ArrowRight", createTranslator(scale, 0));
+      editor.shortcut("Canvas Move 1 ArrowDown", createTranslator(layers, 0, scale));
+      editor.shortcut("Canvas Move 1 ArrowUp", createTranslator(layers, 0, -scale));
+      editor.shortcut("Canvas Move 1 ArrowLeft", createTranslator(layers, -scale, 0));
+      editor.shortcut("Canvas Move 1 ArrowRight", createTranslator(layers, scale, 0));
     }
 
     // zoom about current cursor location
-    editor.shortcut("Move Plus", createScaleAboutCursor(editor, 1.1));
-    editor.shortcut("Move Minus", createScaleAboutCursor(editor, 1 / 1.1));
-    editor.shortcut("Move 1 Plus", createScaleAboutCursor(editor, 1.01));
-    editor.shortcut("Move 1 Minus", createScaleAboutCursor(editor, 1 / 1.01));
-    editor.shortcut("Plus", createScaler(1.01));
-    editor.shortcut("Minus", createScaler(1 / 1.01));
+    editor.shortcut("Canvas Move Plus", createScaleAboutCursor(editor, 1.1));
+    editor.shortcut("Canvas Move Minus", createScaleAboutCursor(editor, 1 / 1.1));
+    editor.shortcut("Canvas Move 1 Plus", createScaleAboutCursor(editor, 1.01));
+    editor.shortcut("Canvas Move 1 Minus", createScaleAboutCursor(editor, 1 / 1.01));
 
-    editor
-      .shortcut("Goto C", () => {
-        const cursorLocation = editor.getCursorLocation();
-        const viewBox = editor.getViewbox();
-        const layers = getLayers();
-        const layerLocationInPixels = layers.getBoundingClientRect();
-        const x =
-          layerLocationInPixels.x + (layerLocationInPixels.width * (cursorLocation.x - viewBox.x)) / viewBox.width;
-        const y =
-          layerLocationInPixels.y + (layerLocationInPixels.width * (cursorLocation.y - viewBox.y)) / viewBox.height;
-        const cx = getPosition(layers).x + getPosition(layers).width / 2;
-        const cy = getPosition(layers).y + getPosition(layers).height / 2;
-        const dx = cx - x;
-        const dy = cy - y;
-        let currentTransform = getComputedStyle(layers).transform;
-        if (currentTransform === "none") currentTransform = "";
-        console.log(cursorLocation.x, viewBox.x, x, cx, dx, currentTransform);
-        layers.style.transform = `translate(${dx}px,${dy}px) ${currentTransform}`;
-      })
-      .because("camera center at current location");
+    editor.shortcut("Path Center", () => {
+      const cursorLocation = editor.getCursorLocation();
+      const viewBox = editor.getViewbox();
+      const layers = getLayers();
+      const layerLocationInPixels = layers.getBoundingClientRect();
+      const x =
+        layerLocationInPixels.x + (layerLocationInPixels.width * (cursorLocation.x - viewBox.x)) / viewBox.width;
+      const y =
+        layerLocationInPixels.y + (layerLocationInPixels.width * (cursorLocation.y - viewBox.y)) / viewBox.height;
+      const cx = getPosition(layers).x + getPosition(layers).width / 2;
+      const cy = getPosition(layers).y + getPosition(layers).height / 2;
+      const dx = cx - x;
+      const dy = cy - y;
+      let currentTransform = getComputedStyle(layers).transform;
+      if (currentTransform === "none") currentTransform = "";
+      console.log(cursorLocation.x, viewBox.x, x, cx, dx, currentTransform);
+      layers.style.transform = `translate(${dx}px,${dy}px) ${currentTransform}`;
+    });
   }
 }
 
