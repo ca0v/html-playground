@@ -78,7 +78,8 @@ body.svgeditor {
   display: block;
   font-size: 1.5rem;
   border: none;
-  padding: none;
+  padding: 0;
+  margin: 0;  
 }
 
 .svgeditor section label {

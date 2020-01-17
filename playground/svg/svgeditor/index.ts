@@ -1,12 +1,12 @@
 import markers from "./data/marker";
 import icons from "./data/icons";
-import { SvgEditorControl } from "./svgeditor";
+import { SvgEditorControl } from "./fun/SvgEditorControl";
 import { SvgEditor } from "./fun/SvgEditor";
 import { CoreRules } from "./fun/CoreRules";
 import { asDom } from "./fun/asDom";
 import { stringify } from "./fun/stringify";
 import { Digitizer } from "./fun/Digitizer";
-import { keys } from "./keys";
+import { keys } from "./fun/keys";
 import { getPath } from "./fun/getPath";
 
 function createSvgEditor(workview: SVGSVGElement, input: HTMLElement) {

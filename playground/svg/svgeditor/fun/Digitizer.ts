@@ -1,5 +1,5 @@
 import { SvgEditor, SvgEditorRule } from "./SvgEditor";
-import { keys } from "../keys";
+import { keys } from "./keys";
 
 function getLayers(): HTMLElement {
   let layers = document.querySelector(".layers") as HTMLElement;
