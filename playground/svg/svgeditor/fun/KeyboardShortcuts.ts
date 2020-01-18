@@ -33,18 +33,33 @@ export class ShortcutManager {
     return this.forceNode(node.subkeys[key], shortcuts);
   };
 
-  public help(root = this.shortcuts) {
-    const childKeys = keys(root.subkeys);
-    const visit = (node: KeyboardShortcut, cb: (node: KeyboardShortcut) => void) => {
+  public help(root = this.currentState, deep = false) {
+    const visitAll = (node: KeyboardShortcut, cb: (node: KeyboardShortcut) => void) => {
       cb(node);
-      node.parent && visit(node.parent, cb);
+      keys(node.subkeys).forEach(key => visitAll(node.subkeys[key], cb));
     }
-    const parentKeys = <Array<string | number>>[];
-    if (root.parent) {
-      parentKeys.concat(keys(root.parent.subkeys));
+    const visitUp = (node: KeyboardShortcut, cb: (node: KeyboardShortcut) => void) => {
+      cb(node);
+      node.parent && visitUp(node.parent, cb);
     }
-    visit(root, node => parentKeys.push(node.key));
-    return `${root.key} -> [${(childKeys).join("|")}] ${parentKeys.join(" ")}`;
+
+    if (!deep) {
+      const parentKeys = <Array<string | number>>[];
+      if (root.parent) {
+        parentKeys.concat(keys(root.parent.subkeys));
+      }
+      visitUp(root, node => parentKeys.push(node.key));
+      const childKeys = keys(root.subkeys);
+      return `${root.key} -> [${(childKeys).join("|")}] ${parentKeys.join(" ")}`;
+    } else {
+      const parentKeys = <Array<string | number>>[];
+      visitAll(root, node => {
+        if (node.ops && node.ops.length) {
+          parentKeys.push(node.title || node.key);
+        }
+      });
+      return parentKeys.join("\n");
+    }
   }
 
   public watchKeyboard(root: HTMLElement, callbacks: { log: (message: string) => void }) {

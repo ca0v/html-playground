@@ -17,33 +17,37 @@ Slash File New
 Slash File Open
 Slash File Save
 Slash Help
-Slash Path 0.Curve
-Slash Path 1.Line
 Slash Path 2 A
 Slash Path 2 D
 Slash Path 2 S
 Slash Path 2 W
-Slash Path 2.Move
 Slash Path 3 A
 Slash Path 3 D
 Slash Path 3 S
 Slash Path 3 W
-Slash Path 3.ZReturn
-Slash Path 4.HorizontalLine
-Slash Path 5.VerticalLine
-Slash Path 6.Arc
-Slash Path 9.SmoothCurve
-Slash Path A.Left
+Slash Path A
+Slash Path A 0
 Slash Path ArrowDown
 Slash Path ArrowUp
 Slash Path Center
-Slash Path D.Right
+Slash Path D
+Slash Path D 0
 Slash Path Delete
+Slash Path ECurve
 Slash Path End
 Slash Path Enter
 Slash Path Home
-Slash Path S.Down
-Slash Path W.Up
+Slash Path HorizontalLine
+Slash Path Line
+Slash Path Move
+Slash Path RArc
+Slash Path S
+Slash Path S 0
+Slash Path UCurveSmooth
+Slash Path VerticalLine
+Slash Path W
+Slash Path W 0
+Slash Path ZReturn
 Slash Toggle Bitmap
 Slash Toggle GridLines
 Slash Toggle Help

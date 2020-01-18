@@ -136,7 +136,8 @@ export class SvgEditorControl implements SvgEditor {
     };
 
     const keyCommands: Dictionary<() => void> = {
-      "?": () => {
+      "Slash Help": () => {
+        console.log(this.shortcutManager.help(this.shortcutManager.shortcuts, true));
         this.publish("log", this.shortcutManager.help());
       },
       "Slash File Open": () => {
@@ -163,16 +164,20 @@ export class SvgEditorControl implements SvgEditor {
       "Slash Path 3 D": () => moveit({ dx: 1, dy: 0 }, { tertiary: true }),
       "Slash Path 3 S": () => moveit({ dx: 0, dy: 1 }, { tertiary: true }),
       "Slash Path 3 W": () => moveit({ dx: 0, dy: -1 }, { tertiary: true }),
-      "Slash Path A.Left": () => moveit({ dx: -1, dy: 0 }),
+      "Slash Path A": () => moveit({ dx: -1, dy: 0 }),
+      "Slash Path D": () => moveit({ dx: 1, dy: 0 }),
+      "Slash Path S": () => moveit({ dx: 0, dy: 1 }),
+      "Slash Path W": () => moveit({ dx: 0, dy: -1 }),
+      "Slash Path A 0": () => moveit({ dx: 0.1, dy: 0 }),
+      "Slash Path D 0": () => moveit({ dx: -0.1, dy: 0 }),
+      "Slash Path S 0": () => moveit({ dx: 0, dy: -0.1 }),
+      "Slash Path W 0": () => moveit({ dx: 0, dy: 0.1 }),
       "Slash Path ArrowDown": () => focus(document.activeElement?.nextElementSibling),
       "Slash Path ArrowUp": () => focus(document.activeElement?.previousElementSibling),
-      "Slash Path D.Right": () => moveit({ dx: 1, dy: 0 }),
       "Slash Path Delete": () => this.deleteActiveCommand(),
       "Slash Path End": () => focus(this.input.lastElementChild),
       "Slash Path Enter": () => this.editActiveCommand(),
       "Slash Path Home": () => focus(this.input.firstElementChild),
-      "Slash Path S.Down": () => moveit({ dx: 0, dy: 1 }),
-      "Slash Path W.Up": () => moveit({ dx: 0, dy: -1 }),
     };
 
     this.keyCommands = keyCommands;
