@@ -98,33 +98,39 @@ export class Digitizer implements SvgEditorRule {
     });
 
     if (bitmap) {
-      editor.shortcut("Toggle Bitmap", () => document.querySelector(".svgeditor")?.classList.toggle("digitizer"));
+      editor.shortcut("Slash Toggle Bitmap", () => document.querySelector(".svgeditor")?.classList.toggle("digitizer"));
 
-      let scale = 1.01;
-      editor.shortcut("Bitmap Move Plus", createScaler(bitmap, scale));
-      editor.shortcut("Bitmap Move Minus", createScaler(bitmap, 1.0 / scale));
+      let scale = 1.1;
+      editor.shortcut("Slash Bitmap Plus", createScaler(bitmap, scale));
+      editor.shortcut("Slash Bitmap Minus", createScaler(bitmap, 1.0 / scale));
 
-      scale = -1;
-      editor.shortcut("Bitmap Move ArrowLeft 1", createTranslator(bitmap, -scale, 0));
-      editor.shortcut("Bitmap Move ArrowRight 1", createTranslator(bitmap, scale, 0));
-      editor.shortcut("Bitmap Move ArrowUp 1", createTranslator(bitmap, 0, -scale));
-      editor.shortcut("Bitmap Move ArrowDown 1", createTranslator(bitmap, 0, scale));
+      scale = 1 / 1.01;
+      editor.shortcut("Slash Bitmap Plus 1", createScaler(bitmap, scale));
+      editor.shortcut("Slash Bitmap Minus 1", createScaler(bitmap, 1.0 / scale));
 
       scale = 10;
-      editor.shortcut("Bitmap Move ArrowLeft", createTranslator(bitmap, -scale, 0));
-      editor.shortcut("Bitmap Move ArrowRight", createTranslator(bitmap, scale, 0));
-      editor.shortcut("Bitmap Move ArrowUp", createTranslator(bitmap, 0, -scale));
-      editor.shortcut("Bitmap Move ArrowDown", createTranslator(bitmap, 0, scale));
+      editor.shortcut("Slash Bitmap A.ArrowLeft", createTranslator(bitmap, -scale, 0));
+      editor.shortcut("Slash Bitmap D.ArrowRight", createTranslator(bitmap, scale, 0));
+      editor.shortcut("Slash Bitmap W.ArrowUp", createTranslator(bitmap, 0, -scale));
+      editor.shortcut("Slash Bitmap S.ArrowDown", createTranslator(bitmap, 0, scale));
+
+      scale = -1;
+      editor.shortcut("Slash Bitmap A.ArrowLeft 1", createTranslator(bitmap, -scale, 0));
+      editor.shortcut("Slash Bitmap D.ArrowRight 1", createTranslator(bitmap, scale, 0));
+      editor.shortcut("Slash Bitmap W.ArrowUp 1", createTranslator(bitmap, 0, -scale));
+      editor.shortcut("Slash Bitmap S.ArrowDown 1", createTranslator(bitmap, 0, scale));
+
     }
 
-    editor.shortcut("Path Insert ZReturn", () => editor.insertCommand({ command: "Z", args: [] }));
-    editor.shortcut("Path Insert Move", () => editor.insertCommand({ command: "M", args: [] }));
-    editor.shortcut("Path Insert Line", () => editor.insertCommand({ command: "L", args: [] }));
-    editor.shortcut("Path Insert HorizontalLine", () => editor.insertCommand({ command: "H", args: [] }));
-    editor.shortcut("Path Insert VerticalLine", () => editor.insertCommand({ command: "V", args: [] }));
-    editor.shortcut("Path Insert Arc", () => editor.insertCommand({ command: "A", args: [] }));
-    editor.shortcut("Path Insert SmoothCurve", () => editor.insertCommand({ command: "S", args: [] }));
-    editor.shortcut("Path Insert Curve", () => editor.insertCommand({ command: "C", args: [] }));
+    // iop are keyboard sequences
+    editor.shortcut("Slash Path 3.ZReturn", () => editor.insertCommand({ command: "Z", args: [] }));
+    editor.shortcut("Slash Path 2.Move", () => editor.insertCommand({ command: "M", args: [] }));
+    editor.shortcut("Slash Path 1.Line", () => editor.insertCommand({ command: "L", args: [] }));
+    editor.shortcut("Slash Path 4.HorizontalLine", () => editor.insertCommand({ command: "H", args: [] }));
+    editor.shortcut("Slash Path 5.VerticalLine", () => editor.insertCommand({ command: "V", args: [] }));
+    editor.shortcut("Slash Path 6.Arc", () => editor.insertCommand({ command: "A", args: [] }));
+    editor.shortcut("Slash Path 9.SmoothCurve", () => editor.insertCommand({ command: "S", args: [] }));
+    editor.shortcut("Slash Path 0.Curve", () => editor.insertCommand({ command: "C", args: [] }));
 
     /**
      * Moves the digitizing area
@@ -132,25 +138,27 @@ export class Digitizer implements SvgEditorRule {
      * alt=1, ctrl+alt=10 , ctrl=100
      */
     {
-      let scale = -10;
-      editor.shortcut("Canvas Move ArrowDown", createTranslator(layers, 0, scale));
-      editor.shortcut("Canvas Move ArrowUp", createTranslator(layers, 0, -scale));
-      editor.shortcut("Canvas Move ArrowLeft", createTranslator(layers, -scale, 0));
-      editor.shortcut("Canvas Move ArrowRight", createTranslator(layers, scale, 0));
+      let scale = 10;
+      editor.shortcut("Slash Vector S.ArrowDown", createTranslator(layers, 0, scale));
+      editor.shortcut("Slash Vector W.ArrowUp", createTranslator(layers, 0, -scale));
+      editor.shortcut("Slash Vector A.ArrowLeft", createTranslator(layers, -scale, 0));
+      editor.shortcut("Slash Vector D.ArrowRight", createTranslator(layers, scale, 0));
       scale = -1;
-      editor.shortcut("Canvas Move 1 ArrowDown", createTranslator(layers, 0, scale));
-      editor.shortcut("Canvas Move 1 ArrowUp", createTranslator(layers, 0, -scale));
-      editor.shortcut("Canvas Move 1 ArrowLeft", createTranslator(layers, -scale, 0));
-      editor.shortcut("Canvas Move 1 ArrowRight", createTranslator(layers, scale, 0));
+      editor.shortcut("Slash Vector S.ArrowDown 1", createTranslator(layers, 0, scale));
+      editor.shortcut("Slash Vector W.ArrowUp 1", createTranslator(layers, 0, -scale));
+      editor.shortcut("Slash Vector A.ArrowLeft 1", createTranslator(layers, -scale, 0));
+      editor.shortcut("Slash Vector D.ArrowRight 1", createTranslator(layers, scale, 0));
+
+      // zoom about current cursor location
+      scale = 1.1;
+      editor.shortcut("Slash Vector Plus", createScaleAboutCursor(editor, scale));
+      editor.shortcut("Slash Vector Minus", createScaleAboutCursor(editor, 1 / scale));
+      scale = 1 / 1.01;
+      editor.shortcut("Slash Vector Plus 1", createScaleAboutCursor(editor, scale));
+      editor.shortcut("Slash Vector Minus 1", createScaleAboutCursor(editor, 1 / scale));
     }
 
-    // zoom about current cursor location
-    editor.shortcut("Canvas Move Plus", createScaleAboutCursor(editor, 1.1));
-    editor.shortcut("Canvas Move Minus", createScaleAboutCursor(editor, 1 / 1.1));
-    editor.shortcut("Canvas Move 1 Plus", createScaleAboutCursor(editor, 1.01));
-    editor.shortcut("Canvas Move 1 Minus", createScaleAboutCursor(editor, 1 / 1.01));
-
-    editor.shortcut("Path Center", () => {
+    editor.shortcut("Slash Path Center", () => {
       const cursorLocation = editor.getCursorLocation();
       const viewBox = editor.getViewbox();
       const layers = getLayers();

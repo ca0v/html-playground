@@ -2,7 +2,7 @@ import { Dictionary } from "./Dictionary";
 import { keys } from "./keys";
 
 // do not use Alt
-const atomicTokens = "ArrowLeft ArrowRight ArrowUp ArrowDown Control Delete End Enter Escape F1 F2 F3 F4 F5 F6 F7 F8 F9 F10 F11 F12 Home Insert Minus PageUp PageDown Plus Shift Slash Space".split(
+const atomicTokens = "ArrowLeft ArrowRight ArrowUp ArrowDown Control Delete End Enter Escape Home Minus PageUp PageDown Plus Shift Slash Space".split(
   " "
 );
 const isAtomic = (v: string) => 0 <= atomicTokens.indexOf(v);
@@ -12,13 +12,13 @@ type KeyboardShortcuts = Dictionary<KeyboardShortcut>;
 
 type KeyboardShortcut = {
   title?: string;
-  parent?: KeyboardShortcut;
+  parent: KeyboardShortcut | null;
   ops: Array<() => void>;
   subkeys: KeyboardShortcuts;
 };
 
 export class ShortcutManager {
-  public readonly shortcuts: KeyboardShortcut = { ops: [], subkeys: {} };
+  public readonly shortcuts: KeyboardShortcut = { ops: [], subkeys: {}, parent: null };
   private currentState = this.shortcuts;
 
   private firstLetter = (word: string) => word[0];
@@ -33,19 +33,8 @@ export class ShortcutManager {
     return this.forceNode(node.subkeys[key], shortcuts);
   };
 
-  private help(root: KeyboardShortcut) {
-    const visitEach = (node: KeyboardShortcut, visit: (node: KeyboardShortcut) => void) => {
-      visit(node);
-      keys(node.subkeys).forEach(key => visitEach(node.subkeys[key], visit));
-    };
-
-    let result: Array<string> = [];
-    visitEach(root, node => {
-      if (node.ops.length && node.title) {
-        result.push(node.title);
-      }
-    });
-    return result.sort().join("\n");
+  public help(root = this.shortcuts) {
+    return keys(root.subkeys).join(" ");
   }
 
   watchKeyboard(root: HTMLElement) {
@@ -64,49 +53,37 @@ export class ShortcutManager {
       const key = map[event.key] || event.key;
 
       console.log("you pressed: ", key, event.code);
-      let currentState = this.currentState;
-      let nextState = this.findNode(currentState, key);
-      if (nextState) {
-        console.log("continuation found");
-      } else {
-        if (currentState.parent) {
-          console.log("scanning parent");
-          nextState = this.findNode(currentState.parent, key);
-          if (nextState) {
-            console.log("found by searching siblings");
-          }
-        }
-      }
+
+      let nextState = this.findNode(this.currentState, key);
       if (!nextState) {
-        nextState = this.findNode(this.shortcuts, key);
-        if (nextState) {
-          console.log("found searching root keys");
+        nextState = this.currentState.parent;
+        while (nextState) {
+          console.log("scanning parent");
+          const tempState = this.findNode(nextState, key);
+          if (tempState) {
+            console.log("found by searching siblings");
+            nextState = tempState;
+            break;
+          }
+          nextState = nextState.parent;
         }
       }
+
       if (!nextState) {
         // suggest a key
-        console.log(this.help(this.shortcuts));
-        //if (false !== this.publish(event.code)) event.preventDefault();
+        console.log(this.help(this.currentState));
         return;
       }
 
-      this.currentState = currentState = nextState;
+      this.currentState = nextState;
       event.preventDefault();
-      if (!currentState.ops.length) {
-        console.log(
-          "continue using: ",
-          keys(currentState.subkeys)
-            .map(k => {
-              const title = currentState.subkeys[k].title;
-              return !!title ? `${title}(${k})` : k + "";
-            })
-            .join(", ")
-        );
+      if (!this.currentState.ops.length) {
+        console.log(`next keys: ${this.help(this.currentState)}`);
         return;
       }
 
-      console.log("executing ops: ", currentState);
-      currentState.ops.forEach(cb => cb());
+      console.log("executing ops: ", this.currentState);
+      this.currentState.ops.forEach(cb => cb());
     });
   }
 
@@ -116,12 +93,10 @@ export class ShortcutManager {
     const shortcuts = isAtomic(shortcut)
       ? [shortcut]
       : isCompound(shortcut)
-      ? shortcut.split("|")
-      : [shortcut.toUpperCase()];
+        ? shortcut.split("|")
+        : [shortcut.toUpperCase()];
 
-    let result: KeyboardShortcut | null = null;
-    shortcuts.some(shortcut => (result = this._findNode(node, shortcut)));
-    return result;
+    return node.subkeys[shortcuts[0]];
   }
 
   private _findNode(node: KeyboardShortcut, shortcut: string): KeyboardShortcut | null {

@@ -30,16 +30,16 @@ export class CoreRules implements SvgEditorRule {
       .because("get the editor closer to the initial state");
 
     // "?"
-    editor.shortcut("Toggle Help", () => {
+    editor.shortcut("Slash Toggle Help", () => {
       let help = document.querySelector(".F1");
       help?.classList.toggle("hidden");
     });
 
-    editor.shortcut("Toggle Toolbar", () => {
+    editor.shortcut("Slash Toggle Toolbar", () => {
       getToolbar().classList.toggle("hidden");
     });
 
-    editor.shortcut("Toggle GridLines", () => {
+    editor.shortcut("Slash Toggle GridLines", () => {
       if (editor.isGridVisible()) {
         editor.hideGrid();
       } else {
@@ -47,7 +47,7 @@ export class CoreRules implements SvgEditorRule {
       }
     });
 
-    editor.shortcut("Toggle Markers", () => {
+    editor.shortcut("Slash Toggle Markers", () => {
       if (editor.isMarkersVisible()) {
         editor.hideMarkers();
       } else {

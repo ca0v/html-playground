@@ -47,7 +47,7 @@ export class SvgEditorControl implements SvgEditor {
   shortcut(topic: string, callback: () => void): { unsubscribe: () => void; because: (about: string) => void } {
     const node = this.shortcutManager.registerShortcut(topic, callback);
     return {
-      unsubscribe: () => {},
+      unsubscribe: () => { },
       because: (about: string) => {
         node.title = about;
       },
@@ -136,13 +136,10 @@ export class SvgEditorControl implements SvgEditor {
     };
 
     const keyCommands: Dictionary<() => void> = {
-      Delete: () => this.deleteActiveCommand(),
-      End: () => focus(this.input.lastElementChild),
-      Home: () => focus(this.input.firstElementChild),
-      F2: () => {
-        keyCommands["Enter"]();
+      "Slash Help": () => {
+        console.log(this.shortcutManager.help());
       },
-      "File Open": () => {
+      "Slash File Open": () => {
         // open
         let pathData = localStorage.getItem("path");
         if (!pathData) return;
@@ -151,32 +148,31 @@ export class SvgEditorControl implements SvgEditor {
         this.showMarkers();
         focus(this.input.children[0]);
       },
-      "File New": () => {
+      "Slash File New": () => {
         this.setSourcePath("M 0 0 Z");
         this.renderEditor();
         this.showMarkers();
         focus(this.input.children[0]);
       },
-      "File Save": () => localStorage.setItem("path", this.getSourcePath().join("\n")),
-      Enter: () => this.editActiveCommand(),
-      "Move ArrowDown": () => focus(document.activeElement?.nextElementSibling),
-      "Move ArrowUp": () => focus(document.activeElement?.previousElementSibling),
-      "Move 1 A": () => moveit({ dx: -1, dy: 0 }),
-      "Move 1 C": () => moveit({ dx: 1, dy: 1 }),
-      "Move 1 D": () => moveit({ dx: 1, dy: 0 }),
-      "Move 1 E": () => moveit({ dx: 1, dy: -1 }),
-      "Move 1 Q": () => moveit({ dx: -1, dy: -1 }),
-      "Move 1 S": () => moveit({ dx: 0, dy: 1 }),
-      "Move 1 W": () => moveit({ dx: 0, dy: -1 }),
-      "Move 1 Z": () => moveit({ dx: -1, dy: 1 }),
-      "Move 2 A": () => moveit({ dx: -1, dy: 0 }, { secondary: true }),
-      "Move 2 D": () => moveit({ dx: 1, dy: 0 }, { secondary: true }),
-      "Move 2 S": () => moveit({ dx: 0, dy: 1 }, { secondary: true }),
-      "Move 2 W": () => moveit({ dx: 0, dy: -1 }, { secondary: true }),
-      "Move 3 A": () => moveit({ dx: -1, dy: 0 }, { tertiary: true }),
-      "Move 3 D": () => moveit({ dx: 1, dy: 0 }, { tertiary: true }),
-      "Move 3 S": () => moveit({ dx: 0, dy: 1 }, { tertiary: true }),
-      "Move 3 W": () => moveit({ dx: 0, dy: -1 }, { tertiary: true }),
+      "Slash File Save": () => localStorage.setItem("path", this.getSourcePath().join("\n")),
+      "Slash Path 2 A": () => moveit({ dx: -1, dy: 0 }, { secondary: true }),
+      "Slash Path 2 D": () => moveit({ dx: 1, dy: 0 }, { secondary: true }),
+      "Slash Path 2 S": () => moveit({ dx: 0, dy: 1 }, { secondary: true }),
+      "Slash Path 2 W": () => moveit({ dx: 0, dy: -1 }, { secondary: true }),
+      "Slash Path 3 A": () => moveit({ dx: -1, dy: 0 }, { tertiary: true }),
+      "Slash Path 3 D": () => moveit({ dx: 1, dy: 0 }, { tertiary: true }),
+      "Slash Path 3 S": () => moveit({ dx: 0, dy: 1 }, { tertiary: true }),
+      "Slash Path 3 W": () => moveit({ dx: 0, dy: -1 }, { tertiary: true }),
+      "Slash Path A.Left": () => moveit({ dx: -1, dy: 0 }),
+      "Slash Path ArrowDown": () => focus(document.activeElement?.nextElementSibling),
+      "Slash Path ArrowUp": () => focus(document.activeElement?.previousElementSibling),
+      "Slash Path D.Right": () => moveit({ dx: 1, dy: 0 }),
+      "Slash Path Delete": () => this.deleteActiveCommand(),
+      "Slash Path End": () => focus(this.input.lastElementChild),
+      "Slash Path Enter": () => this.editActiveCommand(),
+      "Slash Path Home": () => focus(this.input.firstElementChild),
+      "Slash Path S.Down": () => moveit({ dx: 0, dy: 1 }),
+      "Slash Path W.Up": () => moveit({ dx: 0, dy: -1 }),
     };
 
     this.keyCommands = keyCommands;

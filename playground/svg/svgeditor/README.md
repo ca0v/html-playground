@@ -1,65 +1,63 @@
 ## Keyboard Shortcuts
 
-Bitmap Move ArrowDown
-Bitmap Move ArrowDown 1
-Bitmap Move ArrowLeft
-Bitmap Move ArrowLeft 1
-Bitmap Move ArrowRight
-Bitmap Move ArrowRight 1
-Bitmap Move ArrowUp
-Bitmap Move ArrowUp 1
-Bitmap Move Minus
-Bitmap Move Plus
-Canvas Move 1 ArrowDown
-Canvas Move 1 ArrowLeft
-Canvas Move 1 ArrowRight
-Canvas Move 1 ArrowUp
-Canvas Move 1 Minus
-Canvas Move 1 Plus
-Canvas Move ArrowDown
-Canvas Move ArrowLeft
-Canvas Move ArrowRight
-Canvas Move ArrowUp
-Canvas Move Minus
-Canvas Move Plus
-Delete
-End
-Enter
 Escape
-F2
-File New
-File Open
-File Save
-Home
-Move 1 A
-Move 1 C
-Move 1 D
-Move 1 E
-Move 1 Q
-Move 1 S
-Move 1 W
-Move 1 Z
-Move 2 A
-Move 2 D
-Move 2 S
-Move 2 W
-Move 3 A
-Move 3 D
-Move 3 S
-Move 3 W
-Move ArrowDown
-Move ArrowUp
-Path Center
-Path Insert Arc
-Path Insert Curve
-Path Insert HorizontalLine
-Path Insert Line
-Path Insert Move
-Path Insert SmoothCurve
-Path Insert VerticalLine
-Path Insert ZReturn
-Toggle Bitmap
-Toggle GridLines
-Toggle Help
-Toggle Markers
-Toggle Toolbar
+Slash Bitmap A.ArrowLeft
+Slash Bitmap A.ArrowLeft 1
+Slash Bitmap D.ArrowRight
+Slash Bitmap D.ArrowRight 1
+Slash Bitmap Minus
+Slash Bitmap Minus 1
+Slash Bitmap Plus
+Slash Bitmap Plus 1
+Slash Bitmap S.ArrowDown
+Slash Bitmap S.ArrowDown 1
+Slash Bitmap W.ArrowUp
+Slash Bitmap W.ArrowUp 1
+Slash File New
+Slash File Open
+Slash File Save
+Slash Help
+Slash Path 0.Curve
+Slash Path 1.Line
+Slash Path 2 A
+Slash Path 2 D
+Slash Path 2 S
+Slash Path 2 W
+Slash Path 2.Move
+Slash Path 3 A
+Slash Path 3 D
+Slash Path 3 S
+Slash Path 3 W
+Slash Path 3.ZReturn
+Slash Path 4.HorizontalLine
+Slash Path 5.VerticalLine
+Slash Path 6.Arc
+Slash Path 9.SmoothCurve
+Slash Path A.Left
+Slash Path ArrowDown
+Slash Path ArrowUp
+Slash Path Center
+Slash Path D.Right
+Slash Path Delete
+Slash Path End
+Slash Path Enter
+Slash Path Home
+Slash Path S.Down
+Slash Path W.Up
+Slash Toggle Bitmap
+Slash Toggle GridLines
+Slash Toggle Help
+Slash Toggle Markers
+Slash Toggle Toolbar
+Slash Vector A.ArrowLeft
+Slash Vector A.ArrowLeft 1
+Slash Vector D.ArrowRight
+Slash Vector D.ArrowRight 1
+Slash Vector Minus
+Slash Vector Minus 1
+Slash Vector Plus
+Slash Vector Plus 1
+Slash Vector S.ArrowDown
+Slash Vector S.ArrowDown 1
+Slash Vector W.ArrowUp
+Slash Vector W.ArrowUp 1

@@ -103,5 +103,6 @@ export function run() {
     });
   }
 
-  editor.execute("File Open");
+  editor.execute("Slash File Open");
+  editor.execute("Slash Help");
 }
