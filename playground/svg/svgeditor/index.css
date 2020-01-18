@@ -8,6 +8,15 @@ body.svgeditor {
   overflow: hidden;
 }
 
+.svgeditor .toaster {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: 2em;
+  border: 1px solid darkgray;
+  font-size: 1vh;
+}
+
 .svgeditor .F1 label {
   display: block;
 }

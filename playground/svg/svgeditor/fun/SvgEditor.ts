@@ -17,7 +17,7 @@ export interface SvgEditor {
   execute(command: string): void;
   subscribe(
     topic: string,
-    callback: () => void
+    callback: (...args: any[]) => void
   ): {
     unsubscribe: () => void;
     because(about: string): void;

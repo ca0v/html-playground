@@ -123,14 +123,14 @@ export class Digitizer implements SvgEditorRule {
     }
 
     // iop are keyboard sequences
-    editor.shortcut("Slash Path 3.ZReturn", () => editor.insertCommand({ command: "Z", args: [] }));
-    editor.shortcut("Slash Path 2.Move", () => editor.insertCommand({ command: "M", args: [] }));
-    editor.shortcut("Slash Path 1.Line", () => editor.insertCommand({ command: "L", args: [] }));
-    editor.shortcut("Slash Path 4.HorizontalLine", () => editor.insertCommand({ command: "H", args: [] }));
-    editor.shortcut("Slash Path 5.VerticalLine", () => editor.insertCommand({ command: "V", args: [] }));
-    editor.shortcut("Slash Path 6.Arc", () => editor.insertCommand({ command: "A", args: [] }));
-    editor.shortcut("Slash Path 9.SmoothCurve", () => editor.insertCommand({ command: "S", args: [] }));
-    editor.shortcut("Slash Path 0.Curve", () => editor.insertCommand({ command: "C", args: [] }));
+    editor.shortcut("Slash Path ECurve", () => editor.insertCommand({ command: "C", args: [] }));
+    editor.shortcut("Slash Path HorizontalLine", () => editor.insertCommand({ command: "H", args: [] }));
+    editor.shortcut("Slash Path Line", () => editor.insertCommand({ command: "L", args: [] }));
+    editor.shortcut("Slash Path Move", () => editor.insertCommand({ command: "M", args: [] }));
+    editor.shortcut("Slash Path RArc", () => editor.insertCommand({ command: "A", args: [] }));
+    editor.shortcut("Slash Path UCurveSmooth", () => editor.insertCommand({ command: "S", args: [] }));
+    editor.shortcut("Slash Path VerticalLine", () => editor.insertCommand({ command: "V", args: [] }));
+    editor.shortcut("Slash Path ZReturn", () => editor.insertCommand({ command: "Z", args: [] }));
 
     /**
      * Moves the digitizing area

@@ -24,7 +24,7 @@ function getScale(gridOverlay: SVGSVGElement) {
 }
 
 export class SvgEditorControl implements SvgEditor {
-  private topics: Dictionary<Array<() => void>> = {};
+  private topics: Dictionary<Array<(...args: any[]) => void>> = {};
 
   use(rule: SvgEditorRule): SvgEditor {
     rule.initialize(this);
@@ -136,8 +136,8 @@ export class SvgEditorControl implements SvgEditor {
     };
 
     const keyCommands: Dictionary<() => void> = {
-      "Slash Help": () => {
-        console.log(this.shortcutManager.help());
+      "?": () => {
+        this.publish("log", this.shortcutManager.help());
       },
       "Slash File Open": () => {
         // open
@@ -178,7 +178,11 @@ export class SvgEditorControl implements SvgEditor {
     this.keyCommands = keyCommands;
 
     keys(keyCommands).forEach(phrase => this.shortcutManager.registerShortcut(<string>phrase, keyCommands[phrase]));
-    this.input.parentElement && this.shortcutManager.watchKeyboard(this.input.parentElement);
+    this.input.parentElement && this.shortcutManager.watchKeyboard(this.input.parentElement, {
+      log: (message: string) => {
+        this.publish("log", message);
+      }
+    });
   }
 
   public execute(command: string, ...args: any[]) {
@@ -186,13 +190,13 @@ export class SvgEditorControl implements SvgEditor {
     this.keyCommands[command](...args);
   }
 
-  private publish(topic: string) {
+  private publish(topic: string, ...args: any[]) {
     let subscribers = this.topics[topic];
     if (!subscribers) {
       console.log(topic);
       return false;
     }
-    subscribers.forEach(subscriber => subscriber());
+    subscribers.forEach(subscriber => subscriber(...args));
     return true;
   }
 
@@ -229,7 +233,7 @@ export class SvgEditorControl implements SvgEditor {
           event.preventDefault();
           break;
       }
-      console.log(event.code);
+      this.publish("log", event.code);
     };
   }
 

@@ -1,13 +1,14 @@
 import markers from "./data/marker";
 import icons from "./data/icons";
 import { SvgEditorControl } from "./fun/SvgEditorControl";
-import { SvgEditor } from "./fun/SvgEditor";
+import { SvgEditor, SvgEditorRule } from "./fun/SvgEditor";
 import { CoreRules } from "./fun/CoreRules";
 import { asDom } from "./fun/asDom";
 import { stringify } from "./fun/stringify";
 import { Digitizer } from "./fun/Digitizer";
 import { keys } from "./fun/keys";
 import { getPath } from "./fun/getPath";
+import { Toaster } from "./fun/Toaster";
 
 function createSvgEditor(workview: SVGSVGElement, input: HTMLElement) {
   let editor = new SvgEditorControl(workview, input);
@@ -28,7 +29,22 @@ function insertIntoEditor(editor: SvgEditor, pathData: SVGPathElement) {
   editor.insertPath(d);
 }
 
+class NotificationReporter implements SvgEditorRule {
+  initialize(editor: SvgEditor): void {
+    editor.subscribe("log", message => {
+      this.toaster.setContent(message);
+    });
+  }
+
+  constructor(public toaster: Toaster) {
+  }
+}
+
 export function run() {
+  const toaster = new Toaster();
+  document.body.appendChild(toaster.domNode);
+  toaster.setContent("Hello!");
+
   let path = document.querySelector("path") as SVGPathElement;
   let svg = path.ownerSVGElement;
   if (!svg) throw "path must be in an svg container";
@@ -39,6 +55,7 @@ export function run() {
   let editor = createSvgEditor(svg, input);
   editor.use(new CoreRules());
   editor.use(new Digitizer());
+  editor.use(new NotificationReporter(toaster));
   editor.show();
 
   let toolbar = asDom(`<div class="toolbar hidden"></div>`);
