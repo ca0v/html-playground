@@ -33,7 +33,7 @@ export class ShortcutManager {
     return this.forceNode(node.subkeys[key], shortcuts);
   };
 
-  public help(root = this.currentState, deep = false) {
+  public help(root = this.currentState, deep = false): string {
     const visitAll = (node: KeyboardShortcut, cb: (node: KeyboardShortcut) => void) => {
       cb(node);
       keys(node.subkeys).forEach(key => visitAll(node.subkeys[key], cb));
@@ -43,15 +43,7 @@ export class ShortcutManager {
       node.parent && visitUp(node.parent, cb);
     }
 
-    if (!deep) {
-      const parentKeys = <Array<string | number>>[];
-      if (root.parent) {
-        parentKeys.concat(keys(root.parent.subkeys));
-      }
-      visitUp(root, node => parentKeys.push(node.key));
-      const childKeys = keys(root.subkeys);
-      return `${root.key} -> [${(childKeys).join("|")}] ${parentKeys.join(" ")}`;
-    } else {
+    if (deep) {
       const parentKeys = <Array<string | number>>[];
       visitAll(root, node => {
         if (node.ops && node.ops.length) {
@@ -60,6 +52,13 @@ export class ShortcutManager {
       });
       return parentKeys.join("\n");
     }
+
+    let results = keys(root.subkeys);
+    // if no child ops report parent ops
+    if (!results.length) {
+      root.parent && visitAll(root.parent, node => results.push(node.key));
+    }
+    return results.length ? `[${results.join("|")}]` : deep ? "" : this.help(root, true);
   }
 
   public watchKeyboard(root: HTMLElement, callbacks: { log: (message: string) => void }) {
@@ -104,7 +103,8 @@ export class ShortcutManager {
       }
 
       if (!event.repeat) {
-        callbacks.log(`executing ops: ${this.currentState.title}`);
+        callbacks.log(`${this.currentState.title}`);
+        keys(this.currentState.subkeys).length && callbacks.log(`more: ${this.help(this.currentState)}`)
       }
       this.currentState.ops.forEach(cb => cb());
     });

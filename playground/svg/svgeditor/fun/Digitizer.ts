@@ -99,7 +99,7 @@ export class Digitizer implements SvgEditorRule {
 
     if (bitmap) {
       editor.shortcut("Slash Toggle Bitmap", () => document.querySelector(".svgeditor")?.classList.toggle("digitizer"));
-
+      editor.shortcut("Slash Bitmap", () => document.querySelector(".svgeditor")?.classList.add("digitizer"));
       let scale = 1.1;
       editor.shortcut("Slash Bitmap Plus", createScaler(bitmap, scale));
       editor.shortcut("Slash Bitmap Minus", createScaler(bitmap, 1.0 / scale));

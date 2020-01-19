@@ -9,6 +9,19 @@ import { Digitizer } from "./fun/Digitizer";
 import { keys } from "./fun/keys";
 import { getPath } from "./fun/getPath";
 import { Toaster } from "./fun/Toaster";
+import { NotificationEditorRule } from "./NotificationEditorRule";
+
+class ImageLoaderRule implements SvgEditorRule {
+  initialize(editor: SvgEditor): void {
+    const img = document.querySelector(".pixels-to-digitize") as HTMLImageElement;
+    if (!img) return;
+    editor.shortcut("Slash Bitmap Load", () => {
+      const url = prompt("what is the url?", "https://media.istockphoto.com/photos/portrait-of-brown-puppy-with-bokeh-background-picture-id636475496");
+      if (!url) return;
+      img.src = url;
+    });
+  }
+}
 
 function createSvgEditor(workview: SVGSVGElement, input: HTMLElement) {
   let editor = new SvgEditorControl(workview, input);
@@ -29,16 +42,6 @@ function insertIntoEditor(editor: SvgEditor, pathData: SVGPathElement) {
   editor.insertPath(d);
 }
 
-class NotificationReporter implements SvgEditorRule {
-  initialize(editor: SvgEditor): void {
-    editor.subscribe("log", message => {
-      this.toaster.setContent(message);
-    });
-  }
-
-  constructor(public toaster: Toaster) {
-  }
-}
 
 export function run() {
   const toaster = new Toaster();
@@ -55,7 +58,8 @@ export function run() {
   let editor = createSvgEditor(svg, input);
   editor.use(new CoreRules());
   editor.use(new Digitizer());
-  editor.use(new NotificationReporter(toaster));
+  editor.use(new NotificationEditorRule(toaster));
+  editor.use(new ImageLoaderRule());
   editor.show();
 
   let toolbar = asDom(`<div class="toolbar hidden"></div>`);
