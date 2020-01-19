@@ -60,18 +60,40 @@ class ObjectDefinePropertyTest {
 
 class ObjectOther {
     test() {
-        const model = Object.assign({foo: 1}, {bar: 1});
+        const model = Object.assign({ foo: 1 }, { bar: 1 });
         console.log(++model.foo);
         const model2 = Object.create(model) as typeof model;
         console.log(++model.foo);
         console.log(++model2.foo);
         console.log(++model.foo);
+
+        // unfortunately I can find no way to know which properties are being passed
+        // so I cannot create a "live" template string
+        const f = (strings: TemplateStringsArray, ...keys: string[]) => {
+            console.log(strings, keys);
+        }
+        f`hello ${"world"}! ${model.bar.toString()}`;
     }
 }
 
+class MyHTMLElement<Props> {
+    public dom: HTMLElement;
+    constructor(props: Props, template: (template: Props) => string) {
+        const dom = this.dom = document.createElement("div");
+        dom.innerHTML = template(props);
+        Object.keys(props).forEach(key => props.on(key, () => {
+            dom.innerHTML = template(props);
+        }));
+    }
+}
 
 (function () {
     new ObjectDefinePropertyTest().test();
     new ObjectOther().test();
+    const model = new ObjectDefinePropertyTest().props({ foo: 1 });
+    const my = new MyHTMLElement(model, (t => `<p>${t.foo}</p>`)).dom;
+    console.log(my.innerHTML);
+    document.body.appendChild(my);
+    model.foo = 2;
 })();
 
