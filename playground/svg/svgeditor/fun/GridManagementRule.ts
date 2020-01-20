@@ -82,6 +82,10 @@ export class GridManagementRule implements SvgEditorRule {
             }
         });
 
+        editor.subscribe("showgrid", () => {
+            this.showGrid();
+        });
+
         editor.subscribe("showcursor", (path: string) => {
             setPath(this.cursorPath, path);
         });

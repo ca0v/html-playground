@@ -12,6 +12,7 @@ export interface SvgEditorRule {
 }
 
 export interface SvgEditor {
+  publish(arg0: string): void;
   redo(): void;
   undo(): void;
   use(rule: SvgEditorRule): SvgEditor;

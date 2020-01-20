@@ -216,7 +216,7 @@ export class SvgEditorControl implements SvgEditor {
     this.keyCommands[command](...args);
   }
 
-  private publish(topic: string, ...args: any[]) {
+  public publish(topic: string, ...args: any[]) {
     let subscribers = this.topics[topic];
     if (!subscribers) {
       console.log(topic);

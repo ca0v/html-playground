@@ -139,6 +139,7 @@ export class Digitizer implements SvgEditorRule {
       }
     }
 
+    editor.shortcut("Slash Path", () => editor.publish("showgrid"));
     editor.shortcut("Slash Path ECurve", commandInserter("C"));
     editor.shortcut("Slash Path HorizontalLine", commandInserter("H"));
     editor.shortcut("Slash Path Line", commandInserter("L"));
@@ -172,7 +173,7 @@ export class Digitizer implements SvgEditorRule {
           }
         }
       });
-      
+
       let scale = 10;
       editor.shortcut("Slash View S.ArrowDown", createTranslator(layers, 0, scale));
       editor.shortcut("Slash View W.ArrowUp", createTranslator(layers, 0, -scale));
