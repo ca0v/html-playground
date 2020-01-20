@@ -13,11 +13,39 @@ type KeyboardShortcut = {
   key: string;
   title?: string;
   parent: KeyboardShortcut | null;
-  ops: Array<() => void>;
+  ops: Array<() => { undo: () => void }>;
   subkeys: KeyboardShortcuts;
 };
 
+class UndoRedo {
+  private stack: Array<{ do: () => { undo: () => void }, undo: () => void }> = [];
+  private index = -1;
+
+  public run(op: () => { undo: () => void }) {
+    const undo = op();
+    if (!undo?.undo) return;
+    this.stack[++this.index] = { do: op, undo: undo.undo };
+  }
+
+  public canRedo() {
+    return 1 <= this.stack.length && this.index < this.stack.length - 1;
+  }
+
+  public canUndo() {
+    return 0 <= this.index;
+  }
+
+  public undo() {
+    this.stack[this.index--].undo();
+  }
+
+  public redo() {
+    this.stack[++this.index].do();
+  }
+}
+
 export class ShortcutManager {
+  private undos = new UndoRedo();
   public readonly shortcuts: KeyboardShortcut = { key: "", ops: [], subkeys: {}, parent: null };
   private currentState = this.shortcuts;
 
@@ -62,10 +90,11 @@ export class ShortcutManager {
   }
 
   public watchKeyboard(root: HTMLElement, callbacks: { log: (message: string) => void }) {
+    this.log = callbacks.log;
     // move into keyboard shortcuts
     root.addEventListener("keydown", event => {
       if (event.altKey) return; // reserved for the browser
-      if (event.ctrlKey) return; // app constrained not to use ctrl
+      //if (event.ctrlKey) return; // app constrained not to use ctrl
 
       const map = <any>{
         " ": "Space",
@@ -91,22 +120,22 @@ export class ShortcutManager {
 
       if (!nextState) {
         // suggest a key
-        !event.repeat && callbacks.log(`Try one of these: ${this.help(this.currentState)}`);
+        !event.repeat && this.log(`Try one of these: ${this.help(this.currentState)}`);
         return;
       }
 
       this.currentState = nextState;
       event.preventDefault();
       if (!this.currentState.ops.length) {
-        !event.repeat && callbacks.log(`Up next: ${this.help(this.currentState)}`);
+        !event.repeat && this.log(`Up next: ${this.help(this.currentState)}`);
         return;
       }
 
       if (!event.repeat) {
-        callbacks.log(`${this.currentState.title}`);
-        keys(this.currentState.subkeys).length && callbacks.log(`more: ${this.help(this.currentState)}`)
+        this.log(`${this.currentState.title}`);
+        keys(this.currentState.subkeys).length && this.log(`more: ${this.help(this.currentState)}`)
       }
-      this.currentState.ops.forEach(cb => cb());
+      this.currentState.ops.forEach(op => this.undos.run(op));
     });
   }
 
@@ -115,11 +144,33 @@ export class ShortcutManager {
     return node.subkeys[isAtomic(shortcut) ? shortcut : shortcut.toUpperCase()];
   }
 
-  public registerShortcut(title: string, callback: () => void) {
+  public registerShortcut(title: string, callback: () => { undo: () => void }) {
     const tokens = this.tokenize(title);
     const node = this.forceNode(this.shortcuts, tokens);
+    if (node.ops.length > 0) throw "cannot overload a keyboard shortcut";
     node.ops.push(callback);
     node.title = title;
     return node;
+  }
+
+  // to be replaced with calbacks.log
+  private log(message: string) {
+    console.log(message);
+  }
+
+  public redo() {
+    if (!this.undos.canRedo()) {
+      this.log("cannot redo anything");
+      return;
+    }
+    this.undos.redo();
+  }
+
+  public undo() {
+    if (!this.undos.canUndo()) {
+      this.log("cannot undo anything");
+      return;
+    }
+    this.undos.undo();
   }
 }

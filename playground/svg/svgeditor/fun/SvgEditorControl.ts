@@ -26,6 +26,14 @@ function getScale(gridOverlay: SVGSVGElement) {
 export class SvgEditorControl implements SvgEditor {
   private topics: Dictionary<Array<(...args: any[]) => void>> = {};
 
+  redo() {
+    this.shortcutManager.redo();
+  }
+
+  undo() {
+    this.shortcutManager.undo();
+  }
+
   use(rule: SvgEditorRule): SvgEditor {
     rule.initialize(this);
     return this;
@@ -44,7 +52,7 @@ export class SvgEditorControl implements SvgEditor {
     focus(this.input.children[index]);
   }
 
-  shortcut(topic: string, callback: () => void): { unsubscribe: () => void; because: (about: string) => void } {
+  shortcut(topic: string, callback: () => { undo: () => void }): { unsubscribe: () => void; because: (about: string) => void } {
     const node = this.shortcutManager.registerShortcut(topic, callback);
     return {
       unsubscribe: () => { },
@@ -130,9 +138,17 @@ export class SvgEditorControl implements SvgEditor {
       location: { dx: number; dy: number },
       options?: { primary?: boolean; secondary?: boolean; tertiary?: boolean }
     ) => {
+      const currentCommand = this.getSourcePath()[this.currentIndex];
+      const currentIndex = this.currentIndex;
+      const undo = () => {
+        const path = this.getSourcePath();
+        path[currentIndex] = currentCommand;
+        this.setSourcePath(path.join("\n"));
+      }
       this.hideCursor();
       this.setSourcePath(this.transformActiveCommand(location, options || { primary: true }).join(""));
       this.showMarkers();
+      return { undo };
     };
 
     const keyCommands: Dictionary<() => void> = {

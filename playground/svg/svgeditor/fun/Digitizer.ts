@@ -93,10 +93,6 @@ export class Digitizer implements SvgEditorRule {
     const layers = getLayers();
     const bitmap = getPixels();
 
-    editor.shortcut("Escape", () => {
-      layers.style.transform = "none";
-    });
-
     if (bitmap) {
       editor.shortcut("Slash Toggle Bitmap", () => document.querySelector(".svgeditor")?.classList.toggle("digitizer"));
       editor.shortcut("Slash Bitmap", () => document.querySelector(".svgeditor")?.classList.add("digitizer"));

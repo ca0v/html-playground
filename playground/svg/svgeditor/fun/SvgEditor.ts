@@ -12,6 +12,8 @@ export interface SvgEditorRule {
 }
 
 export interface SvgEditor {
+  redo(): void;
+  undo(): void;
   use(rule: SvgEditorRule): SvgEditor;
   show(): void;
   execute(command: string): void;
@@ -24,7 +26,7 @@ export interface SvgEditor {
   };
   shortcut(
     topic: string,
-    callback: () => void
+    callback: () => void | { undo: () => void }
   ): {
     unsubscribe: () => void;
     because(about: string): void;

@@ -17,8 +17,9 @@ function hideHelp() {
 
 export class CoreRules implements SvgEditorRule {
   initialize(editor: SvgEditor) {
+
     editor
-      .shortcut("Escape", () => {
+      .shortcut("Escape Escape", () => {
         editor.hideCursor();
         editor.hideCommandEditor();
         editor.hideMarkers();
@@ -34,6 +35,14 @@ export class CoreRules implements SvgEditorRule {
       let help = document.querySelector(".F1");
       help?.classList.toggle("hidden");
     });
+
+    editor.shortcut("Control Y", () => {
+      editor.redo();
+    })
+
+    editor.shortcut("Control Z", () => {
+      editor.undo();
+    })
 
     editor.shortcut("Slash Toggle Toolbar", () => {
       getToolbar().classList.toggle("hidden");

@@ -1,7 +1,7 @@
 import markers from "./data/marker";
 import icons from "./data/icons";
 import { SvgEditorControl } from "./fun/SvgEditorControl";
-import { SvgEditor, SvgEditorRule } from "./fun/SvgEditor";
+import { SvgEditor } from "./fun/SvgEditor";
 import { CoreRules } from "./fun/CoreRules";
 import { asDom } from "./fun/asDom";
 import { stringify } from "./fun/stringify";
@@ -10,18 +10,7 @@ import { keys } from "./fun/keys";
 import { getPath } from "./fun/getPath";
 import { Toaster } from "./fun/Toaster";
 import { NotificationEditorRule } from "./NotificationEditorRule";
-
-class ImageLoaderRule implements SvgEditorRule {
-  initialize(editor: SvgEditor): void {
-    const img = document.querySelector(".pixels-to-digitize") as HTMLImageElement;
-    if (!img) return;
-    editor.shortcut("Slash Bitmap Load", () => {
-      const url = prompt("what is the url?", "https://media.istockphoto.com/photos/portrait-of-brown-puppy-with-bokeh-background-picture-id636475496");
-      if (!url) return;
-      img.src = url;
-    });
-  }
-}
+import { ImageLoaderRule } from "./fun/ImageLoaderRule";
 
 function createSvgEditor(workview: SVGSVGElement, input: HTMLElement) {
   let editor = new SvgEditorControl(workview, input);
@@ -41,7 +30,6 @@ function insertIntoEditor(editor: SvgEditor, pathData: SVGPathElement) {
   let d = getPath(svgConverterPathNode);
   editor.insertPath(d);
 }
-
 
 export function run() {
   const toaster = new Toaster();
