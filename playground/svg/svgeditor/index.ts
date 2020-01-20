@@ -9,8 +9,10 @@ import { Digitizer } from "./fun/Digitizer";
 import { keys } from "./fun/keys";
 import { getPath } from "./fun/getPath";
 import { Toaster } from "./fun/Toaster";
-import { NotificationEditorRule } from "./NotificationEditorRule";
+import { NotificationEditorRule } from "./fun/NotificationEditorRule";
 import { ImageLoaderRule } from "./fun/ImageLoaderRule";
+import { StateManagementRule } from "./fun/StateManagementRule";
+import { GridManagementRule } from "./fun/GridManagementRule";
 
 function createSvgEditor(workview: SVGSVGElement, input: HTMLElement) {
   let editor = new SvgEditorControl(workview, input);
@@ -44,6 +46,8 @@ export function run() {
 
   let input = document.getElementById("svg-input") as HTMLElement;
   let editor = createSvgEditor(svg, input);
+  editor.use(new GridManagementRule());
+  editor.use(new StateManagementRule());
   editor.use(new CoreRules());
   editor.use(new Digitizer());
   editor.use(new NotificationEditorRule(toaster));
@@ -107,7 +111,6 @@ export function run() {
         .join(" ");
       path = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 32 32"><g><path d="${path}"></path></g></svg>`;
       let url = `data:image/svg+xml;base64,${btoa(path)}`;
-      console.log(url);
       inset.src = url;
     });
   }

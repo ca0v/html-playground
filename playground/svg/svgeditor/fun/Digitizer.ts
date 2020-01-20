@@ -154,24 +154,43 @@ export class Digitizer implements SvgEditorRule {
      * alt=1, ctrl+alt=10 , ctrl=100
      */
     {
+      editor.shortcut("Slash View Viewbox", () => {
+        const svgs = document.querySelectorAll(".layers svg[viewbox]");
+        for (let e of svgs) {
+          const svg = e as SVGSVGElement;
+          let { x, y, width, height } = svg.viewBox.baseVal;
+          const viewbox = prompt("Enter viewbox: ", `${x} ${y} ${width} ${height}`);
+          if (!viewbox) return;
+          [x, y, width, height] = viewbox.split(" ").map(v => parseInt(v));
+          console.log(viewbox, x, y, width, height);
+          if (width && height) {
+            svg.viewBox.baseVal.x = x;
+            svg.viewBox.baseVal.y = y;
+            svg.viewBox.baseVal.width = width;
+            svg.viewBox.baseVal.height = height;
+            localStorage.setItem("viewbox", `${x} ${y} ${width} ${height}`);
+          }
+        }
+      });
+      
       let scale = 10;
-      editor.shortcut("Slash Vector S.ArrowDown", createTranslator(layers, 0, scale));
-      editor.shortcut("Slash Vector W.ArrowUp", createTranslator(layers, 0, -scale));
-      editor.shortcut("Slash Vector A.ArrowLeft", createTranslator(layers, -scale, 0));
-      editor.shortcut("Slash Vector D.ArrowRight", createTranslator(layers, scale, 0));
+      editor.shortcut("Slash View S.ArrowDown", createTranslator(layers, 0, scale));
+      editor.shortcut("Slash View W.ArrowUp", createTranslator(layers, 0, -scale));
+      editor.shortcut("Slash View A.ArrowLeft", createTranslator(layers, -scale, 0));
+      editor.shortcut("Slash View D.ArrowRight", createTranslator(layers, scale, 0));
       scale = -1;
-      editor.shortcut("Slash Vector S.ArrowDown 1", createTranslator(layers, 0, scale));
-      editor.shortcut("Slash Vector W.ArrowUp 1", createTranslator(layers, 0, -scale));
-      editor.shortcut("Slash Vector A.ArrowLeft 1", createTranslator(layers, -scale, 0));
-      editor.shortcut("Slash Vector D.ArrowRight 1", createTranslator(layers, scale, 0));
+      editor.shortcut("Slash View S.ArrowDown 1", createTranslator(layers, 0, scale));
+      editor.shortcut("Slash View W.ArrowUp 1", createTranslator(layers, 0, -scale));
+      editor.shortcut("Slash View A.ArrowLeft 1", createTranslator(layers, -scale, 0));
+      editor.shortcut("Slash View D.ArrowRight 1", createTranslator(layers, scale, 0));
 
       // zoom about current cursor location
       scale = 1.1;
-      editor.shortcut("Slash Vector Plus", createScaleAboutCursor(editor, scale));
-      editor.shortcut("Slash Vector Minus", createScaleAboutCursor(editor, 1 / scale));
+      editor.shortcut("Slash View Plus", createScaleAboutCursor(editor, scale));
+      editor.shortcut("Slash View Minus", createScaleAboutCursor(editor, 1 / scale));
       scale = 1 / 1.01;
-      editor.shortcut("Slash Vector Plus 1", createScaleAboutCursor(editor, scale));
-      editor.shortcut("Slash Vector Minus 1", createScaleAboutCursor(editor, 1 / scale));
+      editor.shortcut("Slash View Plus 1", createScaleAboutCursor(editor, scale));
+      editor.shortcut("Slash View Minus 1", createScaleAboutCursor(editor, 1 / scale));
     }
 
     editor.shortcut("Slash Path Center", () => {

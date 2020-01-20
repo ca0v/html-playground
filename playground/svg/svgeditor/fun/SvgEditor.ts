@@ -35,12 +35,8 @@ export interface SvgEditor {
   getCursorLocation(): CursorLocation;
   getViewbox(): Viewbox;
   hideCommandEditor(): void;
-  hideGrid(): void;
-  showGrid(): void;
-  isGridVisible(): boolean;
   hideMarkers(): void;
   showMarkers(): void;
-  isMarkersVisible(): boolean;
   getActiveIndex(): number;
   setActiveIndex(index: number): void;
   getPath(): Array<Command>;  

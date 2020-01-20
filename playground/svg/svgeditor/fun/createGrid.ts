@@ -30,11 +30,6 @@ export function createGrid(gridOverlay: SVGSVGElement) {
         "stroke-width": (1 / scale) + ""
     });
 
-    setInterval(() => {
-        const scale = getScale(gridOverlay);
-        path.style.setProperty("stroke-width", (1 / scale) + "");
-    }, 1000);
-
     const markers = range(1 + Math.ceil(Math.log2(width))).map(v => Math.pow(2, v));
     //markers.splice(0, markers.length - 4);
     console.log(markers, width);
@@ -43,4 +38,5 @@ export function createGrid(gridOverlay: SVGSVGElement) {
     const vdots = markers.map(v => dot(v, v, size / 30) + dot(0, v, size / 30)).join("\n");
     setPath(path, `${vLines}\n${hLines}\n${hdots}\n${vdots}`);
     gridOverlay.appendChild(path);
+    return path;
 }

@@ -17,9 +17,9 @@ import { createSvg } from "./createSvg";
 import { keys } from "./keys";
 import { ShortcutManager } from "./KeyboardShortcuts";
 
-function getScale(gridOverlay: SVGSVGElement) {
-  let { width: viewBoxWidth } = gridOverlay.viewBox.baseVal;
-  let { width } = gridOverlay.getBoundingClientRect();
+function getScale(svg: SVGSVGElement) {
+  let { width: viewBoxWidth } = svg.viewBox.baseVal;
+  let { width } = svg.getBoundingClientRect();
   return width / viewBoxWidth;
 }
 
@@ -89,28 +89,13 @@ export class SvgEditorControl implements SvgEditor {
   }
 
   hideCursor(): void {
-    setPath(this.cursorPath, "");
+    this.publish("hidecursor");
   }
 
   hideCommandEditor(): void {
     //
   }
 
-  hideGrid(): void {
-    this.gridOverlay.remove();
-  }
-
-  showGrid(): void {
-    this.workview?.parentElement?.appendChild(this.gridOverlay);
-  }
-
-  isGridVisible(): boolean {
-    return !!this.gridOverlay.parentElement;
-  }
-
-  private gridOverlay: SVGSVGElement;
-  private workPath: SVGPathElement;
-  private cursorPath: SVGPathElement;
   private sourcePath: SVGPathElement;
   private currentIndex = -1;
   private keyCommands: Dictionary<(...args: any[]) => void> = {};
@@ -119,31 +104,6 @@ export class SvgEditorControl implements SvgEditor {
   constructor(public workview: SVGSVGElement, public input: HTMLElement) {
     this.sourcePath = this.workview.querySelector("path") as SVGPathElement;
     if (!this.sourcePath) throw "workview must have a path";
-
-    let { x, y, width, height } = workview.viewBox.baseVal;
-    this.gridOverlay = createSvg();
-    this.gridOverlay.setAttribute("viewBox", `${x} ${y} ${width} ${height}`);
-    workview.parentElement?.appendChild(this.gridOverlay);
-
-    // how to get workPath stroke-width to be 0.2 regardless of scale?
-    this.workPath = createPath({
-      fill: "rgb(0,255,128)",
-      stroke: "rgb(0,255,128)",
-      "stroke-width": "0.2",
-    });
-
-    setInterval(() => {
-      const scale = getScale(this.gridOverlay);
-      this.workPath.style.setProperty("stroke-width", 1 / scale + "");
-    }, 1000);
-
-    this.gridOverlay.appendChild(this.workPath);
-    this.createGrid();
-    this.cursorPath = createPath({
-      stroke: "rgb(0, 255, 0)",
-      "stroke-width": "0.2",
-    });
-    this.gridOverlay.appendChild(this.cursorPath);
 
     const moveit = (
       location: { dx: number; dy: number },
@@ -466,8 +426,8 @@ export class SvgEditorControl implements SvgEditor {
     this.currentIndex = index;
     let path = this.getSourcePath();
     if (!path) return;
-    const scale = getScale(this.gridOverlay);
-    setPath(this.cursorPath, drawCursor(getLocation(index, path), 25 / scale));
+    const scale = getScale(this.workview);
+    this.publish("showcursor", drawCursor(getLocation(index, path), 25 / scale));
   }
 
   getPath() {
@@ -501,16 +461,8 @@ export class SvgEditorControl implements SvgEditor {
     });
   }
 
-  private createGrid() {
-    createGrid(this.gridOverlay);
-  }
-
   public hideMarkers(): void {
-    setPath(this.workPath, "");
-  }
-
-  public isMarkersVisible() {
-    return !!this.workPath.getAttribute("d");
+    this.publish("hidemarkers");
   }
 
   public showMarkers() {
@@ -519,7 +471,7 @@ export class SvgEditorControl implements SvgEditor {
     let overlayPath = this.createOverlayPoint(commands);
     overlayPath.unshift("M 0 0");
     overlayPath.push("Z");
-    setPath(this.workPath, overlayPath.join(" "));
+    this.publish("showmarkers", overlayPath.join(" "));
   }
 
   private createOverlayPoint(commands: Command[]) {
@@ -577,7 +529,7 @@ export class SvgEditorControl implements SvgEditor {
       }
     });
 
-    const scale = getScale(this.gridOverlay);
+    const scale = getScale(this.workview);
     return path.map(p => drawX(p, { scale: 5 / scale }));
   }
 }

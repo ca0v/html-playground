@@ -53,15 +53,15 @@ Slash Toggle GridLines
 Slash Toggle Help
 Slash Toggle Markers
 Slash Toggle Toolbar
-Slash Vector A.ArrowLeft
-Slash Vector A.ArrowLeft 1
-Slash Vector D.ArrowRight
-Slash Vector D.ArrowRight 1
-Slash Vector Minus
-Slash Vector Minus 1
-Slash Vector Plus
-Slash Vector Plus 1
-Slash Vector S.ArrowDown
-Slash Vector S.ArrowDown 1
-Slash Vector W.ArrowUp
-Slash Vector W.ArrowUp 1
+Slash View A.ArrowLeft
+Slash View A.ArrowLeft 1
+Slash View D.ArrowRight
+Slash View D.ArrowRight 1
+Slash View Minus
+Slash View Minus 1
+Slash View Plus
+Slash View Plus 1
+Slash View S.ArrowDown
+Slash View S.ArrowDown 1
+Slash View W.ArrowUp
+Slash View W.ArrowUp 1

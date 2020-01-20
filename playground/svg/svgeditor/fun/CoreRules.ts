@@ -24,7 +24,6 @@ export class CoreRules implements SvgEditorRule {
         editor.hideCommandEditor();
         editor.hideMarkers();
         editor.setActiveIndex(0);
-        editor.showGrid();
         hideToolbar();
         hideHelp();
       })
@@ -48,21 +47,5 @@ export class CoreRules implements SvgEditorRule {
       getToolbar().classList.toggle("hidden");
     });
 
-    editor.shortcut("Slash Toggle GridLines", () => {
-      if (editor.isGridVisible()) {
-        editor.hideGrid();
-      } else {
-        editor.showGrid();
-      }
-    });
-
-    editor.shortcut("Slash Toggle Markers", () => {
-      if (editor.isMarkersVisible()) {
-        editor.hideMarkers();
-      } else {
-        editor.showGrid();
-        editor.showMarkers();
-      }
-    });
   }
 }
