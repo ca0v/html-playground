@@ -7,7 +7,7 @@ class ObjectDefinePropertyTest {
      * Creates an observable clone of an object
      * @param object object to be converted to an observable with getter and setter properties
      */
-    props<T>(object: T) {
+    static props<T>(object: T) {
         // manage pub/sub
         const subscriptions = <Dictionary<Array<(model: T) => void>>>{};
         const subscribe = (topic: keyof T, cb: (model: T) => void) => {
@@ -38,7 +38,7 @@ class ObjectDefinePropertyTest {
         return model;
     }
 
-    test() {
+    static test() {
         const model = this.props({ foo: 1, bar: "bar", baz: true });
         const dump = v => console.log(JSON.stringify(v));
         model.on("foo", dump);
@@ -76,24 +76,30 @@ class ObjectOther {
     }
 }
 
-class MyHTMLElement<Props> {
-    public dom: HTMLElement;
-    constructor(props: Props, template: (template: Props) => string) {
-        const dom = this.dom = document.createElement("div");
-        dom.innerHTML = template(props);
-        Object.keys(props).forEach(key => props.on(key, () => {
-            dom.innerHTML = template(props);
-        }));
-    }
+function dom<Props>(props: Props, template: (template: Props) => string) {
+    const dom = document.createElement("div");
+    let priorValue = dom.innerHTML = template(props);
+    Object.keys(props).forEach(key => props.on(key, () => {
+        let value = template(props);
+        if (value === priorValue) return;
+        dom.innerHTML = value;
+        priorValue = value;
+    }));
+    return dom;
 }
 
 (function () {
-    new ObjectDefinePropertyTest().test();
+    ObjectDefinePropertyTest.test();
     new ObjectOther().test();
-    const model = new ObjectDefinePropertyTest().props({ foo: 1 });
-    const my = new MyHTMLElement(model, (t => `<p>${t.foo}</p>`)).dom;
-    console.log(my.innerHTML);
-    document.body.appendChild(my);
-    model.foo = 2;
+    const model = ObjectDefinePropertyTest.props({ foo: new Date() });
+    const myDate = dom(model, (t => `<p>The current date is <b>${t.foo.toLocaleDateString()}</b>`));
+    const myTime = dom(model, (t => `<p>The current time is <b>${t.foo.toLocaleTimeString()}</b>`));
+    const myDiv = dom({}, (t => `<div></div>`));
+    myDiv.appendChild(myDate);
+    myDiv.appendChild(myTime);
+    document.body.appendChild(myDiv);
+    setInterval(() => {
+        model.foo = new Date();
+    }, 50);
 })();
 
