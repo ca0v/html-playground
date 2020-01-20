@@ -28,8 +28,8 @@ export interface SvgEditor {
     topic: string,
     callback: () => void | { undo: () => void }
   ): {
+    options: (options: { stateless: boolean, because: string }) => void,
     unsubscribe: () => void;
-    because(about: string): void;
   };
   hideCursor(): void;
   getCursorLocation(): CursorLocation;

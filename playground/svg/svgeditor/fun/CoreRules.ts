@@ -28,7 +28,7 @@ export class CoreRules implements SvgEditorRule {
         hideToolbar();
         hideHelp();
       })
-      .because("get the editor closer to the initial state");
+      .options({ stateless: true, because: "get the editor closer to the initial state" });
 
     // "?"
     editor.shortcut("Slash Toggle Help", () => {
@@ -36,13 +36,13 @@ export class CoreRules implements SvgEditorRule {
       help?.classList.toggle("hidden");
     });
 
-    editor.shortcut("Control Y", () => {
+    editor.shortcut(">", () => {
       editor.redo();
-    })
+    }).options({stateless: true, because: "redo the prior action"})
 
-    editor.shortcut("Control Z", () => {
+    editor.shortcut("<", () => {
       editor.undo();
-    })
+    }).options({ stateless: true, because: "undo prior action" });
 
     editor.shortcut("Slash Toggle Toolbar", () => {
       getToolbar().classList.toggle("hidden");

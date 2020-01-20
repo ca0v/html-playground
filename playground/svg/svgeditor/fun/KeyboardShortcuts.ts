@@ -1,5 +1,6 @@
 import { Dictionary } from "./Dictionary";
 import { keys } from "./keys";
+import { UndoRedo } from "./UndoRedo";
 
 // do not use Alt
 const atomicTokens = "ArrowLeft ArrowRight ArrowUp ArrowDown Control Delete End Enter Escape Home Minus PageUp PageDown Plus Shift Slash Space".split(
@@ -11,38 +12,12 @@ type KeyboardShortcuts = Dictionary<KeyboardShortcut>;
 
 type KeyboardShortcut = {
   key: string;
+  options?: { stateless: boolean, because: string };
   title?: string;
   parent: KeyboardShortcut | null;
   ops: Array<() => { undo: () => void }>;
   subkeys: KeyboardShortcuts;
 };
-
-class UndoRedo {
-  private stack: Array<{ do: () => { undo: () => void }, undo: () => void }> = [];
-  private index = -1;
-
-  public run(op: () => { undo: () => void }) {
-    const undo = op();
-    if (!undo?.undo) return;
-    this.stack[++this.index] = { do: op, undo: undo.undo };
-  }
-
-  public canRedo() {
-    return 1 <= this.stack.length && this.index < this.stack.length - 1;
-  }
-
-  public canUndo() {
-    return 0 <= this.index;
-  }
-
-  public undo() {
-    this.stack[this.index--].undo();
-  }
-
-  public redo() {
-    this.stack[++this.index].do();
-  }
-}
 
 export class ShortcutManager {
   private undos = new UndoRedo();
@@ -91,6 +66,8 @@ export class ShortcutManager {
 
   public watchKeyboard(root: HTMLElement, callbacks: { log: (message: string) => void }) {
     this.log = callbacks.log;
+    let lastStatefulState: KeyboardShortcut;
+
     // move into keyboard shortcuts
     root.addEventListener("keydown", event => {
       if (event.altKey) return; // reserved for the browser
@@ -124,18 +101,22 @@ export class ShortcutManager {
         return;
       }
 
-      this.currentState = nextState;
       event.preventDefault();
-      if (!this.currentState.ops.length) {
+      if (!nextState.ops.length) {
+        this.currentState = nextState;
         !event.repeat && this.log(`Up next: ${this.help(this.currentState)}`);
         return;
       }
 
       if (!event.repeat) {
-        this.log(`${this.currentState.title}`);
-        keys(this.currentState.subkeys).length && this.log(`more: ${this.help(this.currentState)}`)
+        this.log(`${nextState.title}`);
+        keys(nextState.subkeys).length && this.log(`more: ${this.help(nextState)}`)
       }
-      this.currentState.ops.forEach(op => this.undos.run(op));
+      nextState.ops.forEach(op => this.undos.run(op));
+      if (!nextState.options?.stateless) {
+        lastStatefulState = nextState;
+      }
+      this.currentState = lastStatefulState || this.currentState;
     });
   }
 
@@ -144,7 +125,7 @@ export class ShortcutManager {
     return node.subkeys[isAtomic(shortcut) ? shortcut : shortcut.toUpperCase()];
   }
 
-  public registerShortcut(title: string, callback: () => { undo: () => void }) {
+  public registerShortcut(title: string, callback: () => { redo: () => void; undo: () => void }) {
     const tokens = this.tokenize(title);
     const node = this.forceNode(this.shortcuts, tokens);
     if (node.ops.length > 0) throw "cannot overload a keyboard shortcut";

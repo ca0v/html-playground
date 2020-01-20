@@ -52,12 +52,19 @@ export class SvgEditorControl implements SvgEditor {
     focus(this.input.children[index]);
   }
 
-  shortcut(topic: string, callback: () => { undo: () => void }): { unsubscribe: () => void; because: (about: string) => void } {
+  shortcut(topic: string, callback: () => { undo: () => void; }): {
+    unsubscribe: () => void;
+    options: (options: {
+      stateless: boolean;
+      because: string;
+    }) => void;
+  } {
     const node = this.shortcutManager.registerShortcut(topic, callback);
     return {
       unsubscribe: () => { },
-      because: (about: string) => {
-        node.title = about;
+      options: (options: { because: string, stateless?: boolean }) => {
+        node.title = options.because;
+        node.options = <any>options;
       },
     };
   }
@@ -138,17 +145,26 @@ export class SvgEditorControl implements SvgEditor {
       location: { dx: number; dy: number },
       options?: { primary?: boolean; secondary?: boolean; tertiary?: boolean }
     ) => {
-      const currentCommand = this.getSourcePath()[this.currentIndex];
       const currentIndex = this.currentIndex;
+      const undoCommand = this.getSourcePath()[currentIndex];
       const undo = () => {
         const path = this.getSourcePath();
-        path[currentIndex] = currentCommand;
+        path[currentIndex] = undoCommand;
         this.setSourcePath(path.join("\n"));
       }
-      this.hideCursor();
-      this.setSourcePath(this.transformActiveCommand(location, options || { primary: true }).join(""));
-      this.showMarkers();
-      return { undo };
+      const doit = () => {
+        this.hideCursor();
+        this.setSourcePath(this.transformActiveCommand(location, options || { primary: true }).join(""));
+        this.showMarkers();
+      }
+      doit();
+      const redoCommand = this.getSourcePath()[currentIndex];
+      const redo = () => {
+        const path = this.getSourcePath();
+        path[currentIndex] = redoCommand;
+        this.setSourcePath(path.join("\n"));
+      }
+      return { undo, redo };
     };
 
     const keyCommands: Dictionary<() => void> = {
