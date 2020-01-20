@@ -41,8 +41,10 @@ export interface SvgEditor {
   hideMarkers(): void;
   showMarkers(): void;
   isMarkersVisible(): boolean;
+  getActiveIndex(): number;
   setActiveIndex(index: number): void;
-  getPath(): Array<Command>;
+  getPath(): Array<Command>;  
   insertCommand(command: Command): void;
+  deleteCommand(index: number): void;
   insertPath(path: string): void;
 }

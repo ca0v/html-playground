@@ -48,11 +48,15 @@ export class SvgEditorControl implements SvgEditor {
     return { x, y, width, height };
   }
 
+  getActiveIndex() {
+    return this.currentIndex;
+  }
+
   setActiveIndex(index: number) {
     focus(this.input.children[index]);
   }
 
-  shortcut(topic: string, callback: () => { undo: () => void; }): {
+  shortcut(topic: string, callback: () => { redo: () => void; undo: () => void; }): {
     unsubscribe: () => void;
     options: (options: {
       stateless: boolean;
@@ -145,16 +149,17 @@ export class SvgEditorControl implements SvgEditor {
       location: { dx: number; dy: number },
       options?: { primary?: boolean; secondary?: boolean; tertiary?: boolean }
     ) => {
+      const doit = () => {
+        this.hideCursor();
+        this.setSourcePath(this.transformActiveCommand(location, options || { primary: true }).join(""));
+        this.showMarkers();
+      }
       const currentIndex = this.currentIndex;
       const undoCommand = this.getSourcePath()[currentIndex];
       const undo = () => {
         const path = this.getSourcePath();
         path[currentIndex] = undoCommand;
         this.setSourcePath(path.join("\n"));
-      }
-      const doit = () => {
-        this.hideCursor();
-        this.setSourcePath(this.transformActiveCommand(location, options || { primary: true }).join(""));
         this.showMarkers();
       }
       doit();
@@ -163,6 +168,7 @@ export class SvgEditorControl implements SvgEditor {
         const path = this.getSourcePath();
         path[currentIndex] = redoCommand;
         this.setSourcePath(path.join("\n"));
+        this.showMarkers();
       }
       return { undo, redo };
     };
@@ -174,18 +180,41 @@ export class SvgEditorControl implements SvgEditor {
       },
       "Slash File Open": () => {
         // open
-        let pathData = localStorage.getItem("path");
-        if (!pathData) return;
-        this.setSourcePath(pathData);
-        this.renderEditor();
-        this.showMarkers();
-        focus(this.input.children[0]);
+        const doit = () => {
+          let pathData = localStorage.getItem("path");
+          if (!pathData) return;
+          this.setSourcePath(pathData);
+          this.renderEditor();
+          this.showMarkers();
+          focus(this.input.children[0]);
+        }
+        const priorPath = this.getSourcePath();
+        const undo = () => {
+          this.setSourcePath(priorPath.join("\n"));
+          this.renderEditor();
+          this.showMarkers();
+          focus(this.input.children[0]);
+        }
+        doit();
+        return { undo, redo: doit };
       },
       "Slash File New": () => {
-        this.setSourcePath("M 0 0 Z");
-        this.renderEditor();
-        this.showMarkers();
-        focus(this.input.children[0]);
+        const priorIndex = this.currentIndex;
+        const priorPath = this.getSourcePath();
+        const undo = () => {
+          this.setSourcePath(priorPath.join("\n"));
+          this.renderEditor();
+          this.showMarkers();
+          focus(this.input.children[priorIndex]);
+        }
+        const doit = () => {
+          this.setSourcePath("M 0 0 Z");
+          this.renderEditor();
+          this.showMarkers();
+          focus(this.input.children[0]);
+        }
+        doit();
+        return { undo, redo: doit };
       },
       "Slash File Save": () => localStorage.setItem("path", this.getSourcePath().join("\n")),
       "Slash Path 2 A": () => moveit({ dx: -1, dy: 0 }, { secondary: true }),
@@ -284,6 +313,13 @@ export class SvgEditorControl implements SvgEditor {
     this.renderEditor();
   }
 
+  public deleteCommand(index: number) {
+    const sourcePath = this.getSourcePath();
+    sourcePath.splice(index, 1);
+    this.setSourcePath(sourcePath.join("\n"));
+    this.renderEditor();
+  }
+
   public insertCommand(command: Command) {
     let index = this.currentIndex;
     let path = this.getSourcePath();
@@ -322,7 +358,6 @@ export class SvgEditorControl implements SvgEditor {
     path.splice(index + 1, 0, stringify(command));
     this.setSourcePath(path.join("\n"));
     this.renderEditor();
-    focus(this.input.children[index + 1]);
   }
 
   private deleteActiveCommand() {

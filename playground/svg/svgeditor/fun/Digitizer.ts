@@ -119,14 +119,34 @@ export class Digitizer implements SvgEditorRule {
     }
 
     // iop are keyboard sequences
-    editor.shortcut("Slash Path ECurve", () => editor.insertCommand({ command: "C", args: [] }));
-    editor.shortcut("Slash Path HorizontalLine", () => editor.insertCommand({ command: "H", args: [] }));
-    editor.shortcut("Slash Path Line", () => editor.insertCommand({ command: "L", args: [] }));
-    editor.shortcut("Slash Path Move", () => editor.insertCommand({ command: "M", args: [] }));
-    editor.shortcut("Slash Path RArc", () => editor.insertCommand({ command: "A", args: [] }));
-    editor.shortcut("Slash Path UCurveSmooth", () => editor.insertCommand({ command: "S", args: [] }));
-    editor.shortcut("Slash Path VerticalLine", () => editor.insertCommand({ command: "V", args: [] }));
-    editor.shortcut("Slash Path ZReturn", () => editor.insertCommand({ command: "Z", args: [] }));
+    const commandInserter = (command: string) => {
+      return () => {
+        const currentIndex = editor.getActiveIndex();
+        const doit = () => {
+          editor.insertCommand({ command, args: [] });
+          editor.setActiveIndex(currentIndex + 1);
+        }
+        doit();
+        const undo = () => {
+          editor.deleteCommand(currentIndex + 1);
+          editor.setActiveIndex(currentIndex);
+        }
+        const redo = () => {
+          editor.setActiveIndex(currentIndex);
+          doit();
+        }
+        return { undo, redo };
+      }
+    }
+
+    editor.shortcut("Slash Path ECurve", commandInserter("C"));
+    editor.shortcut("Slash Path HorizontalLine", commandInserter("H"));
+    editor.shortcut("Slash Path Line", commandInserter("L"));
+    editor.shortcut("Slash Path Move", commandInserter("M"));
+    editor.shortcut("Slash Path RArc", commandInserter("A"));
+    editor.shortcut("Slash Path UCurveSmooth", commandInserter("C"));
+    editor.shortcut("Slash Path VerticalLine", commandInserter("V"));
+    editor.shortcut("Slash Path ZReturn", commandInserter("Z"));
 
     /**
      * Moves the digitizing area
