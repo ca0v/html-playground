@@ -14,6 +14,7 @@ import { ImageLoaderRule } from "./fun/ImageLoaderRule";
 import { StateManagementRule } from "./fun/StateManagementRule";
 import { GridManagementRule } from "./fun/GridManagementRule";
 import { FileRule } from "./fun/FileRule";
+import { PathRule } from "./fun/PathRule";
 
 function createSvgEditor(workview: SVGSVGElement, input: HTMLElement) {
   let editor = new SvgEditorControl(workview, input);
@@ -54,6 +55,7 @@ export function run() {
   editor.use(new NotificationEditorRule(toaster));
   editor.use(new ImageLoaderRule());
   editor.use(new FileRule());
+  editor.use(new PathRule());
   editor.show("");
 
   let toolbar = asDom(`<div class="toolbar hidden"></div>`);

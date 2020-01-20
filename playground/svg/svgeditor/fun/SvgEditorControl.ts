@@ -45,6 +45,12 @@ export class SvgEditorControl implements SvgEditor {
     return { x, y, width, height };
   }
 
+  setActiveCommand(command: string) {
+    throw "do not use";
+    const index = this.currentIndex;
+    (this.input.children[index] as HTMLDivElement).innerText = command;
+  }
+
   getActiveIndex() {
     return this.currentIndex;
   }
@@ -101,72 +107,17 @@ export class SvgEditorControl implements SvgEditor {
   constructor(public workview: SVGSVGElement, public input: HTMLElement) {
     this.sourcePath = this.workview.querySelector("path") as SVGPathElement;
     if (!this.sourcePath) throw "workview must have a path";
+    this.shortcut("Slash Help", () => {
+      console.log(this.shortcutManager.help(this.shortcutManager.shortcuts, true));
+      this.publish("log", this.shortcutManager.help());
+    }).options({ stateless: true });
 
-    const moveit = (
-      location: { dx: number; dy: number },
-      options?: { primary?: boolean; secondary?: boolean; tertiary?: boolean }
-    ) => {
-      const doit = () => {
-        this.hideCursor();
-        this.setSourcePath(this.transformActiveCommand(location, options || { primary: true }).join(""));
-        this.showMarkers();
-      }
-      const currentIndex = this.currentIndex;
-      const undoCommand = this.getSourcePath()[currentIndex];
-      const undo = () => {
-        const path = this.getSourcePath();
-        path[currentIndex] = undoCommand;
-        this.setSourcePath(path.join("\n"));
-        this.showMarkers();
-      }
-      doit();
-      const redoCommand = this.getSourcePath()[currentIndex];
-      const redo = () => {
-        const path = this.getSourcePath();
-        path[currentIndex] = redoCommand;
-        this.setSourcePath(path.join("\n"));
-        this.showMarkers();
-      }
-      return { undo, redo };
-    };
-
-    const keyCommands: Dictionary<() => void> = {
-      "Slash Help": () => {
-        console.log(this.shortcutManager.help(this.shortcutManager.shortcuts, true));
-        this.publish("log", this.shortcutManager.help());
-      },
-      "Slash Path 2 A": () => moveit({ dx: -1, dy: 0 }, { secondary: true }),
-      "Slash Path 2 D": () => moveit({ dx: 1, dy: 0 }, { secondary: true }),
-      "Slash Path 2 S": () => moveit({ dx: 0, dy: 1 }, { secondary: true }),
-      "Slash Path 2 W": () => moveit({ dx: 0, dy: -1 }, { secondary: true }),
-      "Slash Path 3 A": () => moveit({ dx: -1, dy: 0 }, { tertiary: true }),
-      "Slash Path 3 D": () => moveit({ dx: 1, dy: 0 }, { tertiary: true }),
-      "Slash Path 3 S": () => moveit({ dx: 0, dy: 1 }, { tertiary: true }),
-      "Slash Path 3 W": () => moveit({ dx: 0, dy: -1 }, { tertiary: true }),
-      "Slash Path A": () => moveit({ dx: -1, dy: 0 }),
-      "Slash Path D": () => moveit({ dx: 1, dy: 0 }),
-      "Slash Path S": () => moveit({ dx: 0, dy: 1 }),
-      "Slash Path W": () => moveit({ dx: 0, dy: -1 }),
-      "Slash Path A 0": () => moveit({ dx: 0.1, dy: 0 }),
-      "Slash Path D 0": () => moveit({ dx: -0.1, dy: 0 }),
-      "Slash Path S 0": () => moveit({ dx: 0, dy: -0.1 }),
-      "Slash Path W 0": () => moveit({ dx: 0, dy: 0.1 }),
-      "Slash Path ArrowDown": () => focus(document.activeElement?.nextElementSibling),
-      "Slash Path ArrowUp": () => focus(document.activeElement?.previousElementSibling),
-      "Slash Path Delete": () => this.deleteActiveCommand(),
-      "Slash Path End": () => focus(this.input.lastElementChild),
-      "Slash Path Enter": () => this.editActiveCommand(),
-      "Slash Path Home": () => focus(this.input.firstElementChild),
-    };
-
-    this.keyCommands = keyCommands;
-
-    keys(keyCommands).forEach(phrase => this.shortcutManager.registerShortcut(<string>phrase, keyCommands[phrase]));
     this.input.parentElement && this.shortcutManager.watchKeyboard(this.input.parentElement, {
       log: (message: string) => {
         this.publish("log", message);
       }
     });
+
   }
 
   public execute(command: string, ...args: any[]) {
@@ -184,7 +135,7 @@ export class SvgEditorControl implements SvgEditor {
     return true;
   }
 
-  private editActiveCommand() {
+  public editActiveCommand() {
     let index = this.currentIndex;
     let commandEditor = this.input.children[index] as HTMLElement;
     let input = document.createElement("input");
@@ -278,7 +229,7 @@ export class SvgEditorControl implements SvgEditor {
     this.renderEditor();
   }
 
-  private deleteActiveCommand() {
+  public deleteActiveCommand() {
     let index = this.currentIndex;
     let path = this.getSourcePath();
     path.splice(index, 1);
@@ -294,90 +245,6 @@ export class SvgEditorControl implements SvgEditor {
     let path = this.getSourcePath();
     path[index] = stringify(command);
     this.setSourcePath(path.join("\n"));
-  }
-
-  private transformActiveCommand(
-    translate: { dx: number; dy: number },
-    options: { primary?: boolean; secondary?: boolean; tertiary?: boolean }
-  ) {
-    let index = this.currentIndex;
-    let path = this.getSourcePath();
-    if (!path) throw "use targetPath";
-    let command = parse(path[index]);
-    switch (command.command) {
-      case "A": {
-        let [rx, ry, a, b, cw, x, y] = command.args;
-        if (options.primary) {
-          x += translate.dx;
-          y += translate.dy;
-        }
-        if (options.secondary) {
-          rx += translate.dx;
-          ry += translate.dy;
-        }
-        path[index] = stringify({ command: command.command, args: [rx, ry, a, b, cw, x, y] });
-        break;
-      }
-      case "C": {
-        let [ax, ay, bx, by, x, y] = command.args;
-        if (options.primary) {
-          ax += translate.dx;
-          ay += translate.dy;
-          bx += translate.dx;
-          by += translate.dy;
-          x += translate.dx;
-          y += translate.dy;
-        }
-        if (options.secondary) {
-          ax += translate.dx;
-          ay += translate.dy;
-        }
-        if (options.tertiary) {
-          bx += translate.dx;
-          by += translate.dy;
-        }
-        path[index] = stringify({ command: command.command, args: [ax, ay, bx, by, x, y] });
-        break;
-      }
-      case "H": {
-        let [x] = command.args;
-        x += translate.dx;
-        path[index] = stringify({ command: command.command, args: [x] });
-        break;
-      }
-      case "V": {
-        let [y] = command.args;
-        y += translate.dy;
-        path[index] = stringify({ command: command.command, args: [y] });
-        break;
-      }
-      case "S": {
-        let [bx, by, x, y] = command.args;
-        if (options.primary) {
-          bx += translate.dx;
-          by += translate.dy;
-          x += translate.dx;
-          y += translate.dy;
-        }
-        if (options.secondary) {
-          bx += translate.dx;
-          by += translate.dy;
-        }
-        path[index] = stringify({ command: command.command, args: [bx, by, x, y] });
-        break;
-      }
-      case "L":
-      case "M":
-      case "T": {
-        let [x, y] = command.args;
-        x += translate.dx;
-        y += translate.dy;
-        path[index] = stringify({ command: command.command, args: [x, y] });
-        break;
-      }
-    }
-    (this.input.children[index] as HTMLDivElement).innerText = path[index];
-    return path;
   }
 
   private goto(index: number) {

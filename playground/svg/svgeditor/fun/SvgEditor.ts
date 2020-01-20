@@ -12,6 +12,9 @@ export interface SvgEditorRule {
 }
 
 export interface SvgEditor {
+  setActiveCommand(command: string): void;
+  editActiveCommand(): void;
+  deleteActiveCommand(): void;
   getSourcePath(): string[];
   publish(topic: string): void;
   redo(): void;
@@ -41,7 +44,7 @@ export interface SvgEditor {
   showMarkers(): void;
   getActiveIndex(): number;
   setActiveIndex(index: number): void;
-  getPath(): Array<Command>;  
+  getPath(): Array<Command>;
   insertCommand(command: Command): void;
   deleteCommand(index: number): void;
   insertPath(path: string): void;
