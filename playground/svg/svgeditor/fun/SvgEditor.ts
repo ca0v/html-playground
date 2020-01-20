@@ -12,11 +12,12 @@ export interface SvgEditorRule {
 }
 
 export interface SvgEditor {
-  publish(arg0: string): void;
+  getSourcePath(): string[];
+  publish(topic: string): void;
   redo(): void;
   undo(): void;
   use(rule: SvgEditorRule): SvgEditor;
-  show(): void;
+  show(path: string): void;
   execute(command: string): void;
   subscribe(
     topic: string,

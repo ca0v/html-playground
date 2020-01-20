@@ -13,6 +13,7 @@ import { NotificationEditorRule } from "./fun/NotificationEditorRule";
 import { ImageLoaderRule } from "./fun/ImageLoaderRule";
 import { StateManagementRule } from "./fun/StateManagementRule";
 import { GridManagementRule } from "./fun/GridManagementRule";
+import { FileRule } from "./fun/FileRule";
 
 function createSvgEditor(workview: SVGSVGElement, input: HTMLElement) {
   let editor = new SvgEditorControl(workview, input);
@@ -52,7 +53,8 @@ export function run() {
   editor.use(new Digitizer());
   editor.use(new NotificationEditorRule(toaster));
   editor.use(new ImageLoaderRule());
-  editor.show();
+  editor.use(new FileRule());
+  editor.show("");
 
   let toolbar = asDom(`<div class="toolbar hidden"></div>`);
   document.body.appendChild(toolbar);

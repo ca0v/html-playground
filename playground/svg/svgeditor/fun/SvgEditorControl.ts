@@ -2,18 +2,15 @@ import { Dictionary } from "./Dictionary";
 import { Command } from "./Command";
 import { stringify } from "./stringify";
 import { parse } from "./parse";
-import { createPath } from "./createPath";
 import { parsePath } from "./parsePath";
 import { focus } from "./focus";
 import { drawX } from "./drawX";
 import { drawCursor } from "./drawCursor";
 import { setPath } from "./setPath";
 import { getPathCommands } from "./getPathCommands";
-import { createGrid } from "./createGrid";
 import { SvgEditor, SvgEditorRule, CursorLocation, Viewbox } from "./SvgEditor";
 import { getLocation } from "./getLocation";
 import { getPath } from "./getPath";
-import { createSvg } from "./createSvg";
 import { keys } from "./keys";
 import { ShortcutManager } from "./KeyboardShortcuts";
 
@@ -138,45 +135,6 @@ export class SvgEditorControl implements SvgEditor {
         console.log(this.shortcutManager.help(this.shortcutManager.shortcuts, true));
         this.publish("log", this.shortcutManager.help());
       },
-      "Slash File Open": () => {
-        // open
-        const doit = () => {
-          let pathData = localStorage.getItem("path");
-          if (!pathData) return;
-          this.setSourcePath(pathData);
-          this.renderEditor();
-          this.showMarkers();
-          focus(this.input.children[0]);
-        }
-        const priorPath = this.getSourcePath();
-        const undo = () => {
-          this.setSourcePath(priorPath.join("\n"));
-          this.renderEditor();
-          this.showMarkers();
-          focus(this.input.children[0]);
-        }
-        doit();
-        return { undo, redo: doit };
-      },
-      "Slash File New": () => {
-        const priorIndex = this.currentIndex;
-        const priorPath = this.getSourcePath();
-        const undo = () => {
-          this.setSourcePath(priorPath.join("\n"));
-          this.renderEditor();
-          this.showMarkers();
-          focus(this.input.children[priorIndex]);
-        }
-        const doit = () => {
-          this.setSourcePath("M 0 0 Z");
-          this.renderEditor();
-          this.showMarkers();
-          focus(this.input.children[0]);
-        }
-        doit();
-        return { undo, redo: doit };
-      },
-      "Slash File Save": () => localStorage.setItem("path", this.getSourcePath().join("\n")),
       "Slash Path 2 A": () => moveit({ dx: -1, dy: 0 }, { secondary: true }),
       "Slash Path 2 D": () => moveit({ dx: 1, dy: 0 }, { secondary: true }),
       "Slash Path 2 S": () => moveit({ dx: 0, dy: 1 }, { secondary: true }),
@@ -439,13 +397,15 @@ export class SvgEditorControl implements SvgEditor {
     this.publish("source-path-changed");
   }
 
-  private getSourcePath() {
+  public getSourcePath() {
     return getPathCommands(this.sourcePath);
   }
 
-  show() {
+  show(sourcePath?: string) {
+    sourcePath && this.setSourcePath(sourcePath);
     this.showMarkers();
     this.renderEditor();
+    focus(this.input.children[0]);
   }
 
   private renderEditor() {
