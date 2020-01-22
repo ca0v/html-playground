@@ -62,15 +62,14 @@ export function run() {
   editor.use(new PathRule());
   editor.show("");
 
-  let toolbar = asDom(`<div class="toolbar hidden"></div>`);
+  let toolbar = asDom(`<div class="toolbar hidden">
+  <input class="filter" placeholder="filter icons"/>
+  </div>`);
   document.body.appendChild(toolbar);
-  toolbar.appendChild(
-    asDom(`<button class="F1"><svg viewBox="-18 -18 36 36"><use href="#svg-path"></use></svg></button>`)
-  );
 
   keys(markers).forEach(marker => {
     let b = asDom(
-      `<button id="${marker}" class="F1 marker"><svg viewBox="-18 -18 36 36"><path d="${markers[marker]}"></path></svg></button>`
+      `<button id="${marker}" class="marker"><svg viewBox="-18 -18 36 36"><path d="${markers[marker]}"></path></svg></button>`
     );
     toolbar.appendChild(b);
     b.addEventListener("click", () => {
@@ -80,7 +79,7 @@ export function run() {
 
   keys(icons).forEach(marker => {
     let b = asDom(
-      `<button id="${marker}" class="F1 icon"><svg viewBox="0 0 36 36"><path d="${icons[marker]}"></path></svg></button>`
+      `<button id="${marker}" class="icon"><svg viewBox="0 0 36 36"><path d="${icons[marker]}"></path></svg></button>`
     );
     toolbar.appendChild(b);
     b.addEventListener("click", () => {
@@ -96,7 +95,7 @@ export function run() {
         symbols.forEach(symbol => {
           let { x, y, width, height } = symbol.viewBox.baseVal;
           let b = asDom(
-            `<button class="F2"><svg viewBox="${x} ${y} ${width} ${height}"><g>${symbol.innerHTML}</g></svg></button>`
+            `<button class="icon" title=#${symbol.id}><svg viewBox="${x} ${y} ${width} ${height}"><g>${symbol.innerHTML}</g></svg></button>`
           );
           toolbar.appendChild(b);
           b.addEventListener("click", () => {

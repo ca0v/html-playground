@@ -45,8 +45,8 @@ body.svgeditor {
   position: absolute;
   top: 0;
   left: 0;
-  max-width: 100vw;
-  max-height: 100vh;
+  max-width: 80vw;
+  max-height: 80vh;
   display: grid;
   grid-template-columns: repeat(auto-fill, 4em);
   overflow: auto;
@@ -78,6 +78,21 @@ body.svgeditor {
   stroke-opacity: 0.5;
   fill: red;
   fill-opacity: 0.5;
+}
+
+.svgeditor .filepicker {
+  position: absolute;
+  top: 1em;
+  left: 25%;
+  min-width: 1em;
+  min-height: 1em;
+  display: grid;
+  grid-template-columns: auto;
+  border: 1em solid rgba(20, 20, 20, 1);
+  border-radius: 1em;
+  background-color: black;
+  color: white;
+
 }
 
 .svgeditor .grid {
