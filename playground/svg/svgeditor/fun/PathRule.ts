@@ -171,7 +171,20 @@ export class PathRule implements SvgEditorRule {
         editor.shortcut("Slash Path ,", () => focus(document.activeElement?.previousElementSibling)).options({
             because: "Prior Command", stateless: false
         });
-        editor.shortcut("Slash Path X", () => editor.deleteActiveCommand()).options({
+        editor.shortcut("Slash Path X", () => {
+            const deletedIndex = editor.getActiveIndex();
+            const deletedCommand = editor.getSourcePath()[deletedIndex].trim();
+            const undo = () => {
+                editor.goto(deletedIndex - 1);
+                editor.insertCommand(parse(deletedCommand));
+                editor.goto(deletedIndex);
+            };
+            const doit = () => {
+                editor.deleteActiveCommand();
+            };
+            doit();
+            return { undo, redo: doit };
+        }).options({
             because: "Delete Command", stateless: false
         });
         editor.shortcut("Slash Path End", () => editor.goto(editor.getSourcePath().length - 1)).options({

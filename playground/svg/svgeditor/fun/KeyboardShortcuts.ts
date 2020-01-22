@@ -138,7 +138,13 @@ export class ShortcutManager {
   }
 
   public execute(nextState: KeyboardShortcut) {
-    nextState.ops.forEach(op => this.undos.run(op));
+    nextState.ops.forEach(op => {
+      try {
+        this.undos.run(op);
+      } catch (ex) {
+        this.log(ex);
+      }
+    });
   }
 
   private findNode(node: KeyboardShortcut, shortcut: string): KeyboardShortcut | null {

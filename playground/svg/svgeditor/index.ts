@@ -60,7 +60,6 @@ export function run() {
   editor.use(new ImageLoaderRule());
   editor.use(new FileRule());
   editor.use(new PathRule());
-  editor.show("");
 
   let toolbar = asDom(`<div class="toolbar hidden">
   <input class="filter" placeholder="filter icons"/>
@@ -121,6 +120,4 @@ export function run() {
     });
   }
 
-  editor.execute("Slash File Open");
-  editor.execute("Slash Help");
 }

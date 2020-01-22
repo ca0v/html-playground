@@ -212,6 +212,7 @@ export class SvgEditorControl implements SvgEditor {
     let index = this.currentIndex;
     let path = this.getSourcePath();
     path.splice(index, 1);
+    if (path.length <= index) this.currentIndex = path.length - 1;
     this.show(path.join("\n"));
   }
 
@@ -224,16 +225,17 @@ export class SvgEditorControl implements SvgEditor {
   }
 
   public goto(index: number) {
-    this.currentIndex = index;
     let path = this.getSourcePath();
     if (!path) return;
+    if (path.length <= index || index < 0) return;
+    this.currentIndex = index;
+
     const scale = getScale(this.workview);
     this.publish("showcursor", drawCursor(getLocation(index, path), 25 / scale));
     focus(this.input.children[index]);
   }
 
   private setSourcePath(path: string) {
-    const index = this.currentIndex;
     setPath(this.sourcePath, path);
     this.publish("source-path-changed");
   }
@@ -246,6 +248,7 @@ export class SvgEditorControl implements SvgEditor {
     sourcePath && this.setSourcePath(sourcePath);
     this.showMarkers();
     this.renderEditor();
+    this.goto(this.currentIndex);
   }
 
   private renderEditor() {

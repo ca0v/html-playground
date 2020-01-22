@@ -1,9 +1,8 @@
+import { Command } from "./Command";
+
 export function parsePath(path: string) {
     let tokens = path.split("");
-    let commands = [] as Array<{
-        command: string;
-        args: number[];
-    }>;
+    let commands = [] as Array<Command>;
     let commandArgs = [];
     while (tokens.length) {
         let ch = tokens.pop();

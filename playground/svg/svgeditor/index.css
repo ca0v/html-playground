@@ -84,15 +84,26 @@ body.svgeditor {
   position: absolute;
   top: 1em;
   left: 25%;
+  width: 50%;
   min-width: 1em;
   min-height: 1em;
   display: grid;
-  grid-template-columns: auto;
+  grid-template-columns: repeat(auto-fill, 8em);
   border: 1em solid rgba(20, 20, 20, 1);
   border-radius: 1em;
+  padding: 1em;
   background-color: black;
   color: white;
+}
 
+.svgeditor .filepicker .filename {
+  cursor: pointer;
+  border-left: 1px solid transparent;
+  transition: all 100ms ease-out;
+}
+
+.svgeditor .filepicker .filename:hover {
+  border-left-color: white;
 }
 
 .svgeditor .grid {

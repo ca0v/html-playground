@@ -1,9 +1,12 @@
 import { SvgEditor, SvgEditorRule } from "./SvgEditor";
 import { asDom } from "./asDom";
+import { focus } from "./focus";    
 
 class FileManager {
 
     private validateFileName(fileName: string) {
+        if (!fileName) return false;
+        if (fileName.length < 3) return false;
         return true;
     }
 
@@ -38,18 +41,29 @@ const fileManager = new FileManager();
  * @param cb callback to invoke once user picks an item
  */
 function picklist(items: string[], cb: (index: number) => void) {
-    const grid = asDom(`<div class="filepicker"><label>File Picker</label></div>`) as HTMLDivElement;
-    const litter = items.map(item => asDom(`<div>${item}</div>`));
+    if (!items.length) {
+        cb(-1);
+        return;
+    }
+
+    const grid = asDom(`<div class="filepicker"></div>`) as HTMLDivElement;
+    const litter = items.map(item => asDom(`<div class="filename">${item}</div>`));
     litter.forEach(item => grid.appendChild(item));
 
-    litter.forEach((item, index) => {
+    litter.forEach(item => {
         item.tabIndex = 0;
-        item.addEventListener("click", (event) => {
-            cb(index);
-        });
     });
 
+    grid.addEventListener("keypress", event => {
+        if (event.key !== "Enter") return;
+        if (!event.target) return;
+        const index = litter.indexOf(<any>event.target);
+        if (index < 0) return;
+        cb(index);
+    })
+
     document.body.appendChild(grid);
+    focus(grid.firstElementChild);
     return grid;
 }
 
