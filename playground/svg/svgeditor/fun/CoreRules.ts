@@ -23,7 +23,7 @@ export class CoreRules implements SvgEditorRule {
         editor.hideCursor();
         editor.hideCommandEditor();
         editor.hideMarkers();
-        editor.setActiveIndex(0);
+        editor.goto(0);
         hideToolbar();
         hideHelp();
       })
@@ -35,11 +35,11 @@ export class CoreRules implements SvgEditorRule {
       help?.classList.toggle("hidden");
     });
 
-    editor.shortcut(">", () => {
+    editor.shortcut(">Redo", () => {
       editor.redo();
     }).options({stateless: true, because: "redo the prior action"})
 
-    editor.shortcut("<", () => {
+    editor.shortcut("<Undo", () => {
       editor.undo();
     }).options({ stateless: true, because: "undo prior action" });
 

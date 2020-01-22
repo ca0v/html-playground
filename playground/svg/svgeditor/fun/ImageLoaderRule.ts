@@ -7,7 +7,7 @@ export class ImageLoaderRule implements SvgEditorRule {
         if (!img)
             return;
 
-        editor.shortcut("Slash Bitmap Load", () => {
+        editor.shortcut("Slash Bitmap Open", () => {
             const url = prompt("what is the url?", "https://media.istockphoto.com/photos/portrait-of-brown-puppy-with-bokeh-background-picture-id636475496");
             if (!url)
                 return;

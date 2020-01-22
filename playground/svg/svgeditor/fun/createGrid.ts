@@ -1,16 +1,11 @@
 import { range } from "./range";
 import { createPath } from "./createPath";
 import { setPath } from "./setPath";
+import { getScale } from "./getScale";
 
 function dot(x: number, y: number, size: number) {
     const r = size / 2;
     return `M ${x - r} ${y} A ${r} ${r} 0 0 0 ${x + r} ${y} A ${r} ${r} 0 0 0 ${x - r} ${y} Z`;
-}
-
-function getScale(gridOverlay: SVGSVGElement) {
-    let { width: viewBoxWidth } = gridOverlay.viewBox.baseVal;
-    let { width } = gridOverlay.getBoundingClientRect();
-    return width / viewBoxWidth;
 }
 
 export function createGrid(gridOverlay: SVGSVGElement) {

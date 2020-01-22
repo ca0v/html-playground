@@ -112,12 +112,16 @@ export class ShortcutManager {
         this.log(`${nextState.title}`);
         keys(nextState.subkeys).length && this.log(`more: ${this.help(nextState)}`)
       }
-      nextState.ops.forEach(op => this.undos.run(op));
+      this.execute(nextState);
       if (!nextState.options?.stateless) {
         lastStatefulState = nextState;
       }
       this.currentState = lastStatefulState || this.currentState;
     });
+  }
+
+  public execute(nextState: KeyboardShortcut) {
+    nextState.ops.forEach(op => this.undos.run(op));
   }
 
   private findNode(node: KeyboardShortcut, shortcut: string): KeyboardShortcut | null {
@@ -132,6 +136,9 @@ export class ShortcutManager {
     node.ops.push(callback);
     node.title = title;
     return node;
+  }
+  public getShortcut(title: string) {
+    return this.forceNode(this.shortcuts, this.tokenize(title));
   }
 
   // to be replaced with calbacks.log

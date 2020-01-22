@@ -124,15 +124,15 @@ export class Digitizer implements SvgEditorRule {
         const currentIndex = editor.getActiveIndex();
         const doit = () => {
           editor.insertCommand({ command, args: [] });
-          editor.setActiveIndex(currentIndex + 1);
+          editor.goto(currentIndex + 1);
         }
         doit();
         const undo = () => {
           editor.deleteCommand(currentIndex + 1);
-          editor.setActiveIndex(currentIndex);
+          editor.goto(currentIndex);
         }
         const redo = () => {
-          editor.setActiveIndex(currentIndex);
+          editor.goto(currentIndex);
           doit();
         }
         return { undo, redo };
@@ -189,6 +189,8 @@ export class Digitizer implements SvgEditorRule {
       scale = 1.1;
       editor.shortcut("Slash View Plus", createScaleAboutCursor(editor, scale));
       editor.shortcut("Slash View Minus", createScaleAboutCursor(editor, 1 / scale));
+      editor.shortcut("Slash Path Plus", createScaleAboutCursor(editor, scale));
+      editor.shortcut("Slash Path Minus", createScaleAboutCursor(editor, 1 / scale));
       scale = 1 / 1.01;
       editor.shortcut("Slash View Plus 1", createScaleAboutCursor(editor, scale));
       editor.shortcut("Slash View Minus 1", createScaleAboutCursor(editor, 1 / scale));

@@ -1,24 +1,18 @@
-import { Dictionary } from "./Dictionary";
 import { Command } from "./Command";
-import { stringify } from "./stringify";
-import { parse } from "./parse";
-import { parsePath } from "./parsePath";
-import { focus } from "./focus";
-import { drawX } from "./drawX";
+import { Dictionary } from "./Dictionary";
 import { drawCursor } from "./drawCursor";
-import { setPath } from "./setPath";
-import { getPathCommands } from "./getPathCommands";
-import { SvgEditor, SvgEditorRule, CursorLocation, Viewbox } from "./SvgEditor";
+import { drawX } from "./drawX";
+import { focus } from "./focus";
 import { getLocation } from "./getLocation";
 import { getPath } from "./getPath";
-import { keys } from "./keys";
+import { getPathCommands } from "./getPathCommands";
+import { parse } from "./parse";
+import { parsePath } from "./parsePath";
+import { setPath } from "./setPath";
 import { ShortcutManager } from "./KeyboardShortcuts";
-
-function getScale(svg: SVGSVGElement) {
-  let { width: viewBoxWidth } = svg.viewBox.baseVal;
-  let { width } = svg.getBoundingClientRect();
-  return width / viewBoxWidth;
-}
+import { stringify } from "./stringify";
+import { SvgEditor, SvgEditorRule, CursorLocation, Viewbox } from "./SvgEditor";
+import { getScale } from "./getScale";
 
 export class SvgEditorControl implements SvgEditor {
   private topics: Dictionary<Array<(...args: any[]) => void>> = {};
@@ -31,7 +25,7 @@ export class SvgEditorControl implements SvgEditor {
     this.shortcutManager.undo();
   }
 
-  use(rule: SvgEditorRule): SvgEditor {
+  use(rule: SvgEditorRule) {
     rule.initialize(this);
     return this;
   }
@@ -45,18 +39,8 @@ export class SvgEditorControl implements SvgEditor {
     return { x, y, width, height };
   }
 
-  setActiveCommand(command: string) {
-    throw "do not use";
-    const index = this.currentIndex;
-    (this.input.children[index] as HTMLDivElement).innerText = command;
-  }
-
   getActiveIndex() {
     return this.currentIndex;
-  }
-
-  setActiveIndex(index: number) {
-    focus(this.input.children[index]);
   }
 
   shortcut(topic: string, callback: () => { redo: () => void; undo: () => void; }): {
@@ -101,7 +85,6 @@ export class SvgEditorControl implements SvgEditor {
 
   private sourcePath: SVGPathElement;
   private currentIndex = -1;
-  private keyCommands: Dictionary<(...args: any[]) => void> = {};
   private shortcutManager = new ShortcutManager();
 
   constructor(public workview: SVGSVGElement, public input: HTMLElement) {
@@ -121,8 +104,8 @@ export class SvgEditorControl implements SvgEditor {
   }
 
   public execute(command: string, ...args: any[]) {
-    if (!this.keyCommands[command]) return;
-    this.keyCommands[command](...args);
+    const shortcut = this.shortcutManager.getShortcut(command);
+    shortcut && this.shortcutManager.execute(shortcut);
   }
 
   public publish(topic: string, ...args: any[]) {
@@ -178,15 +161,13 @@ export class SvgEditorControl implements SvgEditor {
     const index = this.currentIndex;
     const sourcePath = this.getSourcePath();
     sourcePath.splice(index, 0, ...pathSegment);
-    this.setSourcePath(sourcePath.join("\n"));
-    this.renderEditor();
+    this.show(sourcePath.join("\n"));
   }
 
   public deleteCommand(index: number) {
     const sourcePath = this.getSourcePath();
     sourcePath.splice(index, 1);
-    this.setSourcePath(sourcePath.join("\n"));
-    this.renderEditor();
+    this.show(sourcePath.join("\n"));
   }
 
   public insertCommand(command: Command) {
@@ -225,18 +206,14 @@ export class SvgEditorControl implements SvgEditor {
       }
     }
     path.splice(index + 1, 0, stringify(command));
-    this.setSourcePath(path.join("\n"));
-    this.renderEditor();
+    this.show(path.join("\n"));
   }
 
   public deleteActiveCommand() {
     let index = this.currentIndex;
     let path = this.getSourcePath();
     path.splice(index, 1);
-    this.setSourcePath(path.join("\n"));
-    let nextFocusItem = document.activeElement?.nextElementSibling || document.activeElement?.previousElementSibling;
-    this.input.children[index].remove();
-    focus(nextFocusItem);
+    this.show(path.join("\n"));
   }
 
   private replaceActiveCommand(commandText: string) {
@@ -244,22 +221,20 @@ export class SvgEditorControl implements SvgEditor {
     let command = parse(commandText);
     let path = this.getSourcePath();
     path[index] = stringify(command);
-    this.setSourcePath(path.join("\n"));
+    this.show(path.join("\n"));
   }
 
-  private goto(index: number) {
+  public goto(index: number) {
     this.currentIndex = index;
     let path = this.getSourcePath();
     if (!path) return;
     const scale = getScale(this.workview);
     this.publish("showcursor", drawCursor(getLocation(index, path), 25 / scale));
-  }
-
-  getPath() {
-    return parsePath(getPath(this.sourcePath));
+    focus(this.input.children[index]);
   }
 
   private setSourcePath(path: string) {
+    const index = this.currentIndex;
     setPath(this.sourcePath, path);
     this.publish("source-path-changed");
   }
@@ -272,7 +247,6 @@ export class SvgEditorControl implements SvgEditor {
     sourcePath && this.setSourcePath(sourcePath);
     this.showMarkers();
     this.renderEditor();
-    focus(this.input.children[0]);
   }
 
   private renderEditor() {

@@ -11,17 +11,13 @@ export interface SvgEditorRule {
   initialize(editor: SvgEditor): void;
 }
 
-export interface SvgEditor {
-  setActiveCommand(command: string): void;
-  editActiveCommand(): void;
-  deleteActiveCommand(): void;
-  getSourcePath(): string[];
+type ShortcutOptions = {
+  stateless: boolean;
+  because: string;
+};
+
+interface PubSub {
   publish(topic: string): void;
-  redo(): void;
-  undo(): void;
-  use(rule: SvgEditorRule): SvgEditor;
-  show(path: string): void;
-  execute(command: string): void;
   subscribe(
     topic: string,
     callback: (...args: any[]) => void
@@ -29,13 +25,36 @@ export interface SvgEditor {
     unsubscribe: () => void;
     because(about: string): void;
   };
+}
+
+interface UndoRedo {
+  redo(): void;
+  undo(): void;
+}
+
+interface Extensibility {
+  use(rule: SvgEditorRule): void;
   shortcut(
     topic: string,
     callback: () => void | { undo: () => void }
   ): {
-    options: (options: { stateless: boolean, because: string }) => void,
+    options: (options: ShortcutOptions) => void,
     unsubscribe: () => void;
   };
+}
+
+interface CommandEditor {
+  insertCommand(command: Command): void;
+  deleteCommand(index: number): void;
+  editActiveCommand(): void;
+  deleteActiveCommand(): void;
+  insertPath(path: string): void;
+  getSourcePath(): string[];
+}
+
+export interface SvgEditor extends Extensibility, PubSub, UndoRedo, CommandEditor {
+  show(path: string): void;
+  execute(command: string): void;
   hideCursor(): void;
   getCursorLocation(): CursorLocation;
   getViewbox(): Viewbox;
@@ -43,9 +62,5 @@ export interface SvgEditor {
   hideMarkers(): void;
   showMarkers(): void;
   getActiveIndex(): number;
-  setActiveIndex(index: number): void;
-  getPath(): Array<Command>;
-  insertCommand(command: Command): void;
-  deleteCommand(index: number): void;
-  insertPath(path: string): void;
+  goto(index: number): void;
 }

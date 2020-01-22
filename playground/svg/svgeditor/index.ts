@@ -110,8 +110,7 @@ export function run() {
   if (inset) {
     editor.subscribe("source-path-changed", () => {
       let path = editor
-        .getPath()
-        .map(c => stringify(c))
+        .getSourcePath()
         .join(" ");
       path = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 32 32"><g><path d="${path}"></path></g></svg>`;
       let url = `data:image/svg+xml;base64,${btoa(path)}`;

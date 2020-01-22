@@ -95,16 +95,18 @@ export class PathRule implements SvgEditorRule {
             location: { dx: number; dy: number },
             options?: { primary?: boolean; secondary?: boolean; tertiary?: boolean }
         ) => {
+            const currentIndex = editor.getActiveIndex();
             const doit = () => {
                 editor.hideCursor();
                 editor.show(this.transformActiveCommand(editor, location, options || { primary: true }).join(""));
+                editor.goto(currentIndex);
             }
-            const currentIndex = editor.getActiveIndex();
             const undoCommand = editor.getSourcePath()[currentIndex];
             const undo = () => {
                 const path = editor.getSourcePath();
                 path[currentIndex] = undoCommand;
                 editor.show(path.join("\n"));
+                editor.goto(currentIndex);
             }
             doit();
             const redoCommand = editor.getSourcePath()[currentIndex];
@@ -112,6 +114,7 @@ export class PathRule implements SvgEditorRule {
                 const path = editor.getSourcePath();
                 path[currentIndex] = redoCommand;
                 editor.show(path.join("\n"));
+                editor.goto(currentIndex);
             }
             return { undo, redo };
         };
@@ -135,12 +138,12 @@ export class PathRule implements SvgEditorRule {
             "Slash Path D 0": () => moveit({ dx: -0.1, dy: 0 }),
             "Slash Path S 0": () => moveit({ dx: 0, dy: -0.1 }),
             "Slash Path W 0": () => moveit({ dx: 0, dy: 0.1 }),
-            "Slash Path ArrowDown": () => focus(document.activeElement?.nextElementSibling),
-            "Slash Path ArrowUp": () => focus(document.activeElement?.previousElementSibling),
-            "Slash Path Delete": () => editor.deleteActiveCommand(),
-            "Slash Path End": () => focus(input.lastElementChild),
+            "Slash Path .ArrowDown": () => focus(document.activeElement?.nextElementSibling),
+            "Slash Path ,ArrowUp": () => focus(document.activeElement?.previousElementSibling),
+            "Slash Path XDelete": () => editor.deleteActiveCommand(),
+            "Slash Path End": () => editor.goto(editor.getSourcePath().length - 1),
             "Slash Path Enter": () => editor.editActiveCommand(),
-            "Slash Path Home": () => focus(input.firstElementChild),
+            "Slash Path Home": () => editor.goto(0),
         };
 
         keys(keyCommands).forEach(phrase => editor.shortcut(<string>phrase, keyCommands[phrase]));
