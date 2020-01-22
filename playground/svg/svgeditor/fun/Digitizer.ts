@@ -140,14 +140,30 @@ export class Digitizer implements SvgEditorRule {
     }
 
     editor.shortcut("Slash Path", () => editor.publish("showgrid"));
-    editor.shortcut("Slash Path ECurve", commandInserter("C"));
-    editor.shortcut("Slash Path HorizontalLine", commandInserter("H"));
-    editor.shortcut("Slash Path Line", commandInserter("L"));
-    editor.shortcut("Slash Path Move", commandInserter("M"));
-    editor.shortcut("Slash Path RArc", commandInserter("A"));
-    editor.shortcut("Slash Path UCurveSmooth", commandInserter("C"));
-    editor.shortcut("Slash Path VerticalLine", commandInserter("V"));
-    editor.shortcut("Slash Path ZReturn", commandInserter("Z"));
+    editor.shortcut("Slash Path ECurve", commandInserter("C")).options({
+      because: "Insert (C)urve", stateless: false
+    });
+    editor.shortcut("Slash Path HorizontalLine", commandInserter("H")).options({
+      because: "Insert (H)orizontal Line", stateless: false
+    });
+    editor.shortcut("Slash Path Line", commandInserter("L")).options({
+      because: "Insert (L)ine", stateless: false
+    });
+    editor.shortcut("Slash Path Move", commandInserter("M")).options({
+      because: "Insert (M)ove", stateless: false
+    });;
+    editor.shortcut("Slash Path RArc", commandInserter("A")).options({
+      because: "Insert (A)rc", stateless: false
+    });
+    editor.shortcut("Slash Path UCurveSmooth", commandInserter("S")).options({
+      because: "Insert (S)mooth Curve", stateless: false
+    });
+    editor.shortcut("Slash Path VerticalLine", commandInserter("V")).options({
+      because: "Insert (V)ertical Line", stateless: false
+    });
+    editor.shortcut("Slash Path ZReturn", commandInserter("Z")).options({
+      because: "Insert Return (Z)", stateless: false
+    });
 
     /**
      * Moves the digitizing area

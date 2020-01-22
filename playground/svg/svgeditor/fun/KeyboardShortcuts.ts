@@ -71,7 +71,7 @@ export class ShortcutManager {
       .filter(node => 1 === node.ops.length)
       .map(node => {
         const path = fullPath(node).reverse();
-        const deleteCount = path.indexOf(root) + 1;
+        const deleteCount = path.indexOf(root);
         path.splice(0, deleteCount);
         return `${path.map(node => node.key).join("+")} - ${node.title}`;
       });
@@ -114,20 +114,20 @@ export class ShortcutManager {
 
       if (!nextState) {
         // suggest a key
-        !event.repeat && this.log(`${this.help(this.currentState)}`);
+        !event.repeat && this.log(`${this.help(true, this.currentState)}`);
         return;
       }
 
       event.preventDefault();
       if (!nextState.ops.length) {
         this.currentState = nextState;
-        !event.repeat && this.log(`${this.help(this.currentState)}`);
+        !event.repeat && this.log(`${this.help(true, this.currentState)}`);
         return;
       }
 
       if (!event.repeat) {
         this.log(`${nextState.title}`);
-        keys(nextState.subkeys).length && this.log(`${this.help(nextState)}`)
+        keys(nextState.subkeys).length && this.log(`${this.help(true, nextState)}`)
       }
       this.execute(nextState);
       if (!nextState.options?.stateless) {

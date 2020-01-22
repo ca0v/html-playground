@@ -1,8 +1,6 @@
 import { stringify } from "./stringify";
-import { keys } from "./keys";
 import { parse } from "./parse";
 import { focus } from "./focus";
-import { Dictionary } from "./Dictionary";
 import { SvgEditor, SvgEditorRule } from "./SvgEditor";
 
 export class PathRule implements SvgEditorRule {
@@ -119,34 +117,72 @@ export class PathRule implements SvgEditorRule {
             return { undo, redo };
         };
 
-        const input = document.querySelector(".svg-input") as HTMLElement;
-
-        const keyCommands: Dictionary<() => void> = {
-            "Slash Path 2 A": () => moveit({ dx: -1, dy: 0 }, { secondary: true }),
-            "Slash Path 2 D": () => moveit({ dx: 1, dy: 0 }, { secondary: true }),
-            "Slash Path 2 S": () => moveit({ dx: 0, dy: 1 }, { secondary: true }),
-            "Slash Path 2 W": () => moveit({ dx: 0, dy: -1 }, { secondary: true }),
-            "Slash Path 3 A": () => moveit({ dx: -1, dy: 0 }, { tertiary: true }),
-            "Slash Path 3 D": () => moveit({ dx: 1, dy: 0 }, { tertiary: true }),
-            "Slash Path 3 S": () => moveit({ dx: 0, dy: 1 }, { tertiary: true }),
-            "Slash Path 3 W": () => moveit({ dx: 0, dy: -1 }, { tertiary: true }),
-            "Slash Path A": () => moveit({ dx: -1, dy: 0 }),
-            "Slash Path D": () => moveit({ dx: 1, dy: 0 }),
-            "Slash Path S": () => moveit({ dx: 0, dy: 1 }),
-            "Slash Path W": () => moveit({ dx: 0, dy: -1 }),
-            "Slash Path A 0": () => moveit({ dx: 0.1, dy: 0 }),
-            "Slash Path D 0": () => moveit({ dx: -0.1, dy: 0 }),
-            "Slash Path S 0": () => moveit({ dx: 0, dy: -0.1 }),
-            "Slash Path W 0": () => moveit({ dx: 0, dy: 0.1 }),
-            "Slash Path .ArrowDown": () => focus(document.activeElement?.nextElementSibling),
-            "Slash Path ,ArrowUp": () => focus(document.activeElement?.previousElementSibling),
-            "Slash Path XDelete": () => editor.deleteActiveCommand(),
-            "Slash Path End": () => editor.goto(editor.getSourcePath().length - 1),
-            "Slash Path Enter": () => editor.editActiveCommand(),
-            "Slash Path Home": () => editor.goto(0),
-        };
-
-        keys(keyCommands).forEach(phrase => editor.shortcut(<string>phrase, keyCommands[phrase]));
+        editor.shortcut("Slash Path 2 A", () => moveit({ dx: -1, dy: 0 }, { secondary: true })).options({
+            because: "Decrement X2", stateless: false
+        });
+        editor.shortcut("Slash Path 2 D", () => moveit({ dx: 1, dy: 0 }, { secondary: true })).options({
+            because: "Increment X2", stateless: false
+        });
+        editor.shortcut("Slash Path 2 S", () => moveit({ dx: 0, dy: 1 }, { secondary: true })).options({
+            because: "Increment Y2", stateless: false
+        });
+        editor.shortcut("Slash Path 2 W", () => moveit({ dx: 0, dy: -1 }, { secondary: true })).options({
+            because: "", stateless: false
+        });
+        editor.shortcut("Slash Path 3 A", () => moveit({ dx: -1, dy: 0 }, { tertiary: true })).options({
+            because: "Decrement X3", stateless: false
+        });
+        editor.shortcut("Slash Path 3 D", () => moveit({ dx: 1, dy: 0 }, { tertiary: true })).options({
+            because: "Increment X3", stateless: false
+        });
+        editor.shortcut("Slash Path 3 S", () => moveit({ dx: 0, dy: 1 }, { tertiary: true })).options({
+            because: "Increment Y3", stateless: false
+        });
+        editor.shortcut("Slash Path 3 W", () => moveit({ dx: 0, dy: -1 }, { tertiary: true })).options({
+            because: "Decrement Y3", stateless: false
+        });
+        editor.shortcut("Slash Path A", () => moveit({ dx: -1, dy: 0 })).options({
+            because: "Decrement X", stateless: false
+        });
+        editor.shortcut("Slash Path D", () => moveit({ dx: 1, dy: 0 })).options({
+            because: "Increment X", stateless: false
+        });
+        editor.shortcut("Slash Path S", () => moveit({ dx: 0, dy: 1 })).options({
+            because: "Increment Y", stateless: false
+        });
+        editor.shortcut("Slash Path W", () => moveit({ dx: 0, dy: -1 })).options({
+            because: "Decrement Y", stateless: false
+        });
+        editor.shortcut("Slash Path A 0", () => moveit({ dx: 0.1, dy: 0 })).options({
+            because: "Reverse/10", stateless: false
+        });
+        editor.shortcut("Slash Path D 0", () => moveit({ dx: -0.1, dy: 0 })).options({
+            because: "Reverse/10", stateless: false
+        });
+        editor.shortcut("Slash Path S 0", () => moveit({ dx: 0, dy: -0.1 })).options({
+            because: "Reverse/10", stateless: false
+        });
+        editor.shortcut("Slash Path W 0", () => moveit({ dx: 0, dy: 0.1 })).options({
+            because: "Reverse/10", stateless: false
+        });
+        editor.shortcut("Slash Path .", () => focus(document.activeElement?.nextElementSibling)).options({
+            because: "Next Command", stateless: false
+        });
+        editor.shortcut("Slash Path ,", () => focus(document.activeElement?.previousElementSibling)).options({
+            because: "Prior Command", stateless: false
+        });
+        editor.shortcut("Slash Path X", () => editor.deleteActiveCommand()).options({
+            because: "Delete Command", stateless: false
+        });
+        editor.shortcut("Slash Path End", () => editor.goto(editor.getSourcePath().length - 1)).options({
+            because: "Last Command", stateless: false
+        });
+        editor.shortcut("Slash Path Enter", () => editor.editActiveCommand()).options({
+            because: "Edit Command", stateless: false
+        });
+        editor.shortcut("Slash Path Home", () => editor.goto(0)).options({
+            because: "First Command", stateless: false
+        });
     }
 
 }
