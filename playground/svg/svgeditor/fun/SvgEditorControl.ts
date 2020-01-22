@@ -85,15 +85,14 @@ export class SvgEditorControl implements SvgEditor {
 
   private sourcePath: SVGPathElement;
   private currentIndex = -1;
-  private shortcutManager = new ShortcutManager();
+  private shortcutManager: ShortcutManager;
 
-  constructor(public workview: SVGSVGElement, public input: HTMLElement) {
+  constructor(public workview: SVGSVGElement, public input: HTMLElement, managers: {
+    shortcutManager: ShortcutManager
+  }) {
+    this.shortcutManager = managers.shortcutManager;
     this.sourcePath = this.workview.querySelector("path") as SVGPathElement;
     if (!this.sourcePath) throw "workview must have a path";
-    this.shortcut("Slash Help", () => {
-      console.log(this.shortcutManager.help(this.shortcutManager.shortcuts, true));
-      this.publish("log", this.shortcutManager.help());
-    }).options({ stateless: true });
 
     this.input.parentElement && this.shortcutManager.watchKeyboard(this.input.parentElement, {
       log: (message: string) => {

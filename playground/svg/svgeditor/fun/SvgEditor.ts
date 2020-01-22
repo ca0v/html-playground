@@ -17,7 +17,7 @@ type ShortcutOptions = {
 };
 
 interface PubSub {
-  publish(topic: string): void;
+  publish(topic: string, ...args: any[]): void;
   subscribe(
     topic: string,
     callback: (...args: any[]) => void

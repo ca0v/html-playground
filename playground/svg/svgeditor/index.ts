@@ -15,9 +15,13 @@ import { StateManagementRule } from "./fun/StateManagementRule";
 import { GridManagementRule } from "./fun/GridManagementRule";
 import { FileRule } from "./fun/FileRule";
 import { PathRule } from "./fun/PathRule";
+import { ShortcutManager } from "./fun/KeyboardShortcuts";
 
+const shortcutManager = new ShortcutManager();
 function createSvgEditor(workview: SVGSVGElement, input: HTMLElement) {
-  let editor = new SvgEditorControl(workview, input);
+  let editor = new SvgEditorControl(workview, input, {
+    shortcutManager
+  });
   return editor as SvgEditor;
 }
 
@@ -50,7 +54,7 @@ export function run() {
   let editor = createSvgEditor(svg, input);
   editor.use(new GridManagementRule());
   editor.use(new StateManagementRule());
-  editor.use(new CoreRules());
+  editor.use(new CoreRules(shortcutManager));
   editor.use(new Digitizer());
   editor.use(new NotificationEditorRule(toaster));
   editor.use(new ImageLoaderRule());

@@ -36,33 +36,50 @@ export class ShortcutManager {
     return this.forceNode(node.subkeys[key], shortcuts);
   };
 
-  public help(root = this.currentState, deep = false): string {
-    const visitAll = (node: KeyboardShortcut, cb: (node: KeyboardShortcut) => void) => {
+  public help(terse = true, root = this.currentState): string {
+    const visitEach = (node: KeyboardShortcut, cb: (node: KeyboardShortcut) => void) => {
       cb(node);
-      keys(node.subkeys).forEach(key => visitAll(node.subkeys[key], cb));
+      keys(node.subkeys).forEach(key => visitEach(node.subkeys[key], cb));
     }
+
     const visitUp = (node: KeyboardShortcut, cb: (node: KeyboardShortcut) => void) => {
       cb(node);
       node.parent && visitUp(node.parent, cb);
     }
 
-    if (deep) {
-      const parentKeys = <Array<string | number>>[];
-      visitAll(root, node => {
+    const allNodes = (node: KeyboardShortcut) => {
+      const nodes = <Array<KeyboardShortcut>>[];
+      visitEach(root, node => {
         if (node.ops && node.ops.length) {
-          parentKeys.push(node.title || node.key);
+          nodes.push(node);
         }
       });
-      return parentKeys.join("\n");
+      return nodes;
     }
 
-    let results = keys(root.subkeys);
-    // if no child ops report parent ops
-    if (!results.length) {
-      root.parent && visitAll(root.parent, node => results.push(node.key));
+    const fullPath = (node: KeyboardShortcut) => {
+      const nodes = <Array<KeyboardShortcut>>[];
+      visitUp(node, node => nodes.push(node));
+      return nodes;
     }
-    return results.length ? `[${results.join("|")}]` : deep ? "" : this.help(root, true);
+
+    if (terse) {
+      return Object.keys(root.subkeys).join("|");
+    }
+    
+    const markup = allNodes(root)
+      .filter(node => 1 === node.ops.length)
+      .map(node => {
+        const path = fullPath(node).reverse();
+        const deleteCount = path.indexOf(root) + 1;
+        path.splice(0, deleteCount);
+        return `${path.map(node => node.key).join("+")} - ${node.title}`;
+      });
+
+    return markup.join("\n");
+
   }
+
 
   public watchKeyboard(root: HTMLElement, callbacks: { log: (message: string) => void }) {
     this.log = callbacks.log;
@@ -97,20 +114,20 @@ export class ShortcutManager {
 
       if (!nextState) {
         // suggest a key
-        !event.repeat && this.log(`Try one of these: ${this.help(this.currentState)}`);
+        !event.repeat && this.log(`${this.help(this.currentState)}`);
         return;
       }
 
       event.preventDefault();
       if (!nextState.ops.length) {
         this.currentState = nextState;
-        !event.repeat && this.log(`Up next: ${this.help(this.currentState)}`);
+        !event.repeat && this.log(`${this.help(this.currentState)}`);
         return;
       }
 
       if (!event.repeat) {
         this.log(`${nextState.title}`);
-        keys(nextState.subkeys).length && this.log(`more: ${this.help(nextState)}`)
+        keys(nextState.subkeys).length && this.log(`${this.help(nextState)}`)
       }
       this.execute(nextState);
       if (!nextState.options?.stateless) {
