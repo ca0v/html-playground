@@ -43,7 +43,7 @@ const fileManager = new FileManager();
 function picklist(items: string[], cb: (index: number) => void) {
     if (!items.length) {
         cb(-1);
-        return;
+        return null;
     }
 
     const grid = asDom(`<div class="filepicker"></div>`) as HTMLDivElement;
@@ -72,6 +72,18 @@ export class FileRule implements SvgEditorRule {
     private currentFileName = "";
 
     initialize(editor: SvgEditor): void {
+        editor.shortcut("Slash File New", () => {
+            const priorPath = editor.getSourcePath();
+            const undo = () => {
+                editor.show(priorPath.join("\n"));
+            };
+            const doit = () => {
+                editor.show("M 0 0 Z");
+            };
+            doit();
+            return { undo, redo: doit };
+        });
+
         editor.shortcut("Slash File Open", () => {
             if (null !== this.filePicker) {
                 this.filePicker.remove();
@@ -111,18 +123,6 @@ export class FileRule implements SvgEditorRule {
             const priorPath = editor.getSourcePath();
             const undo = () => {
                 editor.show(priorPath.join("\n"));
-            };
-            doit();
-            return { undo, redo: doit };
-        });
-
-        editor.shortcut("Slash Workspace New", () => {
-            const priorPath = editor.getSourcePath();
-            const undo = () => {
-                editor.show(priorPath.join("\n"));
-            };
-            const doit = () => {
-                editor.show("M 0 0 Z");
             };
             doit();
             return { undo, redo: doit };

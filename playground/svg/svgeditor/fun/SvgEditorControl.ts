@@ -4,7 +4,6 @@ import { drawCursor } from "./drawCursor";
 import { drawX } from "./drawX";
 import { focus } from "./focus";
 import { getLocation } from "./getLocation";
-import { getPath } from "./getPath";
 import { getPathCommands } from "./getPathCommands";
 import { parse } from "./parse";
 import { parsePath } from "./parsePath";
@@ -13,8 +12,10 @@ import { ShortcutManager } from "./KeyboardShortcuts";
 import { stringify } from "./stringify";
 import { SvgEditor, SvgEditorRule, CursorLocation, Viewbox } from "./SvgEditor";
 import { getScale } from "./getScale";
+import { Channel } from "./Channel";
 
 export class SvgEditorControl implements SvgEditor {
+  private channel = new Channel();
   private topics: Dictionary<Array<(...args: any[]) => void>> = {};
 
   redo() {
@@ -60,19 +61,9 @@ export class SvgEditorControl implements SvgEditor {
     };
   }
 
-  subscribe(topic: string, callback: () => void): { unsubscribe: () => void; because: (about: string) => void } {
-    let subscribers = (this.topics[topic] = this.topics[topic] || []);
-    subscribers.push(callback);
-    return {
-      unsubscribe: () => {
-        let i = subscribers.indexOf(callback);
-        if (i < 0) return;
-        subscribers.splice(i, 1);
-      },
-      because: (about: string) => {
-        // use a shortcut instead
-      },
-    };
+  public subscribe(topic: string, callback: () => void): { unsubscribe: () => void; } {
+    const h = this.channel.on(topic, callback);
+    return { unsubscribe: () => h.remove() };
   }
 
   hideCursor(): void {
@@ -108,12 +99,7 @@ export class SvgEditorControl implements SvgEditor {
   }
 
   public publish(topic: string, ...args: any[]) {
-    let subscribers = this.topics[topic];
-    if (!subscribers) {
-      console.log(topic);
-      return false;
-    }
-    subscribers.forEach(subscriber => subscriber(...args));
+    this.channel.publish(topic, args);
     return true;
   }
 

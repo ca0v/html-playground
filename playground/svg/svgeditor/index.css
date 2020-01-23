@@ -26,7 +26,7 @@ body.svgeditor {
   top: 0;
   left: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, 5em 15em);
+  grid-template-columns: repeat(auto-fill, 6em 18em);
   max-height: 30em;
   min-width: 25vw;
   max-width: minmax(50vw, 70em);

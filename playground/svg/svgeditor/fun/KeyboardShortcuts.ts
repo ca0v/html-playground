@@ -1,6 +1,7 @@
 import { Dictionary } from "./Dictionary";
 import { keys } from "./keys";
 import { UndoRedo } from "./UndoRedo";
+import { Channel } from "./Channel";
 
 // do not use Alt
 const atomicTokens = "ArrowLeft ArrowRight ArrowUp ArrowDown Control Delete End Enter Escape Home Minus PageUp PageDown Plus Shift Slash Space".split(
@@ -10,7 +11,7 @@ const isAtomic = (v: string) => 0 <= atomicTokens.indexOf(v);
 
 type KeyboardShortcuts = Dictionary<KeyboardShortcut>;
 
-type KeyboardShortcut = {
+export type KeyboardShortcut = {
   key: string;
   options?: { stateless: boolean, because: string };
   title?: string;
@@ -20,6 +21,16 @@ type KeyboardShortcut = {
 };
 
 export class ShortcutManager {
+  private channel = new Channel();
+
+  publish(topic: string, ...args: any[]) {
+    return this.channel.publish(topic, args);
+  }
+
+  subscribe(topic: string, doit: () => void) {
+    return this.channel.on(topic, doit);
+  }
+
   private undos = new UndoRedo();
   public readonly shortcuts: KeyboardShortcut = { key: "", ops: [], subkeys: {}, parent: null };
   private currentState = this.shortcuts;
@@ -73,7 +84,7 @@ export class ShortcutManager {
         const path = fullPath(node).reverse();
         const deleteCount = path.indexOf(root);
         path.splice(0, deleteCount);
-        return `${path.map(node => node.key).join("+")} - ${node.title}`;
+        return `${path.map(node => node.key.replace("Slash", "/")).join("+")} - ${node.title}`;
       });
 
     return markup.join("\n");
@@ -122,6 +133,7 @@ export class ShortcutManager {
       if (!nextState.ops.length) {
         this.currentState = nextState;
         !event.repeat && this.log(`${this.help(true, this.currentState)}`);
+        this.publish("change", this.currentState);
         return;
       }
 
@@ -134,6 +146,8 @@ export class ShortcutManager {
         lastStatefulState = nextState;
       }
       this.currentState = lastStatefulState || this.currentState;
+      this.publish("change", this.currentState);
+      return;
     });
   }
 

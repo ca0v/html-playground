@@ -97,18 +97,37 @@ export class Digitizer implements SvgEditorRule {
       editor.shortcut("Slash Toggle Bitmap", () => document.querySelector(".svgeditor")?.classList.toggle("digitizer"));
       editor.shortcut("Slash Bitmap", () => document.querySelector(".svgeditor")?.classList.add("digitizer"));
       let scale = 1.1;
-      editor.shortcut("Slash Bitmap Plus", createScaler(bitmap, scale));
-      editor.shortcut("Slash Bitmap Minus", createScaler(bitmap, 1.0 / scale));
+      editor.shortcut("Slash Bitmap Plus", createScaler(bitmap, scale)).options({
+        because: "Increase Bitmap Size", stateless: false
+      });
+      editor.shortcut("Slash Bitmap Minus", createScaler(bitmap, 1.0 / scale)).options({
+        because: "Reduce Bitmap Size", stateless: false
+      });
 
       scale = 1 / 1.01;
-      editor.shortcut("Slash Bitmap Plus 1", createScaler(bitmap, scale));
-      editor.shortcut("Slash Bitmap Minus 1", createScaler(bitmap, 1.0 / scale));
+      editor.shortcut("Slash Bitmap Plus 1", createScaler(bitmap, scale)).options({
+        because: "Reverse 1/10", stateless: false
+      });      
+      editor.shortcut("Slash Bitmap Minus 1", createScaler(bitmap, 1.0 / scale)).options({
+        because: "Reverse 1/10", stateless: false
+      });
 
       scale = 10;
-      editor.shortcut("Slash Bitmap A.ArrowLeft", createTranslator(bitmap, -scale, 0));
-      editor.shortcut("Slash Bitmap D.ArrowRight", createTranslator(bitmap, scale, 0));
-      editor.shortcut("Slash Bitmap W.ArrowUp", createTranslator(bitmap, 0, -scale));
-      editor.shortcut("Slash Bitmap S.ArrowDown", createTranslator(bitmap, 0, scale));
+      editor.shortcut("Slash Bitmap A", createTranslator(bitmap, -scale, 0)).options({
+        because: "Move Bitmap Left", stateless: false
+      });
+      editor.shortcut("Slash Bitmap D", createTranslator(bitmap, scale, 0)).options({
+        because: "Move Bitmap Right", stateless: false
+      });
+
+      editor.shortcut("Slash Bitmap W", createTranslator(bitmap, 0, -scale)).options({
+        because: "Move Bitmap Up", stateless: false
+      });
+
+      editor.shortcut("Slash Bitmap S", createTranslator(bitmap, 0, scale)).options({
+        because: "Move Bitmap Down", stateless: false
+      });
+
 
       scale = -1;
       editor.shortcut("Slash Bitmap A.ArrowLeft 1", createTranslator(bitmap, -scale, 0));

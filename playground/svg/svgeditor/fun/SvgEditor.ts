@@ -23,7 +23,6 @@ interface PubSub {
     callback: (...args: any[]) => void
   ): {
     unsubscribe: () => void;
-    because(about: string): void;
   };
 }
 

@@ -165,12 +165,20 @@ export class PathRule implements SvgEditorRule {
         editor.shortcut("Slash Path W 0", () => moveit({ dx: 0, dy: 0.1 })).options({
             because: "Reverse/10", stateless: false
         });
-        editor.shortcut("Slash Path .", () => focus(document.activeElement?.nextElementSibling)).options({
-            because: "Next Command", stateless: false
+        editor.shortcut("Slash Path End", () => editor.goto(editor.getSourcePath().length - 1)).options({
+            because: "Last Command", stateless: false
         });
-        editor.shortcut("Slash Path ,", () => focus(document.activeElement?.previousElementSibling)).options({
-            because: "Prior Command", stateless: false
+        editor.shortcut("Slash Path Home", () => editor.goto(0)).options({
+            because: "First Command", stateless: false
         });
+        editor.shortcut("Slash Path .", () => editor.goto(editor.getActiveIndex() + 1))
+            .options({
+                because: "Next Command", stateless: false
+            });
+        editor.shortcut("Slash Path ,", () => editor.goto(editor.getActiveIndex() - 1))
+            .options({
+                because: "Prior Command", stateless: false
+            });
         editor.shortcut("Slash Path X", () => {
             const deletedIndex = editor.getActiveIndex();
             const deletedCommand = editor.getSourcePath()[deletedIndex].trim();
@@ -187,14 +195,8 @@ export class PathRule implements SvgEditorRule {
         }).options({
             because: "Delete Command", stateless: false
         });
-        editor.shortcut("Slash Path End", () => editor.goto(editor.getSourcePath().length - 1)).options({
-            because: "Last Command", stateless: false
-        });
         editor.shortcut("Slash Path Enter", () => editor.editActiveCommand()).options({
             because: "Edit Command", stateless: false
-        });
-        editor.shortcut("Slash Path Home", () => editor.goto(0)).options({
-            because: "First Command", stateless: false
         });
     }
 

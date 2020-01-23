@@ -1,5 +1,6 @@
 import { SvgEditorRule, SvgEditor } from "./SvgEditor";
-import { ShortcutManager } from "./KeyboardShortcuts";
+import { ShortcutManager, KeyboardShortcut } from "./KeyboardShortcuts";
+import { RemoveEventHandler } from "./RemoveEventHandler";
 
 function getToolbar() {
   let toolbar = document.querySelector(".toolbar") as HTMLElement;
@@ -21,7 +22,13 @@ export class CoreRules implements SvgEditorRule {
   constructor(private shortcutManager: ShortcutManager) {
   }
 
+  public subscribe(topic: string, cb: () => void) {
+
+  }
+
   initialize(editor: SvgEditor) {
+
+    let shorcutChangeHandler: RemoveEventHandler;
 
     editor
       .shortcut("Escape Escape", () => {
@@ -39,13 +46,21 @@ export class CoreRules implements SvgEditorRule {
       const help = document.querySelector(".F1") as HTMLElement;
       if (!help) return;
       help.classList.toggle("hidden");
-      if (!help.classList.contains("hidden")) {
-        const more = this.shortcutManager.help(false).split("\n").map(row => {
-          const [command, ...description] = row.split(" ");
-          return `<div>${command}</div><div>${description.join(" ")}</div>`;
-        });
-        help.innerHTML = `${more.join("")}`;
+      if (help.classList.contains("hidden")) {
+        shorcutChangeHandler.remove();
+        return;
       }
+      const doit = () => {
+        if (!help.classList.contains("hidden")) {
+          const more = this.shortcutManager.help(false).split("\n").map(row => {
+            const [command, ...description] = row.split(" ");
+            return `<div>${command}</div><div>${description.join(" ")}</div>`;
+          });
+          help.innerHTML = `${more.join("")}`;
+        };
+      }
+      doit();
+      shorcutChangeHandler = this.shortcutManager.subscribe("change", doit);
     }).options({ because: "show help", stateless: true });
 
     editor.shortcut(">Redo", () => {
