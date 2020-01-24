@@ -10,7 +10,7 @@ const atomicTokens = "ArrowLeft ArrowRight ArrowUp ArrowDown Control Delete End 
 );
 const isAtomic = (v: string) => 0 <= atomicTokens.indexOf(v);
 
-export type Callback = (() => void) | (() => { redo?: () => void; undo?: () => void; }?);
+export type Callback = (() => void) | (() => { redo?: () => void; undo?: () => void; });
 
 export type KeyboardShortcuts = Dictionary<KeyboardShortcut>;
 

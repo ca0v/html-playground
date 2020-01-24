@@ -290,7 +290,7 @@ export class Digitizer implements SvgEditorRule {
         because: `Zoom Out By ${percent(scale)}`
       });
       editor.shortcut("Slash Path Minus", createScaleAboutCursor(editor, 1 / scale)).options({
-        because: `Zoom Out By ${percent((scale)}`
+        because: `Zoom Out By ${percent(scale)}`
       });
       scale = 1 / 1.01;
       editor.shortcut("Slash View Plus 1", createScaleAboutCursor(editor, scale)).options({

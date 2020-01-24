@@ -1,3 +1,5 @@
+import { Callback } from "./KeyboardShortcuts";
+
 export class UndoRedo {
     private stack: Array<{
         undo: () => void;
@@ -5,7 +7,7 @@ export class UndoRedo {
     }> = [];
     private index = -1;
 
-    public run(op: () => { undo: () => void, redo: () => void }) {
+    public run(op: Callback) {
         const result = op();
         if (!result) return;
         const { undo, redo } = result;
