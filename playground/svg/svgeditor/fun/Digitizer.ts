@@ -151,19 +151,19 @@ export class Digitizer implements SvgEditorRule {
 
 
       scale = -1;
-      editor.shortcut("Slash Bitmap A.ArrowLeft 1", createTranslator(bitmap, -scale, 0)).options({
+      editor.shortcut("Slash Bitmap A 1", createTranslator(bitmap, -scale, 0)).options({
         onlyIf: bitmapOpen,
         because: `Move Bitmap X ${-scale}`, stateless: false
       });
-      editor.shortcut("Slash Bitmap D.ArrowRight 1", createTranslator(bitmap, scale, 0)).options({
+      editor.shortcut("Slash Bitmap D 1", createTranslator(bitmap, scale, 0)).options({
         onlyIf: bitmapOpen,
         because: `Move Bitmap X ${scale}`, stateless: false
       });
-      editor.shortcut("Slash Bitmap W.ArrowUp 1", createTranslator(bitmap, 0, -scale)).options({
+      editor.shortcut("Slash Bitmap W 1", createTranslator(bitmap, 0, -scale)).options({
         onlyIf: bitmapOpen,
         because: `Move Bitmap Y ${-scale}`, stateless: false
       });
-      editor.shortcut("Slash Bitmap S.ArrowDown 1", createTranslator(bitmap, 0, scale)).options({
+      editor.shortcut("Slash Bitmap S 1", createTranslator(bitmap, 0, scale)).options({
         onlyIf: bitmapOpen,
         because: `Move Bitmap Y ${scale}`, stateless: false
       });
@@ -251,30 +251,30 @@ export class Digitizer implements SvgEditorRule {
       });
 
       let scale = 10;
-      editor.shortcut("Slash View S", createTranslator(layers, 0, scale)).options({
+      editor.shortcut("Slash Path ArrowDown", createTranslator(layers, 0, scale)).options({
         because: `Move View Down ${scale}`
       });
-      editor.shortcut("Slash View W", createTranslator(layers, 0, -scale)).options({
+      editor.shortcut("Slash Path ArrowUp", createTranslator(layers, 0, -scale)).options({
         because: `Move View Up ${scale}`
       });
-      editor.shortcut("Slash View A", createTranslator(layers, -scale, 0)).options({
+      editor.shortcut("Slash Path ArrowLeft", createTranslator(layers, -scale, 0)).options({
         because: `Move View Left ${scale}`
       });
-      editor.shortcut("Slash View D", createTranslator(layers, scale, 0)).options({
+      editor.shortcut("Slash Path ArrowRight", createTranslator(layers, scale, 0)).options({
         because: `Move View Right ${scale}`
       });
 
       scale = -1;
-      editor.shortcut("Slash View S 1", createTranslator(layers, 0, scale)).options({
+      editor.shortcut("Slash Path ArrowDown 1", createTranslator(layers, 0, scale)).options({
         because: `Move View Down ${scale}`
       });
-      editor.shortcut("Slash View W 1", createTranslator(layers, 0, -scale)).options({
+      editor.shortcut("Slash Path ArrowUp 1", createTranslator(layers, 0, -scale)).options({
         because: `Move View Up ${scale}`
       });
-      editor.shortcut("Slash View A 1", createTranslator(layers, -scale, 0)).options({
+      editor.shortcut("Slash Path ArrowLeft 1", createTranslator(layers, -scale, 0)).options({
         because: `Move View Left ${scale}`
       });
-      editor.shortcut("Slash View D 1", createTranslator(layers, scale, 0)).options({
+      editor.shortcut("Slash Path ArrowRight 1", createTranslator(layers, scale, 0)).options({
         because: `Move View Right ${scale}`
       });
 

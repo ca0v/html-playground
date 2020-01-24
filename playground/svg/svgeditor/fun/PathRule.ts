@@ -117,67 +117,73 @@ export class PathRule implements SvgEditorRule {
             return { undo, redo };
         };
 
+        const hasActiveItem = () => 0 <= editor.getActiveIndex();
+        const hasItems = () => !!document.querySelector(".svg-input")?.hasChildNodes();
+
+        editor.shortcut("Slash Path 2").options({ because: "Modify Secondary Value", onlyIf: hasActiveItem });
+        editor.shortcut("Slash Path 3").options({ because: "Modify Tertiary Value", onlyIf: hasActiveItem });
+
         editor.shortcut("Slash Path 2 A", () => moveit({ dx: -1, dy: 0 }, { secondary: true })).options({
-            because: "Decrement X2", stateless: false
+            because: "Decrement X2", stateless: false, onlyIf: hasActiveItem
         });
         editor.shortcut("Slash Path 2 D", () => moveit({ dx: 1, dy: 0 }, { secondary: true })).options({
-            because: "Increment X2", stateless: false
+            because: "Increment X2", stateless: false, onlyIf: hasActiveItem
         });
         editor.shortcut("Slash Path 2 S", () => moveit({ dx: 0, dy: 1 }, { secondary: true })).options({
-            because: "Increment Y2", stateless: false
+            because: "Increment Y2", stateless: false, onlyIf: hasActiveItem
         });
         editor.shortcut("Slash Path 2 W", () => moveit({ dx: 0, dy: -1 }, { secondary: true })).options({
-            because: "", stateless: false
+            because: "", stateless: false, onlyIf: hasActiveItem
         });
         editor.shortcut("Slash Path 3 A", () => moveit({ dx: -1, dy: 0 }, { tertiary: true })).options({
-            because: "Decrement X3", stateless: false
+            because: "Decrement X3", stateless: false, onlyIf: hasActiveItem
         });
         editor.shortcut("Slash Path 3 D", () => moveit({ dx: 1, dy: 0 }, { tertiary: true })).options({
-            because: "Increment X3", stateless: false
+            because: "Increment X3", stateless: false, onlyIf: hasActiveItem
         });
         editor.shortcut("Slash Path 3 S", () => moveit({ dx: 0, dy: 1 }, { tertiary: true })).options({
-            because: "Increment Y3", stateless: false
+            because: "Increment Y3", stateless: false, onlyIf: hasActiveItem
         });
         editor.shortcut("Slash Path 3 W", () => moveit({ dx: 0, dy: -1 }, { tertiary: true })).options({
-            because: "Decrement Y3", stateless: false
+            because: "Decrement Y3", stateless: false, onlyIf: hasActiveItem
         });
         editor.shortcut("Slash Path A", () => moveit({ dx: -1, dy: 0 })).options({
-            because: "Decrement X", stateless: false
+            because: "Decrement X", stateless: false, onlyIf: hasActiveItem
         });
         editor.shortcut("Slash Path D", () => moveit({ dx: 1, dy: 0 })).options({
-            because: "Increment X", stateless: false
+            because: "Increment X", stateless: false, onlyIf: hasActiveItem
         });
         editor.shortcut("Slash Path S", () => moveit({ dx: 0, dy: 1 })).options({
-            because: "Increment Y", stateless: false
+            because: "Increment Y", stateless: false, onlyIf: hasActiveItem
         });
         editor.shortcut("Slash Path W", () => moveit({ dx: 0, dy: -1 })).options({
-            because: "Decrement Y", stateless: false
+            because: "Decrement Y", stateless: false, onlyIf: hasActiveItem
         });
         editor.shortcut("Slash Path A 0", () => moveit({ dx: 0.1, dy: 0 })).options({
-            because: "Reverse/10", stateless: false
+            because: "Reverse/10", stateless: false, onlyIf: hasActiveItem
         });
         editor.shortcut("Slash Path D 0", () => moveit({ dx: -0.1, dy: 0 })).options({
-            because: "Reverse/10", stateless: false
+            because: "Reverse/10", stateless: false, onlyIf: hasActiveItem
         });
         editor.shortcut("Slash Path S 0", () => moveit({ dx: 0, dy: -0.1 })).options({
-            because: "Reverse/10", stateless: false
+            because: "Reverse/10", stateless: false, onlyIf: hasActiveItem
         });
         editor.shortcut("Slash Path W 0", () => moveit({ dx: 0, dy: 0.1 })).options({
-            because: "Reverse/10", stateless: false
+            because: "Reverse/10", stateless: false, onlyIf: hasActiveItem
         });
         editor.shortcut("Slash Path End", () => editor.goto(editor.getSourcePath().length - 1)).options({
-            because: "Last Command", stateless: false
+            because: "Last Command", stateless: false, onlyIf: hasItems
         });
         editor.shortcut("Slash Path Home", () => editor.goto(0)).options({
-            because: "First Command", stateless: false
+            because: "First Command", stateless: false, onlyIf: hasItems
         });
         editor.shortcut("Slash Path .", () => editor.goto(editor.getActiveIndex() + 1))
             .options({
-                because: "Next Command", stateless: false
+                because: "Next Command", stateless: false, onlyIf: hasItems
             });
         editor.shortcut("Slash Path ,", () => editor.goto(editor.getActiveIndex() - 1))
             .options({
-                because: "Prior Command", stateless: false
+                because: "Prior Command", stateless: false, onlyIf: hasItems
             });
         editor.shortcut("Slash Path X", () => {
             const deletedIndex = editor.getActiveIndex();
@@ -193,10 +199,10 @@ export class PathRule implements SvgEditorRule {
             doit();
             return { undo, redo: doit };
         }).options({
-            because: "Delete Command", stateless: false
+            because: "Delete Command", stateless: false, onlyIf: hasActiveItem
         });
         editor.shortcut("Slash Path Enter", () => editor.editActiveCommand()).options({
-            because: "Edit Command", stateless: false
+            because: "Edit Command", stateless: false, onlyIf: hasActiveItem
         });
     }
 

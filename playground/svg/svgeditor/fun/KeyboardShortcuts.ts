@@ -83,9 +83,9 @@ export class ShortcutManager {
       return Object.keys(root.subkeys).join("|");
     }
 
-    const markup = allNodes(root)
+    const markup = allNodes(root.parent || root)
       //.filter(node => 1 === node.ops.length)
-      .filter(node => node.parent === root)
+      .filter(node => node.parent === root || node.parent === root.parent)
       .filter(node => !node.options?.onlyIf || node.options.onlyIf())
       .map(node => {
         const path = fullPath(node).reverse();
