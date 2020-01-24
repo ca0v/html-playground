@@ -1,5 +1,8 @@
 import { SvgEditor, SvgEditorRule } from "./SvgEditor";
-import { keys } from "./keys";
+
+function percent(n: number) {
+  return `${Math.round(n * 100 * 10) / 10}%`;
+}
 
 function getLayers(): HTMLElement {
   let layers = document.querySelector(".layers") as HTMLElement;
@@ -102,7 +105,9 @@ export class Digitizer implements SvgEditorRule {
         onlyIf: bitmapOpen,
         because: "Dismiss Bitmap", stateless: true
       });
-      editor.shortcut("Slash Bitmap", () => document.querySelector(".svgeditor")?.classList.add("digitizer"));
+      editor.shortcut("Slash Bitmap", () => document.querySelector(".svgeditor")?.classList.add("digitizer")).options({
+        because: "Bitmap Editor"
+      });
 
       let scale = 1.1;
       editor.shortcut("Slash Bitmap Plus", createScaler(bitmap, scale)).options({
@@ -186,7 +191,9 @@ export class Digitizer implements SvgEditorRule {
       }
     }
 
-    editor.shortcut("Slash Path", () => editor.publish("showgrid"));
+    editor.shortcut("Slash Path", () => editor.publish("showgrid")).options({
+      because: "Path Editor"
+    });
     editor.shortcut("Slash Path ECurve", commandInserter("C")).options({
       because: "Insert (C)urve", stateless: false
     });
@@ -218,6 +225,10 @@ export class Digitizer implements SvgEditorRule {
      * alt=1, ctrl+alt=10 , ctrl=100
      */
     {
+      editor.shortcut("Slash View").options({
+        because: "Edit View"
+      });
+
       editor.shortcut("Slash View Viewbox", () => {
         const svgs = document.querySelectorAll(".layers svg[viewbox]");
         for (let e of svgs) {
@@ -235,28 +246,59 @@ export class Digitizer implements SvgEditorRule {
             localStorage.setItem("viewbox", `${x} ${y} ${width} ${height}`);
           }
         }
+      }).options({
+        because: "Set the Viewbox"
       });
 
       let scale = 10;
-      editor.shortcut("Slash View S.ArrowDown", createTranslator(layers, 0, scale));
-      editor.shortcut("Slash View W.ArrowUp", createTranslator(layers, 0, -scale));
-      editor.shortcut("Slash View A.ArrowLeft", createTranslator(layers, -scale, 0));
-      editor.shortcut("Slash View D.ArrowRight", createTranslator(layers, scale, 0));
+      editor.shortcut("Slash View S", createTranslator(layers, 0, scale)).options({
+        because: `Move View Down ${scale}`
+      });
+      editor.shortcut("Slash View W", createTranslator(layers, 0, -scale)).options({
+        because: `Move View Up ${scale}`
+      });
+      editor.shortcut("Slash View A", createTranslator(layers, -scale, 0)).options({
+        because: `Move View Left ${scale}`
+      });
+      editor.shortcut("Slash View D", createTranslator(layers, scale, 0)).options({
+        because: `Move View Right ${scale}`
+      });
+
       scale = -1;
-      editor.shortcut("Slash View S.ArrowDown 1", createTranslator(layers, 0, scale));
-      editor.shortcut("Slash View W.ArrowUp 1", createTranslator(layers, 0, -scale));
-      editor.shortcut("Slash View A.ArrowLeft 1", createTranslator(layers, -scale, 0));
-      editor.shortcut("Slash View D.ArrowRight 1", createTranslator(layers, scale, 0));
+      editor.shortcut("Slash View S 1", createTranslator(layers, 0, scale)).options({
+        because: `Move View Down ${scale}`
+      });
+      editor.shortcut("Slash View W 1", createTranslator(layers, 0, -scale)).options({
+        because: `Move View Up ${scale}`
+      });
+      editor.shortcut("Slash View A 1", createTranslator(layers, -scale, 0)).options({
+        because: `Move View Left ${scale}`
+      });
+      editor.shortcut("Slash View D 1", createTranslator(layers, scale, 0)).options({
+        because: `Move View Right ${scale}`
+      });
 
       // zoom about current cursor location
       scale = 1.1;
-      editor.shortcut("Slash View Plus", createScaleAboutCursor(editor, scale));
-      editor.shortcut("Slash View Minus", createScaleAboutCursor(editor, 1 / scale));
-      editor.shortcut("Slash Path Plus", createScaleAboutCursor(editor, scale));
-      editor.shortcut("Slash Path Minus", createScaleAboutCursor(editor, 1 / scale));
+      editor.shortcut("Slash View Plus", createScaleAboutCursor(editor, scale)).options({
+        because: `Zoom In By ${percent(scale)}`
+      });
+      editor.shortcut("Slash Path Plus", createScaleAboutCursor(editor, scale)).options({
+        because: `Zoom In By ${percent(scale)}`
+      });
+      editor.shortcut("Slash View Minus", createScaleAboutCursor(editor, 1 / scale)).options({
+        because: `Zoom Out By ${percent(scale)}`
+      });
+      editor.shortcut("Slash Path Minus", createScaleAboutCursor(editor, 1 / scale)).options({
+        because: `Zoom Out By ${percent((scale)}`
+      });
       scale = 1 / 1.01;
-      editor.shortcut("Slash View Plus 1", createScaleAboutCursor(editor, scale));
-      editor.shortcut("Slash View Minus 1", createScaleAboutCursor(editor, 1 / scale));
+      editor.shortcut("Slash View Plus 1", createScaleAboutCursor(editor, scale)).options({
+        because: `Zoom In By ${percent(scale)}`
+      });
+      editor.shortcut("Slash View Minus 1", createScaleAboutCursor(editor, 1 / scale)).options({
+        because: `Zoom Out By ${percent(scale)}`
+      });
     }
 
     editor.shortcut("Slash Path Center", () => {

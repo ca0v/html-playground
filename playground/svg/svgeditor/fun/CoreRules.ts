@@ -71,6 +71,18 @@ export class CoreRules implements SvgEditorRule {
       editor.undo();
     }).options({ stateless: true, because: "undo prior action" });
 
+    editor.shortcut("Space").options({
+      because: "Prior "
+    });
+    
+    editor.shortcut("Slash").options({
+      because: "Open a Tool"
+    });
+    
+    editor.shortcut("Slash Toggle").options({
+      because: "Toggle"
+    });
+
     editor.shortcut("Slash Toggle Toolbar", () => {
       getToolbar().classList.toggle("hidden");
     });

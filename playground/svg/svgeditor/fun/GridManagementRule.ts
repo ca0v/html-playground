@@ -70,6 +70,8 @@ export class GridManagementRule implements SvgEditorRule {
             else {
                 this.showGrid();
             }
+        }).options({
+            because: "Toggle Grid Lines"
         });
 
         editor.shortcut("Slash Toggle Markers", () => {
@@ -80,6 +82,8 @@ export class GridManagementRule implements SvgEditorRule {
                 this.showGrid();
                 editor.showMarkers();
             }
+        }).options({
+            because: "Toggle Point Markers"
         });
 
         editor.subscribe("showgrid", () => {

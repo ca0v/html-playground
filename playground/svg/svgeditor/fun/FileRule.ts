@@ -1,6 +1,6 @@
 import { SvgEditor, SvgEditorRule } from "./SvgEditor";
 import { asDom } from "./asDom";
-import { focus } from "./focus";    
+import { focus } from "./focus";
 
 class FileManager {
 
@@ -72,6 +72,10 @@ export class FileRule implements SvgEditorRule {
     private currentFileName = "";
 
     initialize(editor: SvgEditor): void {
+        editor.shortcut("Slash File").options({
+            because: "File System"
+        });
+
         editor.shortcut("Slash File New", () => {
             const priorPath = editor.getSourcePath();
             const undo = () => {
@@ -82,7 +86,7 @@ export class FileRule implements SvgEditorRule {
             };
             doit();
             return { undo, redo: doit };
-        });
+        }).options({ because: "New File" });
 
         editor.shortcut("Slash File Open", () => {
             if (null !== this.filePicker) {
@@ -99,7 +103,7 @@ export class FileRule implements SvgEditorRule {
                 this.filePicker?.remove();
                 this.filePicker = null;
             });
-        });
+        }).options({ because: "Open File" });
 
         editor.shortcut("Slash File Save", () => {
             if (null !== this.filePicker) {
@@ -110,9 +114,9 @@ export class FileRule implements SvgEditorRule {
             const fileName = prompt("File Name?", this.currentFileName || "");
             if (!fileName) return;
             fileManager.saveFile(fileName, editor.getSourcePath().join("\n"))
-        });
+        }).options({ because: "Save File" });
 
-        editor.shortcut("Slash Workspace Open", () => {
+        editor.shortcut("Slash File Pull", () => {
             // open
             const doit = () => {
                 let pathData = localStorage.getItem("path");
@@ -126,8 +130,8 @@ export class FileRule implements SvgEditorRule {
             };
             doit();
             return { undo, redo: doit };
-        });
+        }).options({ because: "Load Temporary File" });
 
-        editor.shortcut("Slash Workspace Save", () => localStorage.setItem("path", editor.getSourcePath().join("\n")));
+        editor.shortcut("Slash File Commit", () => localStorage.setItem("path", editor.getSourcePath().join("\n"))).options({ because: "Save Temporary File" });
     }
 }

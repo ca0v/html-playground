@@ -8,9 +8,9 @@ import { getPathCommands } from "./getPathCommands";
 import { parse } from "./parse";
 import { parsePath } from "./parsePath";
 import { setPath } from "./setPath";
-import { ShortcutManager } from "./KeyboardShortcuts";
+import { ShortcutManager, Callback } from "./KeyboardShortcuts";
 import { stringify } from "./stringify";
-import { SvgEditor, SvgEditorRule, CursorLocation, Viewbox } from "./SvgEditor";
+import { SvgEditor, SvgEditorRule, CursorLocation, Viewbox, ShortcutOptions } from "./SvgEditor";
 import { getScale } from "./getScale";
 import { Channel } from "./Channel";
 
@@ -44,17 +44,15 @@ export class SvgEditorControl implements SvgEditor {
     return this.currentIndex;
   }
 
-  shortcut(topic: string, callback: () => { redo: () => void; undo: () => void; }): {
+  shortcut(topic: string, callback?: Callback): {
     unsubscribe: () => void;
-    options: (options: {
-      stateless: boolean;
-      because: string;
-    }) => void;
+    options: (options: ShortcutOptions) => void;
   } {
-    const node = this.shortcutManager.registerShortcut(topic, callback);
+    const noop = () => {};
+    const node = this.shortcutManager.registerShortcut(topic, callback || noop);
     return {
       unsubscribe: () => { },
-      options: (options: { because: string, stateless?: boolean }) => {
+      options: (options: ShortcutOptions) => {
         node.title = options.because;
         node.options = <any>options;
       },

@@ -1,4 +1,5 @@
 import { Command } from "./Command";
+import { Callback } from "./KeyboardShortcuts";
 
 export type CursorLocation = { x: number; y: number };
 export type Viewbox = { x: number; y: number; width: number; height: number };
@@ -12,8 +13,8 @@ export interface SvgEditorRule {
 }
 
 export type ShortcutOptions = {
-  stateless: boolean;
-  because: string;
+  stateless?: boolean;
+  because?: string;
   onlyIf?: () => boolean;
 };
 
@@ -36,7 +37,7 @@ interface Extensibility {
   use(rule: SvgEditorRule): void;
   shortcut(
     topic: string,
-    callback: () => void | { undo: () => void }
+    callback?: Callback
   ): {
     options: (options: ShortcutOptions) => void,
     unsubscribe: () => void;

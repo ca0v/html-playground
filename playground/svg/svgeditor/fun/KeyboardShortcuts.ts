@@ -10,14 +10,16 @@ const atomicTokens = "ArrowLeft ArrowRight ArrowUp ArrowDown Control Delete End 
 );
 const isAtomic = (v: string) => 0 <= atomicTokens.indexOf(v);
 
-type KeyboardShortcuts = Dictionary<KeyboardShortcut>;
+export type Callback = (() => void) | (() => { redo?: () => void; undo?: () => void; }?);
+
+export type KeyboardShortcuts = Dictionary<KeyboardShortcut>;
 
 export type KeyboardShortcut = {
   key: string;
   options?: ShortcutOptions;
   title?: string;
   parent: KeyboardShortcut | null;
-  ops: Array<() => { undo: () => void }>;
+  ops: Array<Callback>;
   subkeys: KeyboardShortcuts;
 };
 
@@ -44,7 +46,13 @@ export class ShortcutManager {
     if (!shortcuts.length) return node;
     const key = shortcuts.shift();
     if (typeof key === "undefined") throw "key cannot be empty";
-    node.subkeys[key] = node.subkeys[key] || { key, parent: node, subkeys: {}, ops: [] };
+    node.subkeys[key] = node.subkeys[key] || {
+      key,
+      parent: node,
+      subkeys: {},
+      title: key,
+      ops: []
+    };
     return this.forceNode(node.subkeys[key], shortcuts);
   };
 
@@ -61,11 +69,7 @@ export class ShortcutManager {
 
     const allNodes = (node: KeyboardShortcut) => {
       const nodes = <Array<KeyboardShortcut>>[];
-      visitEach(root, node => {
-        if (node.ops && node.ops.length) {
-          nodes.push(node);
-        }
-      });
+      visitEach(node, node => nodes.push(node));
       return nodes;
     }
 
@@ -78,14 +82,15 @@ export class ShortcutManager {
     if (terse) {
       return Object.keys(root.subkeys).join("|");
     }
-    
+
     const markup = allNodes(root)
-      .filter(node => 1 === node.ops.length)
+      //.filter(node => 1 === node.ops.length)
+      .filter(node => node.parent === root)
       .filter(node => !node.options?.onlyIf || node.options.onlyIf())
       .map(node => {
         const path = fullPath(node).reverse();
-        const deleteCount = path.indexOf(root);
-        path.splice(0, deleteCount);
+        // const deleteCount = path.indexOf(root);
+        // path.splice(0, deleteCount);
         return `${path.map(node => node.key.replace("Slash", "/")).join("")} - ${node.title}`;
       });
 
@@ -139,7 +144,7 @@ export class ShortcutManager {
         return;
       }
 
-      if (!event.repeat) {
+      if (!event.repeat && lastStatefulState !== nextState) {
         this.log(`${nextState.title}`);
         keys(nextState.subkeys).length && this.log(`${this.help(true, nextState)}`)
       }
@@ -168,7 +173,7 @@ export class ShortcutManager {
     return node.subkeys[isAtomic(shortcut) ? shortcut : shortcut.toUpperCase()];
   }
 
-  public registerShortcut(title: string, callback: () => { redo: () => void; undo: () => void }) {
+  public registerShortcut(title: string, callback: Callback) {
     const tokens = this.tokenize(title);
     const node = this.forceNode(this.shortcuts, tokens);
     if (node.ops.length > 0) throw "cannot overload a keyboard shortcut";
