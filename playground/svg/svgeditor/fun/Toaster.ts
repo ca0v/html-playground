@@ -1,4 +1,4 @@
-import { html, injectCss, addToClassList } from "./html";
+import { injectCss, addToClassList } from "./html";
 
 const css = `
     .toaster {
