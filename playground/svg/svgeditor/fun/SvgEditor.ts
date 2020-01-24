@@ -11,9 +11,10 @@ export interface SvgEditorRule {
   initialize(editor: SvgEditor): void;
 }
 
-type ShortcutOptions = {
+export type ShortcutOptions = {
   stateless: boolean;
   because: string;
+  onlyIf?: () => boolean;
 };
 
 interface PubSub {

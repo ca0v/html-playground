@@ -2,6 +2,7 @@ import { Dictionary } from "./Dictionary";
 import { keys } from "./keys";
 import { UndoRedo } from "./UndoRedo";
 import { Channel } from "./Channel";
+import { ShortcutOptions } from "./SvgEditor";
 
 // do not use Alt
 const atomicTokens = "ArrowLeft ArrowRight ArrowUp ArrowDown Control Delete End Enter Escape Home Minus PageUp PageDown Plus Shift Slash Space".split(
@@ -13,7 +14,7 @@ type KeyboardShortcuts = Dictionary<KeyboardShortcut>;
 
 export type KeyboardShortcut = {
   key: string;
-  options?: { stateless: boolean, because: string };
+  options?: ShortcutOptions;
   title?: string;
   parent: KeyboardShortcut | null;
   ops: Array<() => { undo: () => void }>;
@@ -80,11 +81,12 @@ export class ShortcutManager {
     
     const markup = allNodes(root)
       .filter(node => 1 === node.ops.length)
+      .filter(node => !node.options?.onlyIf || node.options.onlyIf())
       .map(node => {
         const path = fullPath(node).reverse();
         const deleteCount = path.indexOf(root);
         path.splice(0, deleteCount);
-        return `${path.map(node => node.key.replace("Slash", "/")).join("+")} - ${node.title}`;
+        return `${path.map(node => node.key.replace("Slash", "/")).join("")} - ${node.title}`;
       });
 
     return markup.join("\n");

@@ -93,47 +93,75 @@ export class Digitizer implements SvgEditorRule {
     const layers = getLayers();
     const bitmap = getPixels();
 
+    const bitmapOpen = () => {
+      return !!document.querySelector(".svgeditor")?.classList.contains("digitizer");
+    };
+
     if (bitmap) {
-      editor.shortcut("Slash Toggle Bitmap", () => document.querySelector(".svgeditor")?.classList.toggle("digitizer"));
+      editor.shortcut("Slash Bitmap X", () => document.querySelector(".svgeditor")?.classList.remove("digitizer")).options({
+        onlyIf: bitmapOpen,
+        because: "Dismiss Bitmap", stateless: true
+      });
       editor.shortcut("Slash Bitmap", () => document.querySelector(".svgeditor")?.classList.add("digitizer"));
+
       let scale = 1.1;
       editor.shortcut("Slash Bitmap Plus", createScaler(bitmap, scale)).options({
+        onlyIf: bitmapOpen,
         because: "Increase Bitmap Size", stateless: false
       });
       editor.shortcut("Slash Bitmap Minus", createScaler(bitmap, 1.0 / scale)).options({
-        because: "Reduce Bitmap Size", stateless: false
+        onlyIf: bitmapOpen,
+        because: "Reduce Bitmap Size", stateless: false,
       });
 
       scale = 1 / 1.01;
       editor.shortcut("Slash Bitmap Plus 1", createScaler(bitmap, scale)).options({
+        onlyIf: bitmapOpen,
         because: "Reverse 1/10", stateless: false
-      });      
+      });
       editor.shortcut("Slash Bitmap Minus 1", createScaler(bitmap, 1.0 / scale)).options({
+        onlyIf: bitmapOpen,
         because: "Reverse 1/10", stateless: false
       });
 
       scale = 10;
       editor.shortcut("Slash Bitmap A", createTranslator(bitmap, -scale, 0)).options({
+        onlyIf: bitmapOpen,
         because: "Move Bitmap Left", stateless: false
       });
       editor.shortcut("Slash Bitmap D", createTranslator(bitmap, scale, 0)).options({
+        onlyIf: bitmapOpen,
         because: "Move Bitmap Right", stateless: false
       });
 
       editor.shortcut("Slash Bitmap W", createTranslator(bitmap, 0, -scale)).options({
+        onlyIf: bitmapOpen,
         because: "Move Bitmap Up", stateless: false
       });
 
       editor.shortcut("Slash Bitmap S", createTranslator(bitmap, 0, scale)).options({
+        onlyIf: bitmapOpen,
         because: "Move Bitmap Down", stateless: false
       });
 
 
       scale = -1;
-      editor.shortcut("Slash Bitmap A.ArrowLeft 1", createTranslator(bitmap, -scale, 0));
-      editor.shortcut("Slash Bitmap D.ArrowRight 1", createTranslator(bitmap, scale, 0));
-      editor.shortcut("Slash Bitmap W.ArrowUp 1", createTranslator(bitmap, 0, -scale));
-      editor.shortcut("Slash Bitmap S.ArrowDown 1", createTranslator(bitmap, 0, scale));
+      editor.shortcut("Slash Bitmap A.ArrowLeft 1", createTranslator(bitmap, -scale, 0)).options({
+        onlyIf: bitmapOpen,
+        because: `Move Bitmap X ${-scale}`, stateless: false
+      });
+      editor.shortcut("Slash Bitmap D.ArrowRight 1", createTranslator(bitmap, scale, 0)).options({
+        onlyIf: bitmapOpen,
+        because: `Move Bitmap X ${scale}`, stateless: false
+      });
+      editor.shortcut("Slash Bitmap W.ArrowUp 1", createTranslator(bitmap, 0, -scale)).options({
+        onlyIf: bitmapOpen,
+        because: `Move Bitmap Y ${-scale}`, stateless: false
+      });
+      editor.shortcut("Slash Bitmap S.ArrowDown 1", createTranslator(bitmap, 0, scale)).options({
+        onlyIf: bitmapOpen,
+        because: `Move Bitmap Y ${scale}`, stateless: false
+      });
 
     }
 
