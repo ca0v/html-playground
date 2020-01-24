@@ -1,11 +1,12 @@
 import { Dictionary } from "../typings/Dictionary";
 import { RemoveEventHandler } from "../typings/RemoveEventHandler";
+
 export class Channel {
   private topics: Dictionary<Array<(...args: any[]) => void>> = {};
   dispose() {
     this.topics = {};
   }
-  on(topic: string, cb: (result: any) => void): RemoveEventHandler {
+  subscribe(topic: string, cb: (result: any) => void): RemoveEventHandler {
     const listener = (this.topics[topic] = this.topics[topic] || []);
     listener.push(cb);
     return {

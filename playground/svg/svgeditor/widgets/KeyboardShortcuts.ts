@@ -31,7 +31,7 @@ export class ShortcutManager {
   }
 
   subscribe(topic: string, doit: () => void) {
-    return this.channel.on(topic, doit);
+    return this.channel.subscribe(topic, doit);
   }
 
   private undos = new UndoRedo();

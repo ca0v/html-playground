@@ -62,7 +62,7 @@ export class SvgEditorControl implements SvgEditor {
   }
 
   public subscribe(topic: string, callback: () => void): { unsubscribe: () => void; } {
-    const h = this.channel.on(topic, callback);
+    const h = this.channel.subscribe(topic, callback);
     return { unsubscribe: () => h.remove() };
   }
 
