@@ -1,4 +1,4 @@
-import { Command } from "./Command";
+import { Command } from "../typings/Command";
 
 export function parsePath(path: string) {
     let tokens = path.split("");

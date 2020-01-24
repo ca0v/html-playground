@@ -1,4 +1,5 @@
-import { SvgEditor, SvgEditorRule } from "./SvgEditor";
+import { SvgEditor } from "../typings/SvgEditor";
+import { SvgEditorRule } from "../typings/SvgEditorRule";
 
 function percent(n: number) {
   return `${Math.round(n * 100 * 10) / 10}%`;

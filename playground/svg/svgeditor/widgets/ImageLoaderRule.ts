@@ -1,4 +1,5 @@
-import { SvgEditor, SvgEditorRule } from "./SvgEditor";
+import { SvgEditor } from "../typings/SvgEditor";
+import { SvgEditorRule } from "../typings/SvgEditorRule";
 
 export class ImageLoaderRule implements SvgEditorRule {
 

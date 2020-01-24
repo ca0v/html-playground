@@ -1,21 +1,20 @@
 import markers from "./data/marker";
 import icons from "./data/icons";
-import { SvgEditorControl } from "./fun/SvgEditorControl";
-import { SvgEditor } from "./fun/SvgEditor";
-import { CoreRules } from "./fun/CoreRules";
+import { SvgEditorControl } from "./widgets/SvgEditorControl";
+import { SvgEditor } from "./typings/SvgEditor";
+import { CoreRules } from "./widgets/CoreRules";
 import { asDom } from "./fun/asDom";
-import { stringify } from "./fun/stringify";
-import { Digitizer } from "./fun/Digitizer";
+import { Digitizer } from "./widgets/DigitizerRule";
 import { keys } from "./fun/keys";
 import { getPath } from "./fun/getPath";
-import { Toaster } from "./fun/Toaster";
-import { NotificationEditorRule } from "./fun/NotificationEditorRule";
-import { ImageLoaderRule } from "./fun/ImageLoaderRule";
-import { StateManagementRule } from "./fun/StateManagementRule";
-import { GridManagementRule } from "./fun/GridManagementRule";
-import { FileRule } from "./fun/FileRule";
-import { PathRule } from "./fun/PathRule";
-import { ShortcutManager } from "./fun/KeyboardShortcuts";
+import { Toaster } from "./widgets/Toaster";
+import { NotificationEditorRule } from "./widgets/NotificationEditorRule";
+import { ImageLoaderRule } from "./widgets/ImageLoaderRule";
+import { StateManagementRule } from "./widgets/StateManagementRule";
+import { GridManagementRule } from "./widgets/GridManagementRule";
+import { FileRule } from "./widgets/FileRule";
+import { PathRule } from "./widgets/PathRule";
+import { ShortcutManager } from "./widgets/KeyboardShortcuts";
 
 const shortcutManager = new ShortcutManager();
 function createSvgEditor(workview: SVGSVGElement, input: HTMLElement) {

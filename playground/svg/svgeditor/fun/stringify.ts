@@ -1,4 +1,4 @@
-import { Command } from "./Command";
+import { Command } from "../typings/Command";
 
 function round2(n: number) {
     return Math.round(n * 1000) / 1000;

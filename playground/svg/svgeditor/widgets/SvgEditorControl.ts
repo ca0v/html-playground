@@ -1,17 +1,19 @@
-import { Command } from "./Command";
-import { Dictionary } from "./Dictionary";
-import { drawCursor } from "./drawCursor";
-import { drawX } from "./drawX";
-import { focus } from "./focus";
-import { getLocation } from "./getLocation";
-import { getPathCommands } from "./getPathCommands";
-import { parse } from "./parse";
-import { parsePath } from "./parsePath";
-import { setPath } from "./setPath";
+import { Command } from "../typings/Command";
+import { Dictionary } from "../typings/Dictionary";
+import { drawCursor } from "../fun/drawCursor";
+import { drawX } from "../fun/drawX";
+import { focus } from "../fun/focus";
+import { getLocation } from "../fun/getLocation";
+import { getPathCommands } from "../fun/getPathCommands";
+import { parse } from "../fun/parse";
+import { parsePath } from "../fun/parsePath";
+import { setPath } from "../fun/setPath";
 import { ShortcutManager, Callback } from "./KeyboardShortcuts";
-import { stringify } from "./stringify";
-import { SvgEditor, SvgEditorRule, CursorLocation, Viewbox, ShortcutOptions } from "./SvgEditor";
-import { getScale } from "./getScale";
+import { stringify } from "../fun/stringify";
+import { SvgEditor, CursorLocation, Viewbox } from "../typings/SvgEditor";
+import { ShortcutOptions } from "../typings/ShortcutOptions";
+import { SvgEditorRule } from "../typings/SvgEditorRule";
+import { getScale } from "../fun/getScale";
 import { Channel } from "./Channel";
 
 export class SvgEditorControl implements SvgEditor {

@@ -1,8 +1,8 @@
-import { Dictionary } from "./Dictionary";
-import { keys } from "./keys";
+import { Dictionary } from "../typings/Dictionary";
+import { keys } from "../fun/keys";
 import { UndoRedo } from "./UndoRedo";
 import { Channel } from "./Channel";
-import { ShortcutOptions } from "./SvgEditor";
+import { ShortcutOptions } from "../typings/ShortcutOptions";
 
 // do not use Alt
 const atomicTokens = "ArrowLeft ArrowRight ArrowUp ArrowDown Control Delete End Enter Escape Home Minus PageUp PageDown Plus Shift Slash Space".split(

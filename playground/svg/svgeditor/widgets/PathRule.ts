@@ -1,7 +1,8 @@
-import { stringify } from "./stringify";
-import { parse } from "./parse";
-import { focus } from "./focus";
-import { SvgEditor, SvgEditorRule } from "./SvgEditor";
+import { stringify } from "../fun/stringify";
+import { parse } from "../fun/parse";
+import { focus } from "../fun/focus";
+import { SvgEditor } from "../typings/SvgEditor";
+import { SvgEditorRule } from "../typings/SvgEditorRule";
 
 export class PathRule implements SvgEditorRule {
     private transformActiveCommand(

@@ -1,4 +1,5 @@
-import { SvgEditor, SvgEditorRule } from "./SvgEditor";
+import { SvgEditor } from "../typings/SvgEditor";
+import { SvgEditorRule } from "../typings/SvgEditorRule";
 import { Toaster } from "./Toaster";
 export class NotificationEditorRule implements SvgEditorRule {
   initialize(editor: SvgEditor): void {

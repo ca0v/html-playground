@@ -1,6 +1,7 @@
-import { SvgEditorRule, SvgEditor } from "./SvgEditor";
+import { SvgEditor } from "../typings/SvgEditor";
+import { SvgEditorRule } from "../typings/SvgEditorRule";
 import { ShortcutManager, KeyboardShortcut } from "./KeyboardShortcuts";
-import { RemoveEventHandler } from "./RemoveEventHandler";
+import { RemoveEventHandler } from "../typings/RemoveEventHandler";
 
 function getToolbar() {
   let toolbar = document.querySelector(".toolbar") as HTMLElement;

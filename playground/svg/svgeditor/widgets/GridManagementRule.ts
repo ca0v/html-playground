@@ -1,8 +1,10 @@
-import { SvgEditor, SvgEditorRule } from "./SvgEditor";
-import { createSvg } from "./createSvg";
-import { createGrid } from "./createGrid";
-import { createPath } from "./createPath";
-import { setPath } from "./setPath";
+import { SvgEditor } from "../typings/SvgEditor";
+import { SvgEditorRule } from "../typings/SvgEditorRule";
+import { createSvg } from "../fun/createSvg";
+import { createGrid } from "../fun/createGrid";
+import { createPath } from "../fun/createPath";
+import { setPath } from "../fun/setPath";
+
 export class GridManagementRule implements SvgEditorRule {
     private gridOverlay: SVGSVGElement;
     private workPath: SVGPathElement;

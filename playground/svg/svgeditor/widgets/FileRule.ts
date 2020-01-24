@@ -1,6 +1,7 @@
-import { SvgEditor, SvgEditorRule } from "./SvgEditor";
-import { asDom } from "./asDom";
-import { focus } from "./focus";
+import { SvgEditor } from "../typings/SvgEditor";
+import { SvgEditorRule } from "../typings/SvgEditorRule";
+import { asDom } from "../fun/asDom";
+import { focus } from "../fun/focus";
 
 class FileManager {
 
