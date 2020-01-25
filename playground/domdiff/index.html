@@ -1,0 +1,105 @@
+<html>
+
+<head>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+        }
+
+        grid {
+            display: grid;
+            grid-template-columns: repeat(2, 10em);
+        }
+    </style>
+</head>
+
+<body>
+    <h2>This is the target grid</h2>
+    <grid class="target">
+        <grid-item>Hello From Grid</grid-item>
+        <grid-item>Hello Grid Item 1</grid-item>
+        <grid-item>Hello Grid Item 2</grid-item>
+        <grid-item>Hello Grid Item 3</grid-item>
+        <grid-item>Hello Grid Item 4</grid-item>
+        <grid-item>Hello Grid Item 5</grid-item>
+    </grid>
+    <h2>This is the source grid</h2>
+    <grid class="source-items">
+        <grid-item>Hello From Grid</grid-item>
+        <grid-item>Hello Grid Item 2.2</grid-item>
+        <grid-item>Hello Grid Item 2.3</grid-item>
+        <grid-item>Hello Grid Item 4</grid-item>
+        <grid-item>Hello Grid Item 2.5</grid-item>
+    </grid>
+</body>
+
+<script>
+
+    (function () {
+        const hash = domNode => {
+            return domNode.innerText;
+        };
+
+        const collect = selector => {
+            return Array.from(document.body.querySelectorAll(selector));
+        }
+
+        const computeDiff = (set1, set2) => {
+            // set1 - set2
+            const set1Only = [];
+            const set2Only = [];
+
+            set1.forEach((item1, index) => {
+                if (-1 === set2.indexOf(item1)) set1Only.push(index);
+            });
+            set2.forEach((item2, index) => {
+                if (-1 === set1.indexOf(item2)) set2Only.push(index);
+            });
+            return [set1Only, set2Only];
+        }
+
+        const replaceNode = (source, target) => {
+            target.innerText = source.innerText;
+        };
+
+        const applyDiffInfo = (diffInfo, set1, set2) => {
+            // are we deleting or inserting?
+            const sourceDiff = diffInfo[0];
+            const targetDiff = diffInfo[1];
+            const mergeUpper = Math.min(sourceDiff.length, targetDiff.length);
+            const inserting = sourceDiff.length > targetDiff.length;
+            const deleting = sourceDiff.length < targetDiff.length;
+            console.log(mergeUpper);
+
+            for (let i = 0; i < mergeUpper; i++) {
+                replaceNode(set1[sourceDiff[i]], set2[targetDiff[i]]);
+            }
+
+            if (inserting) {
+                console.log("inserting");
+                for (let i = mergeUpper; i < sourceDiff.length; i++) {
+                    const clone = set1[sourceDiff[i]].cloneNode(true);
+                    set2[0].parentElement.insertBefore(clone, set2[targetDiff[0]]);
+                }
+            }
+
+            if (deleting) {
+                console.log("deleting");
+                for (let i = mergeUpper; i < targetDiff.length; i++) {
+                    console.log("removing", i);
+                    set2[targetDiff[i]].remove();
+                }
+            }
+        };
+
+        const sourceItems = collect("grid.source-items grid-item");
+        const targetItems = collect("grid.target grid-item");
+        const diffInfo = computeDiff(sourceItems.map(hash), targetItems.map(hash));
+        console.log(diffInfo);
+        applyDiffInfo(diffInfo, sourceItems, targetItems);
+    })();
+
+</script>
+
+</html>
