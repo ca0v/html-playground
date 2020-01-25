@@ -9,7 +9,21 @@
 
         grid {
             display: grid;
-            grid-template-columns: repeat(2, 10em);
+            grid-template-columns: repeat(1, 10em);
+        }
+
+        grid-item {
+            transition: all 200ms linear;
+            opacity: 1;
+        }
+
+        .slide-out {
+            transform: translate(100%, 0);
+            opacity: 0;
+        }
+
+        .start-update {
+            opacity: 0.9;
         }
     </style>
 </head>
@@ -18,25 +32,54 @@
     <h2>This is the target grid</h2>
     <grid class="target">
         <grid-item>Hello From Grid</grid-item>
+        <grid-item>Hello Grid Item 5</grid-item>
+    </grid>
+    <h2>This is the source grid</h2>
+    <grid class="source-items-0">
+        <grid-item>Hello Grid</grid-item>
+    </grid>
+    <grid class="source-items-1">
+        <grid-item>Hello From Grid</grid-item>
         <grid-item>Hello Grid Item 1</grid-item>
         <grid-item>Hello Grid Item 2</grid-item>
+        <grid-item>Hello Grid Item 3</grid-item>
+    </grid>
+    <grid class="source-items-2">
+        <grid-item>Hello From Grid</grid-item>
+        <grid-item>Hello Grid Item 1</grid-item>
         <grid-item>Hello Grid Item 3</grid-item>
         <grid-item>Hello Grid Item 4</grid-item>
         <grid-item>Hello Grid Item 5</grid-item>
     </grid>
-    <h2>This is the source grid</h2>
-    <grid class="source-items">
-        <grid-item>Hello From Grid</grid-item>
-        <grid-item>Hello Grid Item 2.2</grid-item>
-        <grid-item>Hello Grid Item 2.3</grid-item>
-        <grid-item>Hello Grid Item 4</grid-item>
-        <grid-item>Hello Grid Item 2.5</grid-item>
+    <grid class="source-items-3">
+        <grid-item>Goodbye Grid</grid-item>
     </grid>
 </body>
 
 <script>
 
+    /**
+     * Add animations to show old items being deleted (slide out to right)
+     * and new items being inserted (slide in from left)
+     * and modified items being updated (fade out/in)
+     */
     (function () {
+
+        const ANIMATION_DELAY = 200;
+
+        const slideOut = (node) => {
+            node.classList.add("slide-out");
+            setTimeout(() => node.remove(), ANIMATION_DELAY);
+        }
+
+        const replaceNode = (source, target) => {
+            target.classList.add("start-update");
+            setTimeout(() => {
+                target.innerText = source.innerText;
+                target.classList.remove("start-update");
+            }, ANIMATION_DELAY);
+        };
+
         const hash = domNode => {
             return domNode.innerText;
         };
@@ -59,10 +102,6 @@
             return [set1Only, set2Only];
         }
 
-        const replaceNode = (source, target) => {
-            target.innerText = source.innerText;
-        };
-
         const applyDiffInfo = (diffInfo, set1, set2) => {
             // are we deleting or inserting?
             const sourceDiff = diffInfo[0];
@@ -70,14 +109,14 @@
             const mergeUpper = Math.min(sourceDiff.length, targetDiff.length);
             const inserting = sourceDiff.length > targetDiff.length;
             const deleting = sourceDiff.length < targetDiff.length;
-            console.log(mergeUpper);
+            console.log("updating", mergeUpper);
 
             for (let i = 0; i < mergeUpper; i++) {
                 replaceNode(set1[sourceDiff[i]], set2[targetDiff[i]]);
             }
 
             if (inserting) {
-                console.log("inserting");
+                console.log("inserting", sourceDiff.length - mergeUpper);
                 for (let i = mergeUpper; i < sourceDiff.length; i++) {
                     const clone = set1[sourceDiff[i]].cloneNode(true);
                     set2[0].parentElement.insertBefore(clone, set2[targetDiff[0]]);
@@ -85,19 +124,24 @@
             }
 
             if (deleting) {
-                console.log("deleting");
+                console.log("deleting", targetDiff.length - mergeUpper);
                 for (let i = mergeUpper; i < targetDiff.length; i++) {
                     console.log("removing", i);
-                    set2[targetDiff[i]].remove();
+                    slideOut(set2[targetDiff[i]]);
                 }
             }
         };
 
-        const sourceItems = collect("grid.source-items grid-item");
-        const targetItems = collect("grid.target grid-item");
-        const diffInfo = computeDiff(sourceItems.map(hash), targetItems.map(hash));
-        console.log(diffInfo);
-        applyDiffInfo(diffInfo, sourceItems, targetItems);
+        [1, 2, 1, 2, 1, 0, 1, 2, 1, 2, 1, 0, 3].forEach((sourceItem, timeOffset) => {
+            setTimeout(() => {
+                const sourceItems = collect(`grid.source-items-${sourceItem} grid-item`);
+                const targetItems = collect("grid.target grid-item");
+                const diffInfo = computeDiff(sourceItems.map(hash), targetItems.map(hash));
+                console.log(diffInfo);
+                applyDiffInfo(diffInfo, sourceItems, targetItems);
+            }, 1000 + 1000 * timeOffset);
+
+        })
     })();
 
 </script>
