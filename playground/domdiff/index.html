@@ -9,21 +9,32 @@
 
         grid {
             display: grid;
-            grid-template-columns: repeat(1, 10em);
+            grid-template-columns: repeat(1, 20em);
         }
 
         grid-item {
-            transition: all 200ms linear;
+            transition: all 100ms linear;
             opacity: 1;
         }
 
         .slide-out {
-            transform: translate(100%, 0);
+            transform: translate(50%, 0);
             opacity: 0;
         }
 
+        .slide-in {
+            transform: translate(-50%, 0);
+            opacity: 0.5;
+        }
+
         .start-update {
-            opacity: 0.9;
+            transform: translate(-2px, 0);
+            opacity: 0.8;
+        }
+
+        .source-items,
+        .source-items-3 {
+            display: none;
         }
     </style>
 </head>
@@ -32,24 +43,12 @@
     <h2>This is the target grid</h2>
     <grid class="target">
         <grid-item>Hello From Grid</grid-item>
-        <grid-item>Hello Grid Item 5</grid-item>
     </grid>
-    <h2>This is the source grid</h2>
-    <grid class="source-items-0">
-        <grid-item>Hello Grid</grid-item>
+    <grid class="source-items source-items-0">
     </grid>
-    <grid class="source-items-1">
-        <grid-item>Hello From Grid</grid-item>
-        <grid-item>Hello Grid Item 1</grid-item>
-        <grid-item>Hello Grid Item 2</grid-item>
-        <grid-item>Hello Grid Item 3</grid-item>
+    <grid class="source-items source-items-1">
     </grid>
-    <grid class="source-items-2">
-        <grid-item>Hello From Grid</grid-item>
-        <grid-item>Hello Grid Item 1</grid-item>
-        <grid-item>Hello Grid Item 3</grid-item>
-        <grid-item>Hello Grid Item 4</grid-item>
-        <grid-item>Hello Grid Item 5</grid-item>
+    <grid class="source-items source-items-2">
     </grid>
     <grid class="source-items-3">
         <grid-item>Goodbye Grid</grid-item>
@@ -57,6 +56,53 @@
 </body>
 
 <script>
+
+    (function () {
+        function range(count) {
+            const result = new Array(count);
+            result.fill(count);
+            return result.map((v, i) => i);
+        }
+
+        function randomInt(range = 1000) {
+            return Math.floor(range * Math.random());
+        }
+
+        function randomCompassDir() {
+            const list = "N S W E NW NE SW SE".split(" ");
+            return list[randomInt(list.length)];
+        }
+
+        function randomStreetName() {
+            const list = "MAIN PLEASANT MOUNTAIN PINNACLE SUMMIT RAMPART".split(" ");
+            return list[randomInt(list.length)];
+        }
+
+        function randomStreetSuffix() {
+            const list = "ST AVE WAY COURT BLVD".split(" ");
+            return list[randomInt(list.length)];
+        }
+
+        function randomAddress() {
+            return `${randomCompassDir()} ${randomStreetName()}`;
+        }
+
+        Array.from(document.body.querySelectorAll("grid.source-items")).forEach(grid => {
+            console.log("populating grid");
+            let values = range(5 + randomInt(50))
+                .map(i => randomAddress());
+
+            values = [...new Set(values)];
+
+            values
+                .forEach(text => {
+                    const item = document.createElement("grid-item");
+                    item.innerText = text;
+                    grid.appendChild(item);
+                });
+        });
+    })();
+
 
     /**
      * Add animations to show old items being deleted (slide out to right)
@@ -66,6 +112,11 @@
     (function () {
 
         const ANIMATION_DELAY = 200;
+
+        const slideIn = (node) => {
+            node.classList.add("slide-in");
+            setTimeout(() => node.classList.remove("slide-in"), ANIMATION_DELAY);
+        }
 
         const slideOut = (node) => {
             node.classList.add("slide-out");
@@ -102,6 +153,10 @@
             return [set1Only, set2Only];
         }
 
+        const insertNode = (sibling, node) => {
+            sibling.parentElement.insertBefore(node, null);
+        };
+
         const applyDiffInfo = (diffInfo, set1, set2) => {
             // are we deleting or inserting?
             const sourceDiff = diffInfo[0];
@@ -119,7 +174,8 @@
                 console.log("inserting", sourceDiff.length - mergeUpper);
                 for (let i = mergeUpper; i < sourceDiff.length; i++) {
                     const clone = set1[sourceDiff[i]].cloneNode(true);
-                    set2[0].parentElement.insertBefore(clone, set2[targetDiff[0]]);
+                    slideIn(clone);
+                    insertNode(set2[targetDiff[0]], clone);
                 }
             }
 
@@ -132,7 +188,7 @@
             }
         };
 
-        [1, 2, 1, 2, 1, 0, 1, 2, 1, 2, 1, 0, 3].forEach((sourceItem, timeOffset) => {
+        [0, 1, 2, 1, 0, 1, 2, 3, 0, 1, 2, 1, 0, 1, 2, 3, 0, 1, 2, 1, 0, 1, 2, 3, 0, 1, 2, 1, 0, 1, 2, 3].forEach((sourceItem, timeOffset) => {
             setTimeout(() => {
                 const sourceItems = collect(`grid.source-items-${sourceItem} grid-item`);
                 const targetItems = collect("grid.target grid-item");
