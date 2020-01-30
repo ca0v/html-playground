@@ -1,0 +1,113 @@
+<html>
+
+<head>
+    <title>Grid Playground</title>
+    <style id="grid-layout">
+        body {
+            background-color: black;
+            color: silver;
+            font-size: 1.5rem;
+        }
+
+        div.grid {
+            display: grid;
+            grid-template-areas:
+                "a0 a1 a2"
+                "a3 a4 a5"
+                "a6 a7 a8"
+        }
+
+        div.grid-item {
+            border: 1px solid white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="grid">
+    </div>
+    <script>
+        (function () {
+            function asMatrix(areas) {
+                const rules = areas.split("\"").filter(v => !!v.trim());
+                const rowSize = rules.length;
+                const colSize = rules[0].split(" ").length;
+                console.log(rowSize, colSize);
+                return rules.map(rule => rule.split(" "));
+            }
+
+            function fromMatrix(matrix) {
+                const quote = "\"";
+                return matrix.map(row => quote + row.join(" ") + quote).join(" ");
+            }
+
+            function split(cell) {
+                const target = document.querySelector(".grid");
+                const style = document.getElementById("grid-layout");
+                console.log(style);
+                for (let ruleItem of style.sheet.cssRules) {
+                    switch (ruleItem.selectorText) {
+                        case "div.grid":
+                            for (let ruleItemStyle of ruleItem.style) {
+                                switch (ruleItemStyle) {
+                                    case "grid-template-areas":
+                                        const grid = asMatrix(ruleItem.style[ruleItemStyle]);
+                                        console.log({ grid });
+                                        const rows = grid.length;
+                                        const cols = grid[0].length;
+                                        const targetColumn = cell % cols;
+                                        const targetRow = Math.floor(cell / rows);
+                                        const cellName = grid[Math.floor(cell / rows)][cell % cols];
+                                        for (let rowIndex = 0; rowIndex < rows; rowIndex++) {
+                                            if (rowIndex === targetRow) continue;
+                                            const cellRule = grid[rowIndex][targetColumn];
+                                            grid[rowIndex][targetColumn] = `${cellRule} ${cellRule}`;
+                                        }
+                                        grid[targetRow][targetColumn] = `${cellName}1 ${cellName}2`;
+                                        const newRules = fromMatrix(grid);
+                                        console.log({ newRules });
+                                        const targetCell = target.children[cell];
+                                        const clone = targetCell.cloneNode(true);
+                                        clone.innerText = clone.style.gridArea = `${cellName}1`;
+                                        targetCell.parentElement.insertBefore(clone, targetCell);
+                                        targetCell.innerText = targetCell.style.gridArea = `${cellName}2`;
+                                        ruleItem.style[ruleItemStyle] = newRules;
+                                        break;
+                                }
+                                console.log("ruleItemStyle", ruleItemStyle, ruleItem.style[ruleItemStyle]);
+                            }
+                            break;
+                    }
+                    console.log(ruleItem);
+                }
+            }
+
+            function createGridNode(cellIndex) {
+                const n = document.createElement("div");
+                n.classList.add("grid-item");
+                n.innerText = n.style.gridArea = "a" + cellIndex;
+                return n;
+            }
+
+            Array.from(document.body.querySelectorAll(".grid")).forEach(grid => {
+                new Array(9).fill(0).forEach((_, i) => {
+                    grid.appendChild(createGridNode(i));
+                });
+            });
+
+            function execute(command) {
+                const [head, ...tokens] = command.split(" ");
+                switch (head) {
+                    case "split":
+                        const cell = tokens[0];
+                        split(cell);
+                        break;
+                }
+            }
+
+            ["split 1"].forEach(command => execute(command));
+        })();
+    </script>
+</body>
+
+</html>

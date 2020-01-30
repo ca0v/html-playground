@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <html>
 
 <head>
@@ -9,27 +11,27 @@
 
         grid {
             display: grid;
-            grid-template-columns: repeat(1, 20em);
+            grid-template-columns: repeat(1, 4em 20em);
         }
 
         grid-item {
-            transition: all 100ms linear;
+            transition: all 200ms ease-out;
             opacity: 1;
         }
 
         .slide-out {
-            transform: translate(50%, 0);
+            transform: translate(5em, 0);
             opacity: 0;
         }
 
         .slide-in {
-            transform: translate(-50%, 0);
+            transform: translate(-5em, 0);
             opacity: 0.5;
         }
 
         .start-update {
-            transform: translate(-2px, 0);
-            opacity: 0.8;
+            transform: translate(-0em, 0);
+            opacity: 0.5;
         }
 
         .source-items,
@@ -42,7 +44,8 @@
 <body>
     <h2>This is the target grid</h2>
     <grid class="target">
-        <grid-item>Hello From Grid</grid-item>
+        <grid-item>1</grid-item>
+        <grid-item data-hash="hello">Hello From Grid</grid-item>
     </grid>
     <grid class="source-items source-items-0">
     </grid>
@@ -51,13 +54,25 @@
     <grid class="source-items source-items-2">
     </grid>
     <grid class="source-items-3">
-        <grid-item>Goodbye Grid</grid-item>
+        <grid-item>1</grid-item>
+        <grid-item data-hash="goodbye">Goodbye Grid</grid-item>
     </grid>
 </body>
 
 <script>
 
     (function () {
+
+        function computeHash(text) {
+            return text.toUpperCase();
+        };
+
+        function asDom(html) {
+            const div = document.createElement("div");;
+            div.innerHTML = html;
+            return div.firstElementChild;
+        }
+
         function range(count) {
             const result = new Array(count);
             result.fill(count);
@@ -89,16 +104,16 @@
 
         Array.from(document.body.querySelectorAll("grid.source-items")).forEach(grid => {
             console.log("populating grid");
-            let values = range(5 + randomInt(50))
-                .map(i => randomAddress());
+            let values = range(1 + randomInt(10))
+                .map(i => randomAddress()).sort();
 
             values = [...new Set(values)];
 
             values
-                .forEach(text => {
-                    const item = document.createElement("grid-item");
-                    item.innerText = text;
-                    grid.appendChild(item);
+                .forEach((text, i) => {
+                    const hash = computeHash(text);
+                    grid.appendChild(asDom(`<grid-item>${i}</grid-item>`));
+                    grid.appendChild(asDom(`<grid-item data-hash="${hash}">${text}</grid-item>`));
                 });
         });
     })();
@@ -111,28 +126,39 @@
      */
     (function () {
 
-        const ANIMATION_DELAY = 200;
+        const ANIMATION_DELAY = 1000;
+
+        const once = (node, eventName, cb) => {
+            const myCb = () => {
+                cb();
+                node.removeEventListener(eventName, myCb);
+            };
+            node.addEventListener(eventName, myCb);
+        }
 
         const slideIn = (node) => {
             node.classList.add("slide-in");
-            setTimeout(() => node.classList.remove("slide-in"), ANIMATION_DELAY);
+            requestAnimationFrame(() => requestAnimationFrame(() => node.classList.remove("slide-in")));
         }
 
         const slideOut = (node) => {
-            node.classList.add("slide-out");
-            setTimeout(() => node.remove(), ANIMATION_DELAY);
+            const allNodes = [node, node.previousElementSibling];
+            allNodes.forEach(node => {
+                node.classList.add("slide-out");
+                once(node, "transitionend", () => node.remove());
+            });
         }
 
         const replaceNode = (source, target) => {
             target.classList.add("start-update");
-            setTimeout(() => {
+            once(target, "transitionend", () => {
                 target.innerText = source.innerText;
                 target.classList.remove("start-update");
-            }, ANIMATION_DELAY);
+            });
         };
 
         const hash = domNode => {
-            return domNode.innerText;
+            return domNode.dataset["hash"];
         };
 
         const collect = selector => {
@@ -153,49 +179,47 @@
             return [set1Only, set2Only];
         }
 
-        const insertNode = (sibling, node) => {
-            sibling.parentElement.insertBefore(node, null);
+        const insertNode = (parent, node) => {
+            const todo = document.createElement("grid-item");
+            todo.innerText = parent.children.length / 2;
+            parent.appendChild(todo);
+            parent.appendChild(node);
         };
 
-        const applyDiffInfo = (diffInfo, set1, set2) => {
+        const applyDiffInfo = (target, diffInfo, set1, set2) => {
             // are we deleting or inserting?
             const sourceDiff = diffInfo[0];
             const targetDiff = diffInfo[1];
             const mergeUpper = Math.min(sourceDiff.length, targetDiff.length);
-            const inserting = sourceDiff.length > targetDiff.length;
-            const deleting = sourceDiff.length < targetDiff.length;
-            console.log("updating", mergeUpper);
 
+            // update
             for (let i = 0; i < mergeUpper; i++) {
                 replaceNode(set1[sourceDiff[i]], set2[targetDiff[i]]);
             }
 
-            if (inserting) {
-                console.log("inserting", sourceDiff.length - mergeUpper);
-                for (let i = mergeUpper; i < sourceDiff.length; i++) {
-                    const clone = set1[sourceDiff[i]].cloneNode(true);
-                    slideIn(clone);
-                    insertNode(set2[targetDiff[0]], clone);
-                }
+            // insert
+            for (let i = mergeUpper; i < sourceDiff.length; i++) {
+                const clone = set1[sourceDiff[i]].cloneNode(true);
+                slideIn(clone);
+                insertNode(target, clone);
             }
 
-            if (deleting) {
-                console.log("deleting", targetDiff.length - mergeUpper);
-                for (let i = mergeUpper; i < targetDiff.length; i++) {
-                    console.log("removing", i);
-                    slideOut(set2[targetDiff[i]]);
-                }
+            // delete
+            for (let i = mergeUpper; i < targetDiff.length; i++) {
+                console.log("removing", i);
+                slideOut(set2[targetDiff[i]]);
             }
         };
 
         [0, 1, 2, 1, 0, 1, 2, 3, 0, 1, 2, 1, 0, 1, 2, 3, 0, 1, 2, 1, 0, 1, 2, 3, 0, 1, 2, 1, 0, 1, 2, 3].forEach((sourceItem, timeOffset) => {
             setTimeout(() => {
-                const sourceItems = collect(`grid.source-items-${sourceItem} grid-item`);
-                const targetItems = collect("grid.target grid-item");
+                const target = document.querySelector("grid.target");
+                const sourceItems = collect(`grid.source-items-${sourceItem} grid-item[data-hash]`);
+                const targetItems = Array.from(target.querySelectorAll("grid-item[data-hash]"));
                 const diffInfo = computeDiff(sourceItems.map(hash), targetItems.map(hash));
                 console.log(diffInfo);
-                applyDiffInfo(diffInfo, sourceItems, targetItems);
-            }, 1000 + 1000 * timeOffset);
+                applyDiffInfo(target, diffInfo, sourceItems, targetItems);
+            }, 1000 + ((1000 + ANIMATION_DELAY) * timeOffset));
 
         })
     })();
