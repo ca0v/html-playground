@@ -22,7 +22,7 @@ cacheDb.init("35,-85").then(d => console.log(d));
     Wait for the operation to complete by listening to the right kind of DOM event.
     Do something with the results (which can be found on the request object).
  */
-class IndexDb {
+abstract class IndexDb {
 
     public db: IDBDatabase | null = null;
     async init(key: string) {
@@ -55,17 +55,7 @@ class IndexDb {
         this.db = db;
     }
 
-    private async upgrade(db: IDBDatabase) {
-        console.log(db);
-        return new Promise((good, bad) => {
-            const store = db.createObjectStore("cities", { keyPath: "id", autoIncrement: false });
-            store.createIndex("primary", "id", { unique: true });
-            store.transaction.oncomplete = () => {
-                good();
-            };
-            store.transaction.onerror = () => bad();
-        });
-    }
+    abstract upgrade(db: IDBDatabase): Promise<any>;
 
     async asPromise<T>(query: IDBRequest) {
         return new Promise<T>((good, bad) => {
@@ -94,36 +84,52 @@ class IndexDb {
     }
 }
 
-type CityModel = {
+class DbStore<T> extends IndexDb {
+
+    constructor(public name: string) {
+        super();
+    }
+
+    async put(id: string, data: T) {
+        return this.asPromise<T>(this.writeable(this.name).put({ id, ...data }));
+    }
+
+    async get(id: string) {
+        return this.asPromise<T>(this.readable(this.name).get(id));
+    }
+
+    async upgrade(db: IDBDatabase) {
+        console.log(db);
+        return new Promise((good, bad) => {
+            const store = db.createObjectStore(this.name, { keyPath: "id", autoIncrement: false });
+            store.createIndex("primary", "id", { unique: true });
+            store.transaction.oncomplete = () => {
+                good();
+            };
+            store.transaction.onerror = () => bad();
+        });
+    }
+}
+
+class MetroCenterStore extends DbStore<{
     name: string;
     state: string;
-}
-
-class MetroCenters<T extends CityModel> extends IndexDb {
-    async putCity(name: string, data: T) {
-        return this.asPromise<T>(this.writeable("cities").put({ id: name, ...data }));
-    }
-
-    async getCity(name: string) {
-        return this.asPromise<T>(this.readable("cities").get(name));
-    }
-
-}
+}>{ }
 
 async function go() {
-    const idb = new MetroCenters();
-    await idb.init("anyvalue");
-    const cities = [{ name: "Greenville", state: "SC" }, { name: "Greenville", state: "NC" },];
+    const metroCenters = new MetroCenterStore("cities");
+    await metroCenters.init("anyvalue");
+    const cities = [{ name: "Greenville", state: "SC" }, { name: "Greenville", state: "NC" }];
     cities.forEach(city => {
-        idb.putCity(`${city.name}, ${city.state}`, city);
+        metroCenters.put(`${city.name}, ${city.state}`, city);
     });
-    const city = await idb.getCity("Greenville, NC");
+    const city = await metroCenters.get("Greenville, NC");
     console.log(city.name, city.state);
-    const putCity = await idb.putCity(city.name, city);
+    const putCity = await metroCenters.put(city.name, city);
     console.log(putCity);
 
-    idb.cursor("cities", data => {
-        console.log(data);
+    metroCenters.cursor("cities", data => {
+        data && console.log(data);
         return !!data;
     });
 };
