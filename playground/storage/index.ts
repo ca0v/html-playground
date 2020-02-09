@@ -29,13 +29,19 @@ class IndexDb {
 
         return new Promise((good, bad) => {
             const handle = indexedDB.open("c1", 2);
-            handle.onerror = e => this.err(e);
-            handle.onsuccess = async (e: any) => {
-                await this.success(handle.result);
+
+            handle.onerror = () => {
+                this.err(handle.error);
+                bad(handle.error);
+            };
+
+            handle.onsuccess = () => {
+                this.success(handle.result);
                 good();
             };
-            handle.onupgradeneeded = async (e: any) => {
-                await this.upgrade(handle.result);
+
+            handle.onupgradeneeded = () => {
+                this.upgrade(handle.result);
             };
         })
     }
@@ -60,19 +66,66 @@ class IndexDb {
             store.transaction.onerror = () => bad();
         });
     }
-}
 
-class MetroCenters extends IndexDb {
-    addCity(name: string) {
+    async asPromise<T>(query: IDBRequest) {
+        return new Promise<T>((good, bad) => {
+            query.onsuccess = e => { good(query.result) };
+            query.onerror = e => { bad(query.error) };
+        })
+    }
+
+    readable(name: string) {
         if (!this.db) throw "no store"
-        const store = this.db.transaction("cities", "readwrite").objectStore("cities");
-        store.add({ id: name });
+        return this.db.transaction(name, "readonly").objectStore(name);
+    }
+
+    writeable(name: string) {
+        if (!this.db) throw "no store"
+        return this.db.transaction(name, "readwrite").objectStore(name);
+    }
+
+    cursor<T>(name: string, cb: (data: T) => boolean) {
+        const store = this.readable(name);
+        const cursor = store.openCursor();
+        cursor.onsuccess = () => {
+            if (true === cb(cursor.result?.value)) cursor.result?.continue();
+        };
+        cursor.onerror = () => this.err(cursor.error);
     }
 }
+
+type CityModel = {
+    name: string;
+    state: string;
+}
+
+class MetroCenters<T extends CityModel> extends IndexDb {
+    async putCity(name: string, data: T) {
+        return this.asPromise<T>(this.writeable("cities").put({ id: name, ...data }));
+    }
+
+    async getCity(name: string) {
+        return this.asPromise<T>(this.readable("cities").get(name));
+    }
+
+}
+
 async function go() {
     const idb = new MetroCenters();
     await idb.init("anyvalue");
-    idb.addCity("Greenville, SC");
+    const cities = [{ name: "Greenville", state: "SC" }, { name: "Greenville", state: "NC" },];
+    cities.forEach(city => {
+        idb.putCity(`${city.name}, ${city.state}`, city);
+    });
+    const city = await idb.getCity("Greenville, NC");
+    console.log(city.name, city.state);
+    const putCity = await idb.putCity(city.name, city);
+    console.log(putCity);
+
+    idb.cursor("cities", data => {
+        console.log(data);
+        return !!data;
+    });
 };
 
 go();
