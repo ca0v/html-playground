@@ -3,4 +3,6 @@ self.addEventListener("load", async () => {
   console.log(reg);
 });
 
-console.log("version 1");
+const dom = document.createElement("div");
+dom.innerHTML = "version 3";
+document.body.appendChild(dom);
