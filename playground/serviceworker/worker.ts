@@ -1,12 +1,12 @@
-abstract class IndexDb {
+const DATABASE_NAME = "service_worker";
+const VERSION = "1";
 
+abstract class IndexDb {
   public db: IDBDatabase | null = null;
 
-  constructor(public name: string) {
-  }
+  constructor(public name: string) {}
 
   async init() {
-
     return new Promise((good, bad) => {
       const handle = indexedDB.open(this.name, 2);
 
@@ -23,7 +23,7 @@ abstract class IndexDb {
       handle.onupgradeneeded = () => {
         this.upgrade(handle.result);
       };
-    })
+    });
   }
 
   private err(info: any) {
@@ -39,18 +39,22 @@ abstract class IndexDb {
 
   async asPromise<T>(query: IDBRequest) {
     return new Promise<T>((good, bad) => {
-      query.onsuccess = e => { good(query.result) };
-      query.onerror = e => { bad(query.error) };
-    })
+      query.onsuccess = e => {
+        good(query.result);
+      };
+      query.onerror = e => {
+        bad(query.error);
+      };
+    });
   }
 
   readable(name: string) {
-    if (!this.db) throw "no store"
+    if (!this.db) throw "no store";
     return this.db.transaction(name, "readonly").objectStore(name);
   }
 
   writeable(name: string) {
-    if (!this.db) throw "no store"
+    if (!this.db) throw "no store";
     return this.db.transaction(name, "readwrite").objectStore(name);
   }
 
@@ -65,7 +69,6 @@ abstract class IndexDb {
 }
 
 class DbStore<T> extends IndexDb {
-
   async put(id: string, data: T) {
     return this.asPromise<T>(this.writeable(this.name).put({ id, ...data }));
   }
@@ -90,17 +93,15 @@ class DbStore<T> extends IndexDb {
 class DebugStore extends DbStore<{
   name: string;
   state: string;
-}>{ }
+}> {}
 
-
-const store = new DebugStore("service_worker");
+const store = new DebugStore(DATABASE_NAME);
 const p = store.init();
+const worker = (self as any) as ServiceWorkerGlobalScope;
 
 class AppManager {
-
   constructor() {
     const cacheName = "cache-v1";
-    const worker = (self as any) as ServiceWorkerGlobalScope;
 
     /**
      * This fires once the old service worker is gone, and your new service worker is able to control clients.
@@ -110,8 +111,7 @@ class AppManager {
       p.then(() => {
         store.put("activate", { name: "activate", state: new Date().toISOString() });
       });
-      event.waitUntil(async () => {
-      });
+      event.waitUntil(async () => {});
     });
 
     /**
@@ -123,8 +123,7 @@ class AppManager {
         store.put("install", { name: "install", state: new Date().toISOString() });
       });
 
-      event.waitUntil(async () => {
-      });
+      event.waitUntil(async () => {});
     });
 
     worker.addEventListener("fetch", event => {
@@ -132,6 +131,11 @@ class AppManager {
         store.put("install", { name: "install", state: new Date().toISOString() });
       });
       event.respondWith(this.fetchFromCacheFirst(cacheName, event));
+    });
+
+    worker.addEventListener("message", event => {
+      event.ports.forEach(port => this.unicast(port, { version: VERSION, database: DATABASE_NAME }));
+      this.broadcast("all");
     });
   }
 
@@ -145,9 +149,20 @@ class AppManager {
       if (!response) {
         response = await fetch(event.request);
         cache.put(event.request, response.clone());
+        return response;
       }
+      cache.put(event.request, await fetch(event.request));
       return response;
     })();
+  }
+
+  private unicast(port: MessagePort, message: any) {
+    port.postMessage(message);
+  }
+
+  private async broadcast(message: any) {
+    const clients = await worker.clients.matchAll();
+    await Promise.all(clients.map(client => client.postMessage(message)));
   }
 }
 

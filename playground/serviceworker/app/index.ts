@@ -3,6 +3,21 @@ self.addEventListener("load", async () => {
   console.log(reg);
 });
 
-const dom = document.createElement("div");
-dom.innerHTML = "version 3";
-document.body.appendChild(dom);
+function log(message: string) {
+  const dom = document.createElement("div");
+  dom.innerHTML = message;
+  document.body.appendChild(dom);
+}
+
+log("version 7");
+
+const channel = new MessageChannel();
+channel.port1.addEventListener("message", event => {
+  log(`response from worker: ${event.data}`);
+});
+
+navigator.serviceWorker.onmessage = event => {
+  log(`broadcast from worker: ${event.data}`);
+};
+
+navigator.serviceWorker.controller!.postMessage({ command: "version" }, [channel.port2]);

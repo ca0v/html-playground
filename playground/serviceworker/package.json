@@ -10,7 +10,7 @@
     "typescript": "^3.9.0-dev.20200212"
   },
   "scripts": {
-    "tsc": "start tsc -p tsconfig-worker.json -w && start tsc -p tsconfig-dom.json -w"
+    "tsc": "start tsc -p tsconfig.json -w && start tsc -p app/tsconfig.json -w"
   },
   "keywords": [],
   "author": "",
