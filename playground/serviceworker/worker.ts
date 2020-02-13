@@ -1,5 +1,5 @@
 const DATABASE_NAME = "service_worker";
-const VERSION = "1";
+const WORKER_VERSION = "1";
 
 abstract class IndexDb {
   public db: IDBDatabase | null = null;
@@ -134,7 +134,7 @@ class AppManager {
     });
 
     worker.addEventListener("message", event => {
-      event.ports.forEach(port => this.unicast(port, { version: VERSION, database: DATABASE_NAME }));
+      event.ports.forEach(port => this.unicast(port, { version: WORKER_VERSION, database: DATABASE_NAME }));
       this.broadcast("all");
     });
   }
