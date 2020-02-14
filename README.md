@@ -64,3 +64,6 @@ html-playground
 - [motion design](https://codepen.io/sdras/full/JbaGwg)
 - [svg editor](https://ca0v.github.io/html-playground/playground/svg/svgeditor/index.html)
 - [fireworks](https://ca0v.github.io/html-playground/playground/svg/svg-keywords.html)
+
+# labs
+[serviceworker](http://ca0v.github.io/html-playground/playground/serviceworker/app/index.html)
