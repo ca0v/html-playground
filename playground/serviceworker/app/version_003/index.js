@@ -114,17 +114,32 @@ define("index", ["require", "exports", "fun/index"], function (require, exports,
         return callable;
     }
     function run() {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
+            const notebook = document.getElementById("notebook");
             const database = "notebook";
             const db = new DebugStore(database);
             yield db.init();
             const data = yield db.get("notes");
-            const notebook = document.getElementById("notebook");
             notebook.value = (data === null || data === void 0 ? void 0 : data.state) || "";
             const save = () => {
                 db.put("notes", { name: "notes", state: notebook.value });
             };
             notebook.addEventListener("keypress", debounce(save));
+            const channel = new MessageChannel();
+            channel.port1.onmessage = (event) => __awaiter(this, void 0, void 0, function* () {
+                const { database } = event.data;
+                const db = new DebugStore(database);
+                yield db.init();
+                ["activate", "install", "fetchFromCacheFirst"].forEach((name) => __awaiter(this, void 0, void 0, function* () {
+                    const data = yield db.get(name);
+                    const status = document.querySelector(`.${name}`);
+                    if (!status)
+                        return;
+                    status.innerText = data.state;
+                }));
+            });
+            (_a = navigator.serviceWorker.controller) === null || _a === void 0 ? void 0 : _a.postMessage({ command: "version" }, [channel.port2]);
         });
     }
     exports.run = run;

@@ -10,7 +10,12 @@
 </head>
 
 <body class="theme">
-  <textarea class="theme" id="notebook"></textarea>
+  <grid>
+    <status-area class="status install">[App Version]</status-area>
+    <status-area class="status activate">[Service Version]</status-area>
+    <status-area class="status fetchFromCacheFirst">[Cache Age]</status-area>
+    <textarea class="theme" id="notebook"></textarea>
+  </grid>
   <script src="./almond.js"></script>
   <script src="./index.js"></script>
   <script>
