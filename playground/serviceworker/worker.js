@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 const DATABASE_NAME = "service_worker";
-const WORKER_VERSION = "1";
+const WORKER_VERSION = "2";
 class IndexDb {
     constructor(name) {
         this.name = name;
@@ -139,9 +139,6 @@ class AppManager {
     }
     fetchFromCacheFirst(cacheName, event) {
         return (() => __awaiter(this, void 0, void 0, function* () {
-            p.then(() => {
-                store.put("fetchFromCacheFirst", { name: "fetchFromCacheFirst", state: new Date().toISOString() });
-            });
             const cache = yield caches.open(cacheName);
             let response = yield cache.match(event.request);
             if (!response) {
@@ -149,7 +146,12 @@ class AppManager {
                 cache.put(event.request, response.clone());
                 return response;
             }
-            fetch(event.request).then(response => cache.put(event.request, response));
+            fetch(event.request).then(response => {
+                cache.put(event.request, response);
+                p.then(() => {
+                    store.put("fetchFromCacheFirst", { name: "fetchFromCacheFirst", state: new Date().toISOString() });
+                });
+            });
             return response;
         }))();
     }

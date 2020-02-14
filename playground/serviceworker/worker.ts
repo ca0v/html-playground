@@ -1,5 +1,5 @@
 const DATABASE_NAME = "service_worker";
-const WORKER_VERSION = "1";
+const WORKER_VERSION = "2";
 
 abstract class IndexDb {
   public db: IDBDatabase | null = null;
@@ -141,9 +141,6 @@ class AppManager {
 
   private fetchFromCacheFirst(cacheName: string, event: FetchEvent): Response | Promise<Response> {
     return (async () => {
-      p.then(() => {
-        store.put("fetchFromCacheFirst", { name: "fetchFromCacheFirst", state: new Date().toISOString() });
-      });
       const cache = await caches.open(cacheName);
       let response = await cache.match(event.request);
       if (!response) {
@@ -151,7 +148,12 @@ class AppManager {
         cache.put(event.request, response.clone());
         return response;
       }
-      fetch(event.request).then(response => cache.put(event.request,response));
+      fetch(event.request).then(response => {
+        cache.put(event.request,response);
+        p.then(() => {
+          store.put("fetchFromCacheFirst", { name: "fetchFromCacheFirst", state: new Date().toISOString() });
+        });
+      });
       return response;
     })();
   }

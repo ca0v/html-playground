@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var _a;
-const APP_VERSION = "1";
+const APP_VERSION = "2";
 class IndexDb {
     constructor(name) {
         this.name = name;
