@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var _a;
-const APP_VERSION = "2";
+const APP_VERSION = "003";
 class IndexDb {
     constructor(name) {
         this.name = name;
@@ -120,6 +120,7 @@ channel.port1.onmessage = (event) => __awaiter(void 0, void 0, void 0, function*
         const data = yield db.get(name);
         log(`${data.name} ${data.state}`);
     }));
+    window.location.href = `./version_${APP_VERSION}/index.html`;
 });
 navigator.serviceWorker.addEventListener("message", event => {
     log(`broadcast from worker: ${event.data}`);

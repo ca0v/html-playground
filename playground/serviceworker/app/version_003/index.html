@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta name="Description" content="Notes">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#3367D6">
+  <link rel="apple-touch-icon" href="../../assets/icon-192.png">
+  <title>Notes</title>
+  <style>
+    html {
+      overflow: hidden;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+    }
+
+    body {
+      align-content: stretch;
+      align-items: stretch;
+      background: #ececec;
+      display: flex;
+      flex-direction: column;
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+    }
+
+    textarea#notebook {
+      position: absolute;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+    }
+  </style>
+</head>
+
+<body>
+  <textarea id="notebook"></textarea>
+  <script src="./almond.js"></script>
+  <script src="./index.js"></script>
+  <script>
+    require(["index"], (app) => {
+      app.run();
+    });
+  </script>
+</body>
+
+</html>
