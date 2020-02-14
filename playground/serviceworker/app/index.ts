@@ -108,7 +108,11 @@ async function run() {
     appVersion = { name: "APP_VERSION", state: APP_VERSION };
     await db.put("APP_VERSION", appVersion);
   }
-  window.location.href = `./version_${appVersion.state}/index.html`;
+
+  const startButton = document.querySelector(".start") as HTMLButtonElement;
+  startButton.addEventListener("click", () => {
+    window.location.href = `./version_${appVersion.state}/index.html`;
+  });
 }
 
 run();
