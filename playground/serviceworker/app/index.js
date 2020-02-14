@@ -8,7 +8,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var _a;
 const APP_VERSION = "003";
 class IndexDb {
     constructor(name) {
@@ -102,27 +101,18 @@ class DebugStore extends DbStore {
 }
 self.addEventListener("load", () => __awaiter(void 0, void 0, void 0, function* () {
     const reg = yield navigator.serviceWorker.register("../worker.js");
-    console.log(reg);
 }));
-function log(message) {
-    const dom = document.createElement("div");
-    dom.innerHTML = message;
-    document.body.appendChild(dom);
+function run() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const db = new DebugStore("service_worker");
+        yield db.init();
+        // user is locked in to major version when present in database
+        let appVersion = yield db.get("APP_VERSION");
+        if (!appVersion) {
+            appVersion = { name: "APP_VERSION", state: APP_VERSION };
+            yield db.put("APP_VERSION", appVersion);
+        }
+        window.location.href = `./version_${appVersion.state}/index.html`;
+    });
 }
-log(`version ${APP_VERSION}`);
-const channel = new MessageChannel();
-channel.port1.onmessage = (event) => __awaiter(void 0, void 0, void 0, function* () {
-    log(`response from worker: ${JSON.stringify(event.data)}`);
-    const { database } = event.data;
-    const db = new DebugStore(database);
-    yield db.init();
-    ["activate", "install", "fetchFromCacheFirst"].forEach((name) => __awaiter(void 0, void 0, void 0, function* () {
-        const data = yield db.get(name);
-        log(`${data.name} ${data.state}`);
-    }));
-    window.location.href = `./version_${APP_VERSION}/index.html`;
-});
-navigator.serviceWorker.addEventListener("message", event => {
-    log(`broadcast from worker: ${event.data}`);
-});
-(_a = navigator.serviceWorker.controller) === null || _a === void 0 ? void 0 : _a.postMessage({ command: "version" }, [channel.port2]);
+run();

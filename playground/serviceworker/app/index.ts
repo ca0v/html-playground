@@ -3,7 +3,7 @@ const APP_VERSION = "003";
 abstract class IndexDb {
   public db: IDBDatabase | null = null;
 
-  constructor(public name: string) {}
+  constructor(public name: string) { }
 
   async init() {
     return new Promise((good, bad) => {
@@ -92,38 +92,23 @@ class DbStore<T> extends IndexDb {
 class DebugStore extends DbStore<{
   name: string;
   state: string;
-}> {}
+}> { }
 
 self.addEventListener("load", async () => {
   const reg = await navigator.serviceWorker.register("../worker.js");
-  console.log(reg);
 });
 
-function log(message: string) {
-  const dom = document.createElement("div");
-  dom.innerHTML = message;
-  document.body.appendChild(dom);
-}
-
-log(`version ${APP_VERSION}`);
-
-const channel = new MessageChannel();
-channel.port1.onmessage = async event => {
-  log(`response from worker: ${JSON.stringify(event.data)}`);
-  const { database } = event.data;
-  const db = new DebugStore(database);
+async function run() {
+  const db = new DebugStore("service_worker");
   await db.init();
 
-  ["activate", "install", "fetchFromCacheFirst"].forEach(async name => {
-    const data = await db.get(name);
-    log(`${data.name} ${data.state}`);
-  });
+  // user is locked in to major version when present in database
+  let appVersion = await db.get("APP_VERSION");
+  if (!appVersion) {
+    appVersion = { name: "APP_VERSION", state: APP_VERSION };
+    await db.put("APP_VERSION", appVersion);
+  }
+  window.location.href = `./version_${appVersion.state}/index.html`;
+}
 
-  window.location.href=`./version_${APP_VERSION}/index.html`;
-};
-
-navigator.serviceWorker.addEventListener("message", event => {
-  log(`broadcast from worker: ${event.data}`);
-});
-
-navigator.serviceWorker.controller?.postMessage({ command: "version" }, [channel.port2]);
+run();

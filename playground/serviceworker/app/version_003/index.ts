@@ -32,11 +32,11 @@ export async function run() {
     const db = new DebugStore(database);
     await db.init();
 
-    ["activate", "install", "fetchFromCacheFirst"].forEach(async name => {
+    ["APP_VERSION", "activate", "install", "fetchFromCacheFirst"].forEach(async name => {
       const data = await db.get(name);
       const status = document.querySelector(`.${name}`) as HTMLElement;
       if (!status) return;
-      status.innerText = data.state;
+      status.innerText = data?.state || "";
     });
 
   };

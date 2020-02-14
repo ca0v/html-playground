@@ -51,7 +51,7 @@
       grid-template-columns: repeat(3,1fr);
       grid-template-rows: 1em 1fr;
       grid-template-areas: 
-      "a b c"
-      "d d d";
+      "s1 s2 s3 s4"
+      "d d d d";
   }
 

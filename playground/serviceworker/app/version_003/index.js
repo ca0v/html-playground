@@ -131,12 +131,12 @@ define("index", ["require", "exports", "fun/index"], function (require, exports,
                 const { database } = event.data;
                 const db = new DebugStore(database);
                 yield db.init();
-                ["activate", "install", "fetchFromCacheFirst"].forEach((name) => __awaiter(this, void 0, void 0, function* () {
+                ["APP_VERSION", "activate", "install", "fetchFromCacheFirst"].forEach((name) => __awaiter(this, void 0, void 0, function* () {
                     const data = yield db.get(name);
                     const status = document.querySelector(`.${name}`);
                     if (!status)
                         return;
-                    status.innerText = data.state;
+                    status.innerText = (data === null || data === void 0 ? void 0 : data.state) || "";
                 }));
             });
             (_a = navigator.serviceWorker.controller) === null || _a === void 0 ? void 0 : _a.postMessage({ command: "version" }, [channel.port2]);
