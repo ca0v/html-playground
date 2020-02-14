@@ -108,8 +108,7 @@ async function run() {
     appVersion = { name: "APP_VERSION", state: APP_VERSION };
     await db.put("APP_VERSION", appVersion);
   }
-  const appFrame = document.getElementById("appframe")as HTMLFrameElement;
-  appFrame.src = `./version_${appVersion.state}/index.html`;
+  window.location.href = `./version_${appVersion.state}/index.html`;
 }
 
 run();

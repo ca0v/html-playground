@@ -141,10 +141,12 @@ define("index", ["require", "exports", "fun/index"], function (require, exports,
             });
             (_a = navigator.serviceWorker.controller) === null || _a === void 0 ? void 0 : _a.postMessage({ command: "version" }, [channel.port2]);
             const positionStatus = document.querySelector(".altitude");
-            navigator.geolocation.getCurrentPosition(position => {
-                const c = position.coords;
-                positionStatus.innerText = `${c.altitude} ${c.longitude},${c.latitude}`;
-            });
+            if (positionStatus) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const c = position.coords;
+                    positionStatus.innerText = `${c.altitude} ${c.longitude},${c.latitude}`;
+                });
+            }
         });
     }
     exports.run = run;
