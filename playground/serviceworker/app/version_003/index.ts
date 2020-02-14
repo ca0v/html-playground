@@ -42,4 +42,9 @@ export async function run() {
   };
   navigator.serviceWorker.controller?.postMessage({ command: "version" }, [channel.port2]);
 
+  const positionStatus = document.querySelector(".altitude") as HTMLLabelElement;
+  navigator.geolocation.getCurrentPosition(position=>{
+    const c = position.coords;
+    positionStatus.innerText=`${c.altitude} ${c.longitude},${c.latitude}`;
+  });
 }
