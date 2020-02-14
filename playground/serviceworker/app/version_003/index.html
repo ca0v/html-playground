@@ -2,12 +2,11 @@
 <html lang="en">
 
 <head>
-  <meta name="Description" content="Notes">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#3367D6">
-  <link rel="apple-touch-icon" href="../../assets/icon-192.png"/>
-  <title>Notes</title>
-  <link href="./index.css" rel="stylesheet"/>
+  <meta name="Description" content="Notes" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#3367D6" />
+  <title>Notes 003001</title>
+  <link href="./index.css" rel="stylesheet" />
 </head>
 
 <body class="theme">
@@ -16,7 +15,11 @@
   <script src="./index.js"></script>
   <script>
     require(["index"], (app) => {
-      app.run();
+      try {
+        app.run();
+      } catch (ex) {
+        document.write("error: " + ex);
+      }
     });
   </script>
 </body>
