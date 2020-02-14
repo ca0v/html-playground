@@ -112,7 +112,8 @@ function run() {
             appVersion = { name: "APP_VERSION", state: APP_VERSION };
             yield db.put("APP_VERSION", appVersion);
         }
-        window.location.href = `./version_${appVersion.state}/index.html`;
+        const appFrame = document.getElementById("appframe");
+        appFrame.src = `./version_${appVersion.state}/index.html`;
     });
 }
 run();
