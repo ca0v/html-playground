@@ -124,4 +124,4 @@ navigator.serviceWorker.addEventListener("message", event => {
   log(`broadcast from worker: ${event.data}`);
 });
 
-navigator.serviceWorker.controller!.postMessage({ command: "version" }, [channel.port2]);
+navigator.serviceWorker.controller?.postMessage({ command: "version" }, [channel.port2]);

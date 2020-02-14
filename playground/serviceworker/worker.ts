@@ -151,7 +151,7 @@ class AppManager {
         cache.put(event.request, response.clone());
         return response;
       }
-      cache.put(event.request, await fetch(event.request));
+      fetch(event.request).then(response => cache.put(event.request,response));
       return response;
     })();
   }

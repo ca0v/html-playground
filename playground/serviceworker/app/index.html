@@ -1,11 +1,43 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
+  <meta name="Description" content="Service Worker Playground">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#3367D6">
+  <link rel="apple-touch-icon" href="../assets/icon-192.png">
   <title>Installable Offline Demo</title>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <style>
+    html {
+      overflow: hidden;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+    }
+
+    body {
+      align-content: stretch;
+      align-items: stretch;
+      background: #ececec;
+      display: flex;
+      flex-direction: column;
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+    }
+  </style>
 </head>
 
 <body>
   <script src="./index.js"></script>
+  <noscript>
+    <div>Seriously? Turn on scripting.</div>
+  </noscript>
 </body>
 
 </html>
