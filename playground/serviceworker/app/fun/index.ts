@@ -1,5 +1,3 @@
-const APP_VERSION = "004";
-
 abstract class IndexDb {
   public db: IDBDatabase | null = null;
 
@@ -67,7 +65,7 @@ abstract class IndexDb {
   }
 }
 
-class DbStore<T> extends IndexDb {
+export class DbStore<T> extends IndexDb {
   async put(id: string, data: T) {
     return this.asPromise<T>(this.writeable(this.name).put({ id, ...data }));
   }
@@ -89,30 +87,3 @@ class DbStore<T> extends IndexDb {
   }
 }
 
-class DebugStore extends DbStore<{
-  name: string;
-  state: string;
-}> { }
-
-self.addEventListener("load", async () => {
-  const reg = await navigator.serviceWorker?.register("../worker.js");
-});
-
-async function run() {
-  const db = new DebugStore("service_worker");
-  await db.init();
-
-  // user is locked in to major version when present in database
-  let appVersion = await db.get("APP_VERSION");
-  if (!appVersion) {
-    appVersion = { name: "APP_VERSION", state: APP_VERSION };
-    await db.put("APP_VERSION", appVersion);
-  }
-
-  const startButton = document.querySelector(".start") as HTMLButtonElement;
-  startButton.addEventListener("click", () => {
-    window.location.href = `./version_${appVersion.state}/index.html`;
-  });
-}
-
-run();

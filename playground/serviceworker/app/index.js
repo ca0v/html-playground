@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const APP_VERSION = "003";
+const APP_VERSION = "004";
 class IndexDb {
     constructor(name) {
         this.name = name;
