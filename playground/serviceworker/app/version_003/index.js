@@ -114,7 +114,7 @@ define("index", ["require", "exports", "fun/index"], function (require, exports,
         return callable;
     }
     function run() {
-        var _a;
+        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             const notebook = document.getElementById("notebook");
             const database = "notebook";
@@ -139,7 +139,7 @@ define("index", ["require", "exports", "fun/index"], function (require, exports,
                     status.innerText = (data === null || data === void 0 ? void 0 : data.state) || "";
                 }));
             });
-            (_a = navigator.serviceWorker.controller) === null || _a === void 0 ? void 0 : _a.postMessage({ command: "version" }, [channel.port2]);
+            (_b = (_a = navigator.serviceWorker) === null || _a === void 0 ? void 0 : _a.controller) === null || _b === void 0 ? void 0 : _b.postMessage({ command: "version" }, [channel.port2]);
             const positionStatus = document.querySelector(".altitude");
             if (positionStatus) {
                 navigator.geolocation.getCurrentPosition(position => {

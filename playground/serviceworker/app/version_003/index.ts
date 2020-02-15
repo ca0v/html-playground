@@ -40,7 +40,7 @@ export async function run() {
     });
 
   };
-  navigator.serviceWorker.controller?.postMessage({ command: "version" }, [channel.port2]);
+  navigator.serviceWorker?.controller?.postMessage({ command: "version" }, [channel.port2]);
 
   const positionStatus = document.querySelector(".altitude") as HTMLLabelElement;
   if (positionStatus) {

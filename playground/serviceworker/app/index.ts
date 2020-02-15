@@ -95,7 +95,7 @@ class DebugStore extends DbStore<{
 }> { }
 
 self.addEventListener("load", async () => {
-  const reg = await navigator.serviceWorker.register("../worker.js");
+  const reg = await navigator.serviceWorker?.register("../worker.js");
 });
 
 async function run() {

@@ -100,7 +100,8 @@ class DbStore extends IndexDb {
 class DebugStore extends DbStore {
 }
 self.addEventListener("load", () => __awaiter(void 0, void 0, void 0, function* () {
-    const reg = yield navigator.serviceWorker.register("../worker.js");
+    var _a;
+    const reg = yield ((_a = navigator.serviceWorker) === null || _a === void 0 ? void 0 : _a.register("../worker.js"));
 }));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
