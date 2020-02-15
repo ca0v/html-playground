@@ -1,4 +1,7 @@
 import { DbStore } from "../fun/index";
+import { AudioRecorder } from "./fun/audio-recorder";
+
+const recorder = new AudioRecorder();
 
 class DebugStore extends DbStore<{
   name: string;
@@ -26,27 +29,9 @@ export async function run() {
   };
   notebook.addEventListener("keypress", debounce(save));
 
-  const channel = new MessageChannel();
-  channel.port1.onmessage = async event => {
-    const { database } = event.data;
-    const db = new DebugStore(database);
-    await db.init();
-
-    ["APP_VERSION", "activate", "install", "fetchFromCacheFirst"].forEach(async name => {
-      const data = await db.get(name);
-      const status = document.querySelector(`.${name}`) as HTMLElement;
-      if (!status) return;
-      status.innerText = data?.state || "";
-    });
-
-  };
-  navigator.serviceWorker?.controller?.postMessage({ command: "version" }, [channel.port2]);
-
-  const positionStatus = document.querySelector(".altitude") as HTMLLabelElement;
-  if (positionStatus) {
-    navigator.geolocation.getCurrentPosition(position => {
-      const c = position.coords;
-      positionStatus.innerText = `${c.altitude} ${c.longitude},${c.latitude}`;
-    });
-  }
+  const recorderButton = document.querySelector(".record-audio") as HTMLButtonElement;
+  recorderButton?.addEventListener("click", () => {
+    recorder.run();
+  });
+  
 }

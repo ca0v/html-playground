@@ -100,9 +100,32 @@ define("fun/index", ["require", "exports"], function (require, exports) {
     }
     exports.DbStore = DbStore;
 });
-define("version_004/index", ["require", "exports", "fun/index"], function (require, exports, index_1) {
+define("version_004/fun/audio-recorder", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    class AudioRecorder {
+        constructor() {
+            this.player = document.createElement("audio");
+            this.player.controls = true;
+        }
+        run() {
+            return __awaiter(this, void 0, void 0, function* () {
+                document.body.appendChild(this.player);
+                const devices = yield navigator.mediaDevices.enumerateDevices();
+                const audioDevices = devices.filter((d) => d.kind === 'audioinput');
+                if (!audioDevices.length)
+                    return;
+                const audio = yield navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                this.player.srcObject = audio;
+            });
+        }
+    }
+    exports.AudioRecorder = AudioRecorder;
+});
+define("version_004/index", ["require", "exports", "fun/index", "version_004/fun/audio-recorder"], function (require, exports, index_1, audio_recorder_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    const recorder = new audio_recorder_1.AudioRecorder();
     class DebugStore extends index_1.DbStore {
     }
     function debounce(cb, wait = 20) {
@@ -114,7 +137,6 @@ define("version_004/index", ["require", "exports", "fun/index"], function (requi
         return callable;
     }
     function run() {
-        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             const notebook = document.getElementById("notebook");
             const database = "notebook";
@@ -126,27 +148,10 @@ define("version_004/index", ["require", "exports", "fun/index"], function (requi
                 db.put("notes", { name: "notes", state: notebook.value });
             };
             notebook.addEventListener("keypress", debounce(save));
-            const channel = new MessageChannel();
-            channel.port1.onmessage = (event) => __awaiter(this, void 0, void 0, function* () {
-                const { database } = event.data;
-                const db = new DebugStore(database);
-                yield db.init();
-                ["APP_VERSION", "activate", "install", "fetchFromCacheFirst"].forEach((name) => __awaiter(this, void 0, void 0, function* () {
-                    const data = yield db.get(name);
-                    const status = document.querySelector(`.${name}`);
-                    if (!status)
-                        return;
-                    status.innerText = (data === null || data === void 0 ? void 0 : data.state) || "";
-                }));
+            const recorderButton = document.querySelector(".record-audio");
+            recorderButton === null || recorderButton === void 0 ? void 0 : recorderButton.addEventListener("click", () => {
+                recorder.run();
             });
-            (_b = (_a = navigator.serviceWorker) === null || _a === void 0 ? void 0 : _a.controller) === null || _b === void 0 ? void 0 : _b.postMessage({ command: "version" }, [channel.port2]);
-            const positionStatus = document.querySelector(".altitude");
-            if (positionStatus) {
-                navigator.geolocation.getCurrentPosition(position => {
-                    const c = position.coords;
-                    positionStatus.innerText = `${c.altitude} ${c.longitude},${c.latitude}`;
-                });
-            }
         });
     }
     exports.run = run;

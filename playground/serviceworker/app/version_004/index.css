@@ -48,7 +48,7 @@ grid {
   height: 100%;
   width: 100%;
   grid-template-columns: 1fr repeat(5,1fr) 1fr;
-  grid-template-rows: 3em 1fr;
+  grid-template-rows: 8em 1fr;
   grid-template-areas:
     ". toolbar toolbar toolbar toolbar toolbar ."
     "notebook notebook notebook notebook notebook notebook notebook";
@@ -66,8 +66,8 @@ grid {
 }
 
 .toolbar div {
-  width:2em;
-  height:2em;
+  width:4ex;
+  height:4ex;
   color:black;
   background: white;
   border-radius: 1em;
