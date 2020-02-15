@@ -110,13 +110,44 @@ define("version_004/fun/audio-recorder", ["require", "exports"], function (requi
         }
         run() {
             return __awaiter(this, void 0, void 0, function* () {
+                const permission = yield navigator.permissions.query({ name: 'microphone' });
+                switch (permission.state) {
+                    case "granted":
+                    case "prompt":
+                        break;
+                    default:
+                        return;
+                }
+                permission.onchange = function () {
+                };
                 document.body.appendChild(this.player);
                 const devices = yield navigator.mediaDevices.enumerateDevices();
                 const audioDevices = devices.filter((d) => d.kind === 'audioinput');
                 if (!audioDevices.length)
                     return;
-                const audio = yield navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-                this.player.srcObject = audio;
+                const mediaStream = yield navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                const url = yield this.delay(mediaStream);
+                //this.player.srcObject = mediaStream;
+                this.player.src = url;
+            });
+        }
+        delay(stream) {
+            return __awaiter(this, void 0, void 0, function* () {
+                return new Promise((good, bad) => {
+                    const options = { mimeType: 'audio/webm' };
+                    const recordedChunks = [];
+                    const mediaRecorder = new MediaRecorder(stream, options);
+                    mediaRecorder.ondataavailable = e => {
+                        if (e.data.size > 0) {
+                            recordedChunks.push(e.data);
+                        }
+                    };
+                    mediaRecorder.onstop = () => {
+                        good(URL.createObjectURL(new Blob(recordedChunks)));
+                    };
+                    mediaRecorder.start();
+                    setTimeout(() => mediaRecorder.stop(), 2000);
+                });
             });
         }
     }

@@ -7,6 +7,7 @@
     "almond": "^0.3.3"
   },
   "devDependencies": {
+    "@types/dom-mediacapture-record": "^1.0.3",
     "typescript": "^3.9.0-dev.20200212"
   },
   "scripts": {
