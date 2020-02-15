@@ -178,7 +178,7 @@ define("version_004/index", ["require", "exports", "fun/index", "version_004/fun
             const save = () => {
                 db.put("notes", { name: "notes", state: notebook.value });
             };
-            notebook.addEventListener("keypress", debounce(save));
+            notebook.addEventListener("input", debounce(save));
             const recorderButton = document.querySelector(".record-audio");
             recorderButton === null || recorderButton === void 0 ? void 0 : recorderButton.addEventListener("click", () => {
                 recorder.run();

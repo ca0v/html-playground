@@ -24,7 +24,7 @@ export async function run() {
   const save = () => {
     db.put("notes", { name: "notes", state: notebook.value });
   };
-  notebook.addEventListener("keypress", debounce(save));
+  notebook.addEventListener("input", debounce(save));
 
   const channel = new MessageChannel();
   channel.port1.onmessage = async event => {

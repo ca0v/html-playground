@@ -125,7 +125,7 @@ define("index", ["require", "exports", "fun/index"], function (require, exports,
             const save = () => {
                 db.put("notes", { name: "notes", state: notebook.value });
             };
-            notebook.addEventListener("keypress", debounce(save));
+            notebook.addEventListener("input", debounce(save));
             const channel = new MessageChannel();
             channel.port1.onmessage = (event) => __awaiter(this, void 0, void 0, function* () {
                 const { database } = event.data;

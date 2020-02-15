@@ -27,7 +27,7 @@ export async function run() {
   const save = () => {
     db.put("notes", { name: "notes", state: notebook.value });
   };
-  notebook.addEventListener("keypress", debounce(save));
+  notebook.addEventListener("input", debounce(save));
 
   const recorderButton = document.querySelector(".record-audio") as HTMLButtonElement;
   recorderButton?.addEventListener("click", () => {
