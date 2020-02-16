@@ -27,11 +27,21 @@ export async function run() {
   const save = () => {
     db.put("notes", { name: "notes", state: notebook.value });
   };
-  notebook.addEventListener("input", debounce(save));
+  notebook.addEventListener("input", debounce(save, 500));
 
   const recorderButton = document.querySelector(".record-audio") as HTMLButtonElement;
-  recorderButton?.addEventListener("click", () => {
-    recorder.run();
+  recorderButton?.addEventListener("click", async () => {
+    const priorAudio = await db.get("audio-1");
+    if (priorAudio) {
+      await recorder.playback(<any>priorAudio.state);
+    }
+    recorderButton.classList.add("recording");
+    const audio = await recorder.record(5000);
+    recorderButton.classList.remove("recording");
+    if (audio) {
+      db.put("audio-1", { name: "audio-1", state: <any>audio });
+      recorder.playback(audio);
+    }
   });
-  
+
 }

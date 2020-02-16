@@ -84,3 +84,7 @@ grid {
   display:grid;
   grid-template-rows: repeat(5, 1fr);
 }
+
+.toolbar div.recording {
+  background-color: red;
+}

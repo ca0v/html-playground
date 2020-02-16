@@ -32,11 +32,22 @@
     }
 
     .fill {
-      border:none;
+      border: none;
       height: 100%;
       margin: 0;
       padding: 0;
-      width: 100%;    
+      width: 100%;
+    }
+
+    .start {
+      font-size: 4em;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .theme {
+        background: black;
+        color: #ddd;
+      }
     }
   </style>
 </head>
@@ -46,7 +57,7 @@
   <noscript>
     <div>Seriously? Turn on scripting.</div>
   </noscript>
-  <button class="fill start">Start</button>
+  <button class="theme fill start">Start</button>
 </body>
 
 </html>

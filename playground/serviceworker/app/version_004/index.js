@@ -108,30 +108,38 @@ define("version_004/fun/audio-recorder", ["require", "exports"], function (requi
             this.player = document.createElement("audio");
             this.player.controls = true;
         }
-        run() {
+        canRecordAudio() {
             return __awaiter(this, void 0, void 0, function* () {
                 const permission = yield navigator.permissions.query({ name: 'microphone' });
                 switch (permission.state) {
                     case "granted":
                     case "prompt":
-                        break;
+                        return true;
                     default:
-                        return;
+                        return false;
                 }
                 permission.onchange = function () {
                 };
-                document.body.appendChild(this.player);
-                const devices = yield navigator.mediaDevices.enumerateDevices();
-                const audioDevices = devices.filter((d) => d.kind === 'audioinput');
-                if (!audioDevices.length)
-                    return;
-                const mediaStream = yield navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-                const url = yield this.delay(mediaStream);
-                //this.player.srcObject = mediaStream;
-                this.player.src = url;
             });
         }
-        delay(stream) {
+        canFindDevice() {
+            return __awaiter(this, void 0, void 0, function* () {
+                const devices = yield navigator.mediaDevices.enumerateDevices();
+                const audioDevices = devices.filter((d) => d.kind === 'audioinput');
+                return 0 < audioDevices.length;
+            });
+        }
+        record(duration = 1000) {
+            return __awaiter(this, void 0, void 0, function* () {
+                if (!(yield this.canRecordAudio()))
+                    return;
+                if (!(yield this.canFindDevice()))
+                    return;
+                const mediaStream = yield navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                return this.recordFromStream(mediaStream, duration);
+            });
+        }
+        recordFromStream(stream, duration = 2000) {
             return __awaiter(this, void 0, void 0, function* () {
                 return new Promise((good, bad) => {
                     const options = { mimeType: 'audio/webm' };
@@ -143,10 +151,23 @@ define("version_004/fun/audio-recorder", ["require", "exports"], function (requi
                         }
                     };
                     mediaRecorder.onstop = () => {
-                        good(URL.createObjectURL(new Blob(recordedChunks)));
+                        good(recordedChunks);
                     };
-                    mediaRecorder.start();
-                    setTimeout(() => mediaRecorder.stop(), 2000);
+                    mediaRecorder.start(0);
+                    setTimeout(() => mediaRecorder.stop(), duration);
+                });
+            });
+        }
+        playback(audioData) {
+            return __awaiter(this, void 0, void 0, function* () {
+                return new Promise((good, bad) => {
+                    const data = new Blob(audioData);
+                    const url = URL.createObjectURL(data);
+                    this.player.src = url;
+                    this.player.play();
+                    this.player.onended = () => __awaiter(this, void 0, void 0, function* () {
+                        good();
+                    });
                 });
             });
         }
@@ -178,11 +199,21 @@ define("version_004/index", ["require", "exports", "fun/index", "version_004/fun
             const save = () => {
                 db.put("notes", { name: "notes", state: notebook.value });
             };
-            notebook.addEventListener("input", debounce(save));
+            notebook.addEventListener("input", debounce(save, 500));
             const recorderButton = document.querySelector(".record-audio");
-            recorderButton === null || recorderButton === void 0 ? void 0 : recorderButton.addEventListener("click", () => {
-                recorder.run();
-            });
+            recorderButton === null || recorderButton === void 0 ? void 0 : recorderButton.addEventListener("click", () => __awaiter(this, void 0, void 0, function* () {
+                const priorAudio = yield db.get("audio-1");
+                if (priorAudio) {
+                    yield recorder.playback(priorAudio.state);
+                }
+                recorderButton.classList.add("recording");
+                const audio = yield recorder.record(5000);
+                recorderButton.classList.remove("recording");
+                if (audio) {
+                    db.put("audio-1", { name: "audio-1", state: audio });
+                    recorder.playback(audio);
+                }
+            }));
         });
     }
     exports.run = run;
