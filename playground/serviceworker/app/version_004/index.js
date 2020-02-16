@@ -167,6 +167,16 @@ define("version_004/fun/audio-recorder", ["require", "exports"], function (requi
                     this.player.play();
                     this.player.onended = () => __awaiter(this, void 0, void 0, function* () {
                         good();
+                        // removes the reference from the internal mapping, thus allowing the Blob to be deleted (if there are no other references), and the memory to be freed.
+                        URL.revokeObjectURL(url);
+                        // write out the audio as base64 so use as product resource
+                        if (0) {
+                            let reader = new FileReader();
+                            reader.readAsDataURL(data); // converts the blob to base64 and calls onload
+                            reader.onload = () => {
+                                console.log(reader.result);
+                            };
+                        }
                     });
                 });
             });
@@ -200,18 +210,26 @@ define("version_004/index", ["require", "exports", "fun/index", "version_004/fun
                 db.put("notes", { name: "notes", state: notebook.value });
             };
             notebook.addEventListener("input", debounce(save, 500));
+            let looping = false;
             const recorderButton = document.querySelector(".record-audio");
             recorderButton === null || recorderButton === void 0 ? void 0 : recorderButton.addEventListener("click", () => __awaiter(this, void 0, void 0, function* () {
+                looping = !looping;
                 const priorAudio = yield db.get("audio-1");
                 if (priorAudio) {
+                    recorderButton.classList.add("playing");
                     yield recorder.playback(priorAudio.state);
+                    recorderButton.classList.remove("playing");
                 }
-                recorderButton.classList.add("recording");
-                const audio = yield recorder.record(5000);
-                recorderButton.classList.remove("recording");
-                if (audio) {
-                    db.put("audio-1", { name: "audio-1", state: audio });
-                    recorder.playback(audio);
+                while (looping) {
+                    recorderButton.classList.add("recording");
+                    const audio = yield recorder.record(3000);
+                    recorderButton.classList.remove("recording");
+                    if (audio) {
+                        db.put("audio-1", { name: "audio-1", state: audio });
+                        recorderButton.classList.add("playing");
+                        yield recorder.playback(audio);
+                        recorderButton.classList.remove("playing");
+                    }
                 }
             }));
         });

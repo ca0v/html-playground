@@ -60,6 +60,17 @@ export class AudioRecorder {
             this.player.play();
             this.player.onended = async () => {
                 good();
+                // removes the reference from the internal mapping, thus allowing the Blob to be deleted (if there are no other references), and the memory to be freed.
+                URL.revokeObjectURL(url);
+
+                // write out the audio as base64 so use as product resource
+                if (0) {
+                    let reader = new FileReader();
+                    reader.readAsDataURL(data); // converts the blob to base64 and calls onload
+                    reader.onload = () => {
+                        console.log(reader.result);
+                    };
+                }
             }
         });
     }

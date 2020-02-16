@@ -29,18 +29,27 @@ export async function run() {
   };
   notebook.addEventListener("input", debounce(save, 500));
 
+  let looping = false;
   const recorderButton = document.querySelector(".record-audio") as HTMLButtonElement;
   recorderButton?.addEventListener("click", async () => {
+    looping = !looping;
     const priorAudio = await db.get("audio-1");
     if (priorAudio) {
+      recorderButton.classList.add("playing");
       await recorder.playback(<any>priorAudio.state);
+      recorderButton.classList.remove("playing");
     }
-    recorderButton.classList.add("recording");
-    const audio = await recorder.record(5000);
-    recorderButton.classList.remove("recording");
-    if (audio) {
-      db.put("audio-1", { name: "audio-1", state: <any>audio });
-      recorder.playback(audio);
+
+    while (looping) {
+      recorderButton.classList.add("recording");
+      const audio = await recorder.record(3000);
+      recorderButton.classList.remove("recording");
+      if (audio) {
+        db.put("audio-1", { name: "audio-1", state: <any>audio });
+        recorderButton.classList.add("playing");
+        await recorder.playback(audio);
+        recorderButton.classList.remove("playing");
+      }
     }
   });
 

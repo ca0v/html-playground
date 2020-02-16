@@ -66,13 +66,14 @@ grid {
 }
 
 .toolbar div {
-  width:4ex;
-  height:4ex;
+  width:4em;
+  height:4em;
   color:black;
   background: white;
-  border-radius: 1em;
+  border-radius: 3em;
   font-size: 1.5em;
   text-align: center;
+  line-height: 4em;
 }
 
 #notebook {
@@ -83,6 +84,10 @@ grid {
   grid-area: explorer;
   display:grid;
   grid-template-rows: repeat(5, 1fr);
+}
+
+.toolbar div.playing {
+  background-color: green;
 }
 
 .toolbar div.recording {
