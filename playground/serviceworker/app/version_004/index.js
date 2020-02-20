@@ -243,7 +243,7 @@ define("version_004/index", ["require", "exports", "fun/index", "version_004/fun
                 appendButton.innerText = tracks + "";
             }));
             concatButton === null || concatButton === void 0 ? void 0 : concatButton.addEventListener("click", () => __awaiter(this, void 0, void 0, function* () {
-                var _b;
+                var _b, _c;
                 looping = false;
                 const tracks = parseInt(((_b = (yield db.get("track-count"))) === null || _b === void 0 ? void 0 : _b.state) || "0");
                 db.put("track-count", { name: "track-count", state: "0" });
@@ -252,8 +252,10 @@ define("version_004/index", ["require", "exports", "fun/index", "version_004/fun
                     const blobs = (yield db.get(`track-${i}`)).state;
                     fullAudio = new Blob([fullAudio, ...blobs], { type: "audio/webm" });
                 }
-                const targetAudio = (yield db.get("audio-2")).state;
-                fullAudio = new Blob([fullAudio, targetAudio], { type: "audio/webm" });
+                const targetAudio = (_c = (yield db.get("audio-2"))) === null || _c === void 0 ? void 0 : _c.state;
+                if (targetAudio) {
+                    fullAudio = new Blob([fullAudio, targetAudio], { type: "audio/webm" });
+                }
                 yield recorder.playback(fullAudio);
                 yield db.put("audio-2", { name: "audio-2", state: fullAudio });
             }));

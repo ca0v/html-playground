@@ -74,8 +74,10 @@ export async function run() {
       const blobs = (await db.get(`track-${i}`)).state as any as Blob[];
       fullAudio = new Blob([fullAudio, ...blobs], { type: "audio/webm" });
     }
-    const targetAudio = (await db.get("audio-2")).state as any as Blob;
-    fullAudio = new Blob([fullAudio, targetAudio], { type: "audio/webm" });
+    const targetAudio = (await db.get("audio-2"))?.state as any as Blob;
+    if (targetAudio) {
+      fullAudio = new Blob([fullAudio, targetAudio], { type: "audio/webm" });
+    }
     await recorder.playback(fullAudio);
     await db.put("audio-2", { name: "audio-2", state: <any>fullAudio });
   })
