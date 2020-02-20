@@ -161,7 +161,7 @@ define("version_004/fun/audio-recorder", ["require", "exports"], function (requi
         playback(audioData) {
             return __awaiter(this, void 0, void 0, function* () {
                 return new Promise((good, bad) => {
-                    const data = new Blob(audioData);
+                    const data = audioData.type ? audioData : new Blob(audioData);
                     const url = URL.createObjectURL(data);
                     this.player.src = url;
                     this.player.play();
@@ -212,6 +212,8 @@ define("version_004/index", ["require", "exports", "fun/index", "version_004/fun
             notebook.addEventListener("input", debounce(save, 500));
             let looping = false;
             const recorderButton = document.querySelector(".record-audio");
+            const appendButton = document.querySelector(".append-audio");
+            const concatButton = document.querySelector(".concatinate-audio");
             recorderButton === null || recorderButton === void 0 ? void 0 : recorderButton.addEventListener("click", () => __awaiter(this, void 0, void 0, function* () {
                 looping = !looping;
                 const priorAudio = yield db.get("audio-1");
@@ -231,6 +233,29 @@ define("version_004/index", ["require", "exports", "fun/index", "version_004/fun
                         recorderButton.classList.remove("playing");
                     }
                 }
+            }));
+            appendButton === null || appendButton === void 0 ? void 0 : appendButton.addEventListener("click", () => __awaiter(this, void 0, void 0, function* () {
+                var _a;
+                const priorAudio = yield db.get("audio-1");
+                const tracks = parseInt(((_a = (yield db.get("track-count"))) === null || _a === void 0 ? void 0 : _a.state) || "0");
+                db.put(`track-${tracks + 1}`, { name: "track", state: priorAudio.state });
+                db.put("track-count", { name: "track-count", state: tracks + 1 + "" });
+                appendButton.innerText = tracks + "";
+            }));
+            concatButton === null || concatButton === void 0 ? void 0 : concatButton.addEventListener("click", () => __awaiter(this, void 0, void 0, function* () {
+                var _b;
+                looping = false;
+                const tracks = parseInt(((_b = (yield db.get("track-count"))) === null || _b === void 0 ? void 0 : _b.state) || "0");
+                db.put("track-count", { name: "track-count", state: "0" });
+                let fullAudio = new Blob();
+                for (let i = 1; i <= tracks; i++) {
+                    const blobs = (yield db.get(`track-${i}`)).state;
+                    fullAudio = new Blob([fullAudio, ...blobs], { type: "audio/webm" });
+                }
+                const targetAudio = (yield db.get("audio-2")).state;
+                fullAudio = new Blob([fullAudio, targetAudio], { type: "audio/webm" });
+                yield recorder.playback(fullAudio);
+                yield db.put("audio-2", { name: "audio-2", state: fullAudio });
             }));
         });
     }

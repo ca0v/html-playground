@@ -54,7 +54,7 @@ export class AudioRecorder {
 
     async playback(audioData: any) {
         return new Promise((good, bad) => {
-            const data = new Blob(audioData);
+            const data: Blob = audioData.type ? audioData : new Blob(audioData);
             const url = URL.createObjectURL(data);
             this.player.src = url;
             this.player.play();

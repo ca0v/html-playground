@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/ca0v/html-playground#readme",
   "devDependencies": {
+    "@types/dom-mediacapture-record": "^1.0.3",
     "typescript": "^3.7.2"
   },
   "dependencies": {
