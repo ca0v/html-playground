@@ -1,3 +1,5 @@
+import { merge } from "./merge-audio";
+
 export class AudioRecorder {
     player = document.createElement("audio");
 
@@ -25,10 +27,11 @@ export class AudioRecorder {
     }
 
     async record(duration = 1000) {
-        if (!await this.canRecordAudio()) return;
-        if (!await this.canFindDevice()) return;
+        if (!await this.canRecordAudio()) throw "cannot record audio";
+        if (!await this.canFindDevice()) throw "cannot find device";
         const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-        return this.recordFromStream(mediaStream, duration);
+        const audio = await this.recordFromStream(mediaStream, duration);
+        return merge(...audio);
     }
 
     private async recordFromStream(stream: MediaStream, duration = 2000) {
@@ -52,25 +55,19 @@ export class AudioRecorder {
 
     }
 
-    async playback(audioData: any) {
+    async playback(audio: Blob) {
         return new Promise((good, bad) => {
-            const data: Blob = audioData.type ? audioData : new Blob(audioData);
-            const url = URL.createObjectURL(data);
+            const url = URL.createObjectURL(audio);
             this.player.src = url;
             this.player.play();
-            this.player.onended = async () => {
-                good();
+            this.player.onended = () => {
                 // removes the reference from the internal mapping, thus allowing the Blob to be deleted (if there are no other references), and the memory to be freed.
                 URL.revokeObjectURL(url);
+                good();
+            };
 
-                // write out the audio as base64 so use as product resource
-                if (0) {
-                    let reader = new FileReader();
-                    reader.readAsDataURL(data); // converts the blob to base64 and calls onload
-                    reader.onload = () => {
-                        console.log(reader.result);
-                    };
-                }
+            this.player.onerror = (err) => {
+                bad(err);
             }
         });
     }
