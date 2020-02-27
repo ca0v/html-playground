@@ -1,4 +1,4 @@
-const APP_VERSION = "004";
+const APP_VERSION = "005";
 
 abstract class IndexDb {
   public db: IDBDatabase | null = null;
