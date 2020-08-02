@@ -9,7 +9,7 @@ export class OpenAlbumsCommand implements Command {
             await this.openAlbums(repl);
             return;
         }
-        let albumNames = args.split(" ");
+        let albumNames = args.split(",");
         await this.openAlbums(repl, albumNames);
     }
 

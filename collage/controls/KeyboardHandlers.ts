@@ -24,4 +24,8 @@ export class KeyboardHandlers {
     };
     this.keyboardHandlers.push({match: fullMatch, command});
   }
+
+  list() {
+    return this.keyboardHandlers.map(h => JSON.stringify(h.match));
+  }
 }

@@ -27,4 +27,8 @@ export class Commands {
         this.commands[verb] = command;
     }
 
+    list() {
+      return Object.keys(this.commands);
+    }
+
 }

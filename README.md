@@ -62,8 +62,9 @@ html-playground
 - [two or more borders (box-shadow)](https://css-tricks.com/snippets/css/multiple-borders/)
 - [svg elements](https://www.w3.org/TR/SVG/eltindex.html)
 - [motion design](https://codepen.io/sdras/full/JbaGwg)
-- [svg editor](https://ca0v.github.io/html-playground/playground/svg/svgeditor/index.html)
-- [fireworks](https://ca0v.github.io/html-playground/playground/svg/svg-keywords.html)
 
 # labs
-[serviceworker](http://ca0v.github.io/html-playground/playground/serviceworker/app/index.html)
+- [serviceworker](http://ca0v.github.io/html-playground/playground/serviceworker/app/index.html)
+- [svg editor](https://ca0v.github.io/html-playground/playground/svg/svgeditor/index.html)
+- [fireworks](https://ca0v.github.io/html-playground/playground/svg/svg-keywords.html)
+- [collage](https://ca0v.github.io/html-playground/index.html)

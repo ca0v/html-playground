@@ -6,6 +6,7 @@ import { GooglePhotoAPI } from "../models/GooglePhotoAPI";
 declare var gapi: GooglePhotoAPI;
 
 export class GooglePhotos {
+
   async getAlbums() {
     let signin = new GooglePhotoSignin();
     await signin.handleClientLoad();
@@ -13,8 +14,17 @@ export class GooglePhotos {
     if (resp.status !== 200)
       throw `status: ${resp.status}`;
     console.log({ resp });
-    return resp.result.albums as Array<GoogleAlbum>;
+    let albums = resp.result.albums as Array<GoogleAlbum>;
+    while (resp.result.nextPageToken) {
+      resp = await gapi.client.photoslibrary.albums.list({pageToken: resp.result.nextPageToken});
+      if (resp.status !== 200)
+        throw `status: ${resp.status}`;
+      console.log({ resp });
+      albums = albums.concat(resp.result.albums);
+    }
+    return albums;
   }
+
   async getAlbum(album: GoogleAlbum) {
     let data = await gapi.client.photoslibrary.mediaItems.search({ albumId: album.id });
     let {mediaItems} = data.result;
@@ -24,6 +34,7 @@ export class GooglePhotos {
     }
     return mediaItems;
   }
+
   async getPhoto(mediaItemId: string) {
     let data = await gapi.client.photoslibrary.mediaItems.get({ mediaItemId });
     return (data.result) as GoogleMediaItem;

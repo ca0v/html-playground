@@ -2,6 +2,7 @@ import { Toaster } from "./controls/Toaster";
 import { Repl } from "./controls/Repl";
 import { DragAndDrop } from "./controls/DragAndDrop";
 import { Commands } from "./controls/Commands";
+import { HelpCommand } from "./commands/Help";
 import { SplitCommand } from "./commands/SplitCommand";
 import { AspectRatioCommand } from "./commands/AspectRatioCommand";
 import { BorderCommand } from "./commands/BorderCommand";
@@ -36,6 +37,7 @@ const keyboardHandlers = new KeyboardHandlers();
 repl.use(new MultiSelector());
 repl.use(new NotificationBehavior(toaster));
 
+keyboardHandlers.addEventHandler(new HelpCommand(), { key: "?" });
 keyboardHandlers.addEventHandler(new EscapeCommand(), { key: "Escape" });
 keyboardHandlers.addEventHandler(new ChangeFontSizeCommand(1), { key: "+" });
 keyboardHandlers.addEventHandler(new ChangeFontSizeCommand(-1), { key: "-" });
@@ -89,6 +91,7 @@ keyboardHandlers.addEventHandler(new ToggleFocusCommand(), { shiftKey: false, ke
 const dnd = new DragAndDrop(repl, keyboardHandlers);
 repl.dnd = dnd;
 
+commands.add(new HelpCommand(), "?");
 commands.add(new OpenAlbumsCommand(), "open");
 
 commands.add(new AspectRatioCommand(), "aspect");
@@ -142,4 +145,5 @@ export let globals = {
     debug: true,
     repl,
     dnd,
+    keyboardHandlers,
 }

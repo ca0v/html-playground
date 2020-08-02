@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "tsc -p tsconfig.json -w",
     "pg": "tsc -p playground/tsconfig.json -w",
-    "pg:svg": "tsc -p playground/svg/tsconfig.json -w"
+    "pg:svg": "tsc -p playground/svg/tsconfig.json -w",
+    "post-install": "cp ./node_modules/requirejs/require.js ./assets/require.js"
   },
   "repository": {
     "type": "git",
@@ -22,7 +23,7 @@
   "homepage": "https://github.com/ca0v/html-playground#readme",
   "devDependencies": {
     "@types/dom-mediacapture-record": "^1.0.3",
-    "typescript": "^3.7.2"
+    "typescript": "^3.9.5"
   },
   "dependencies": {
     "requirejs": "^2.3.6"

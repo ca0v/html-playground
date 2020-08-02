@@ -20,8 +20,8 @@ html.collage, .collage body {
 
 .collage .canvas {
     position: absolute;
-    top: 0;
-    bottom: 160px;
+    top: 1em;
+    bottom: 10em;
     left: 0;
     right: 0;
     padding: 1em;

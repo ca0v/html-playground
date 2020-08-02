@@ -6,8 +6,9 @@ async function run() {
 
     const repl = globals.repl;
 
-    repl.eval("aspect 4 6");
+    repl.eval("aspect 6 6");
     if (globals.debug) {
+      repl.eval("?");
         repl.eval("split 1");
         repl.eval("merge 4 3");
         repl.eval("split 2");
@@ -30,7 +31,7 @@ async function run() {
         // repl.eval("goto 1");
         // repl.eval("text 1 Summer 2019");
 
-        await repl.eval("open 2019"); // present list of google photo albums?
+        await repl.eval("open Date Night,2019"); // present list of google photo albums?
         //await repl.eval("open gp 1999"); // open google photo album "1999"?
 
         setTimeout(() => {
