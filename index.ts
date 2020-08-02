@@ -30,7 +30,7 @@ async function run() {
         // repl.eval("merge 6 7");
         // repl.eval("goto 1");
         // repl.eval("text 1 Summer 2019");
-
+return;
         await repl.eval("open Date Night,2019"); // present list of google photo albums?
         //await repl.eval("open gp 1999"); // open google photo album "1999"?
 

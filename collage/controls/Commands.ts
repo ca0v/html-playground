@@ -5,6 +5,11 @@ import { Dictionary } from "../models/Dictionary";
  * Keeps hash of commands
  */
 export class Commands {
+    nameOf(command: Command) {
+      const keys = Object.keys(this.commands);
+      const i = keys.findIndex(k => this.commands[k].execute === command.execute);
+      return -1<i ? keys[i]:null;
+    }
 
     private commands: Dictionary<Command> = {};
 

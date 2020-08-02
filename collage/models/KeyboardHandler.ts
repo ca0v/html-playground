@@ -3,4 +3,5 @@ export interface KeyboardHandler {
   shiftKey: boolean;
   ctrlKey: boolean;
   key: string;
+  about?: string;
 }

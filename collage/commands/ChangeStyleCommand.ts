@@ -16,12 +16,17 @@ export class ChangeStyleCommand implements Command {
     }
   ) { }
 
+  about() {
+    return `change style ${this.target} by ${this.options?.delta} ${this.options?.units}`;
+  }
+
   private keyboardHandler(repl: Repl) {
     return repl.panels
       .filter(p => p.panel.classList.contains("focus"))
       .some(panel => {
         let target = panel.panel;
-        let value = parseFloat(getComputedStyle(target)[this.target]) + (this.options?.delta ?? 0);
+        const style = getComputedStyle(target);
+        let value = parseFloat(style[<any>this.target]) + (this.options?.delta ?? 0);
         target.style[<any>this.target] = value + (this.options?.units ?? "");
         return true;
       });
@@ -40,7 +45,7 @@ export class ChangeStyleCommand implements Command {
       if (!panel) {
         repl.notify(`panel not found: ${id}`);
         return false;
-      }  
+      }
       panels = [panel];
     }
     if (!panels.length) return false;

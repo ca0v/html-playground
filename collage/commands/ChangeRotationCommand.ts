@@ -25,6 +25,10 @@ function rotateImage(repl: Repl, node: HTMLElement, angle: string) {
 export class RotatePanelCommand implements Command {
   constructor(public delta: number) { }
 
+  about() {
+    return `rotate panel by ${this.delta} deg`;
+  }
+
   execute(repl: Repl, args: string): void | false {
     let panels = getFocusPanels(repl);
     if (!panels.length) return false;
@@ -38,6 +42,10 @@ export class RotatePanelCommand implements Command {
 
 export class RotateImageCommand implements Command {
   constructor(public delta?: number) { }
+
+  about() {
+    return `rotate image by ${this.delta} deg`;
+  }
 
   execute(repl: Repl, args: string): void | false {
     if (!!args) {

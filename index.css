@@ -5,6 +5,11 @@
     }
 }
 
+.help {
+  position: absolute;
+  right:0;
+}
+
 html.collage, .collage body {
     background-color: black;
     overflow: hidden;

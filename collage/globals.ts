@@ -37,7 +37,7 @@ const keyboardHandlers = new KeyboardHandlers();
 repl.use(new MultiSelector());
 repl.use(new NotificationBehavior(toaster));
 
-keyboardHandlers.addEventHandler(new HelpCommand(), { key: "?" });
+keyboardHandlers.addEventHandler(new HelpCommand(), { key: "?", about:"Help" });
 keyboardHandlers.addEventHandler(new EscapeCommand(), { key: "Escape" });
 keyboardHandlers.addEventHandler(new ChangeFontSizeCommand(1), { key: "+" });
 keyboardHandlers.addEventHandler(new ChangeFontSizeCommand(-1), { key: "-" });
@@ -84,7 +84,7 @@ keyboardHandlers.addEventHandler(new ChangeStyleCommand("height", { delta: -1, u
 
 keyboardHandlers.addEventHandler(new SwapPanelsCommand(), { ctrlKey: true, key: "s" });
 keyboardHandlers.addEventHandler(new StopCommand(), { shiftKey: true, key: " " });
-keyboardHandlers.addEventHandler(new GotoCommandEditorCommand(), { key: "c" });
+keyboardHandlers.addEventHandler(new GotoCommandEditorCommand(), { key: "c", about:"goto commands" });
 keyboardHandlers.addEventHandler(new ToggleFocusCommand(), { shiftKey: true, key: " " });
 keyboardHandlers.addEventHandler(new ToggleFocusCommand(), { shiftKey: false, key: " " });
 

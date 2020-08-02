@@ -38,6 +38,11 @@ function scaleImage(repl: Repl, panel: CollagePanel, scale: string) {
 export class ScalePanelCommand implements Command {
     constructor(public scale?: number) {
     }
+
+    about() {
+      return `scale panel by ${(this.scale||0).toFixed(3)}`;
+    }
+
     execute(repl: Repl, args?: string | undefined): void | false {
         if (!!args) {
             let [noun, noun2] = args.split(" ");
@@ -58,6 +63,11 @@ export class ScalePanelCommand implements Command {
 export class ScaleImageCommand implements Command {
     constructor(public scale?: number) {
     }
+
+    about() {
+      return `scale image by ${(this.scale||0).toFixed(3)}`;
+    }
+
     execute(repl: Repl, args?: string | undefined): void | false {
         if (!!args) {
             let [id, scale] = args.split(" ");

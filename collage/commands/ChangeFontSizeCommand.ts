@@ -6,6 +6,10 @@ export class ChangeFontSizeCommand implements Command {
     constructor(public delta: number) {
     }
 
+    about() {
+      return `increase font by ${this.delta}px`;
+    }
+
     isLabel(element: Element | null) {
         if (!element)
             return false;

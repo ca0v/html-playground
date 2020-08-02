@@ -20,12 +20,28 @@ export class KeyboardHandlers {
       altKey: match.altKey ?? false,
       ctrlKey: match.ctrlKey ?? false,
       shiftKey: match.shiftKey ?? false,
-      key: match.key ?? ""
+      key: match.key ?? "",
+      about: match.about || command.about && command.about()
     };
     this.keyboardHandlers.push({match: fullMatch, command});
   }
 
   list() {
-    return this.keyboardHandlers.map(h => JSON.stringify(h.match));
+    return this.keyboardHandlers.map(h => ({
+      command:h.command,
+      key: this.keysAsString(h.match),
+      about: h.match.about,
+    }));
+  }
+
+  keysAsString(match: KeyboardHandler) {
+   let result = match.key;
+   switch (result){
+     case " ": result = "space"; break;
+   }
+   if (match.ctrlKey) result = "ctrl + "+result;
+   if (match.altKey) result = "alt + "+result;
+   if (match.shiftKey) result = "shift + "+result;
+   return result;
   }
 }

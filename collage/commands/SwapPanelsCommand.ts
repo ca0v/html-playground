@@ -38,6 +38,10 @@ export class SwapPanelsCommand implements Command {
     swapImages(panels[0], panels[1]);
   }
 
+  about() {
+    return "Swap Panel A B";
+  }
+
   execute(repl: Repl, args?: string | undefined): false | void | Promise<false | void> {
     if (!args)
       return this.keyboardHandler(repl);
