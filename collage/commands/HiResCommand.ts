@@ -12,8 +12,8 @@ export class HiResCommand implements Command {
     if (!panel.photo)
       return;
 
-    // attempts to increase an image size and decrease the transform scale 
-    // to have a negligable effect on the image but allow for swapping in 
+    // attempts to increase an image size and decrease the transform scale
+    // to have a negligable effect on the image but allow for swapping in
     // a higher resolution version.
     // this is not compensating for  padding, margin, border width, etc.
     // it is not preserving rotation
@@ -36,10 +36,9 @@ export class HiResCommand implements Command {
 
 
   execute(repl: Repl, args: string): void {
-    let id = args;
-    let panel = repl.selectPanel(id);
-    if (!panel) return;
-    this.upgradeResolution(repl, panel);
+    const [...ids] = args.split(" ").map(v => v.trim()).filter(v => v.length);
+    const targets = !ids.length ? repl.panels : ids.map(id => repl.selectPanel(id));
+    targets.forEach(p => p && this.upgradeResolution(repl, p));
 
   }
 }

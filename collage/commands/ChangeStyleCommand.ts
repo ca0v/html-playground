@@ -17,16 +17,16 @@ export class ChangeStyleCommand implements Command {
   ) { }
 
   about() {
-    return `change style ${this.target} by ${this.options?.delta} ${this.options?.units}`;
+    return `change ${this.target}`;
   }
 
   private keyboardHandler(repl: Repl) {
     return repl.panels
       .filter(p => p.panel.classList.contains("focus"))
       .some(panel => {
-        let target = panel.panel;
+        const target = panel.panel;
         const style = getComputedStyle(target);
-        let value = parseFloat(style[<any>this.target]) + (this.options?.delta ?? 0);
+        const value = parseFloat(style[<any>this.target]) + (this.options?.delta ?? 0);
         target.style[<any>this.target] = value + (this.options?.units ?? "");
         return true;
       });
@@ -38,25 +38,20 @@ export class ChangeStyleCommand implements Command {
       return false;
     }
 
-    let panels = repl.panels;
-    let [value, id] = args.split(" ");
-    if (!!id) {
-      let panel = repl.selectPanel(id);
-      if (!panel) {
-        repl.notify(`panel not found: ${id}`);
-        return false;
-      }
-      panels = [panel];
-    }
-    if (!panels.length) return false;
+    const panels = repl.panels;
+    const [value, ...ids] = args.split(" ");
+    if (!value) throw "size required";
 
-    if (this.options?.units && !hasUnits(value)) {
-      value += this.options.units;
-    }
+    const targets = (!ids.length) ? panels : ids.map(id => repl.selectPanel(id)).filter(v => !!v);
+    if (!targets.length) return false;
 
-    panels.forEach(panel => {
-      panel.panel.style[<any>this.target] = value;
+    const units = !hasUnits(value) ? this.options?.units || "" : "";
+
+    targets.forEach(panel => {
+      if (!panel) return;
+      panel.panel.style[<any>this.target] = `${value}${units}`;
     });
+
   }
 }
 

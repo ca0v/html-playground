@@ -8,7 +8,6 @@ import { DragAndDrop } from "./DragAndDrop";
 import { Behavior } from "../models/Behavior";
 
 export class Repl {
-
   // extension point for behaviors
   notify(message: string) {
     console.log(message);
@@ -66,9 +65,9 @@ export class Repl {
       if (!ctx) return;
 
       let count = 0;
-      let panels = this.panels.filter(p => 0 === getComputedStyle(p.panel).backgroundImage.indexOf(`url("`));
+      let panels = this.panels.filter((p) => 0 === getComputedStyle(p.panel).backgroundImage.indexOf(`url("`));
       console.log("loading", panels.length);
-      panels.forEach(p => {
+      panels.forEach((p) => {
         let pos = p.panel.getBoundingClientRect();
         let img = document.createElement("img");
         img.crossOrigin = "anonymous";
@@ -106,7 +105,7 @@ export class Repl {
   }
 
   selectPanel(id: string) {
-    return this.panels.find(p => p.overlay.dataset.id === id);
+    return this.panels.find((p) => p.overlay.dataset.id === id);
   }
 
   selectPhoto(id: string) {
@@ -121,7 +120,9 @@ export class Repl {
   }
 
   reindex() {
-    this.panels.filter(p => !!p?.panel?.parentElement).forEach((p, i) => p.overlay.dataset.id = p.overlay.innerText = i + 1 + "");
+    this.panels
+      .filter((p) => !!p?.panel?.parentElement)
+      .forEach((p, i) => (p.overlay.dataset.id = p.overlay.innerText = i + 1 + ""));
   }
 
   /**
@@ -150,7 +151,7 @@ export class Repl {
         p.appendChild(overlay);
         this.dnd?.draggable(overlay);
       }
-    })
+    });
   }
 
   priorCommand() {
@@ -168,11 +169,11 @@ export class Repl {
   }
 
   async startup() {
-    let childPanels = Array.from(document.querySelectorAll(".panel")).map(p => new CollagePanel(<HTMLDivElement>p));
-    childPanels.forEach(c => this.addBehaviors(c));
+    let childPanels = Array.from(document.querySelectorAll(".panel")).map((p) => new CollagePanel(<HTMLDivElement>p));
+    childPanels.forEach((c) => this.addBehaviors(c));
     this.panels.push(...childPanels);
     let cmd = document.querySelector(".console") as HTMLInputElement;
-    cmd.onkeydown = event => {
+    cmd.onkeydown = (event) => {
       switch (event.key) {
         case "Enter":
           this.executeCommand(cmd.value);
@@ -190,8 +191,12 @@ export class Repl {
   }
 
   public executeCommand(cmd: string) {
-    this.eval(cmd);
     this.commandHistoryIndex = this.commandHistory.push(cmd);
+    try {
+      this.eval(cmd);
+    } catch (ex) {
+      this.notify(ex);
+    }
   }
 
   public parseCommand(command: string) {

@@ -121,7 +121,7 @@ commands.add(new ChangeStyleCommand("borderBottomColor"), "bcb");
 commands.add(new ChangeStyleCommand("borderLeftColor"), "bcl");
 commands.add(new ChangeStyleCommand("borderRightColor"), "bcr");
 
-commands.add(new ChangeStyleCommand("borderWidth"), "bw");
+commands.add(new ChangeStyleCommand("borderWidth", {units:"px"}), "bw");
 commands.add(new ChangeStyleCommand("borderBottomWidth"), "bwb");
 commands.add(new ChangeStyleCommand("borderTopWidth"), "bwt");
 commands.add(new ChangeStyleCommand("borderLeftWidth"), "bwl");
