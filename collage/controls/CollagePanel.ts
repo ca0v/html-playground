@@ -2,8 +2,14 @@ import { GoogleCollagePhoto } from "./GoogleCollagePhoto";
 import { Sprite } from "./Sprite";
 import { globals } from "../globals";
 
+const units = "px em".split(" ");
+
+function hasUnits(value: string) {
+  return units.some(v => value.endsWith(v));
+}
+
 /**
- * Manages a single image on the collage, 
+ * Manages a single image on the collage,
  * not to be confused with an Photo on the album
  */
 export class CollagePanel {
@@ -18,7 +24,7 @@ export class CollagePanel {
   public sprite: Sprite;
 
   /**
-   * 
+   *
    * @param panel dom element to control
    */
   constructor(public panel: HTMLDivElement) {
@@ -94,7 +100,7 @@ export class CollagePanel {
   }
 
   /**
- * 
+ *
  * @param backgroundImage the url of the image to display in this panel
  */
   setBackgroundImage(backgroundImage: string): void {
@@ -106,7 +112,8 @@ export class CollagePanel {
    * @param width border width in "em"
    */
   border(width: string, color = "white") {
-    this.panel.style.border = `${width}em solid ${color}`;
+    const units = hasUnits(width) ? "" : "em";
+    this.panel.style.border = `${width}${units} solid ${color}`;
   }
 
   /**

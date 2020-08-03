@@ -2,6 +2,10 @@ import { Command } from "../models/Command";
 import { Repl } from "../controls/Repl";
 
 export class AspectRatioCommand implements Command {
+  about() {
+    return `set the aspect ratio to W H`;
+  }
+
   execute(repl: Repl, args: string): void {
     let [w, h] = args.split(" ");
     let width = parseFloat(w);
