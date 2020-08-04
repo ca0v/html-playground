@@ -13,7 +13,7 @@ class IntersectionObserverLab {
     let root = canNotMove[0];
     let target = canMove[0];
 
-    return new Promise((good, bad) => {
+    return new Promise<{root:HTMLElement,target:HTMLElement}>((good, bad) => {
       let observer = new IntersectionObserver(
         (entries: IntersectionObserverEntry[]) => {
           console.log(entries);

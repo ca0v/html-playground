@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/ca0v/html-playground#readme",
   "devDependencies": {
-    "@types/dom-mediacapture-record": "^1.0.3",
+    "@types/dom-mediacapture-record": "^1.0.7",
     "typescript": "^3.9.5"
   },
   "dependencies": {
