@@ -1,4 +1,12 @@
-@keyframes fade-out {
+#authorize-button {
+    display:none;
+  }
+  
+  #signout-button {
+    display:none;
+  }
+  
+  @keyframes fade-out {
     100% {
         background-color: transparent;
         border-color: transparent;
