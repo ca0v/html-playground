@@ -8,7 +8,7 @@ async function run() {
 
     repl.eval("aspect 6 6");
     if (globals.debug) {
-      repl.eval("?");
+        repl.eval("?");
         repl.eval("split 1");
         repl.eval("merge 4 3");
         repl.eval("split 2");
@@ -30,7 +30,7 @@ async function run() {
         // repl.eval("merge 6 7");
         // repl.eval("goto 1");
         // repl.eval("text 1 Summer 2019");
-return;
+        return;
         await repl.eval("open Date Night,2019"); // present list of google photo albums?
         //await repl.eval("open gp 1999"); // open google photo album "1999"?
 

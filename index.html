@@ -16,8 +16,11 @@
     <input class="console" value="move 3 4" />
 
     <!--Add buttons before initiating google auth sequence and sign out-->
-    <button id="authorize-button">Authorize</button>
-    <button id="signout-button">Sign Out</button>
+    <nav>
+        <button id="authorize-button">Authorize</button>
+        <button id="signout-button">Sign Out</button>
+        <select class="help" hidden></select>
+    </nav>
     <div class="toaster"></div>
     <script src="https://apis.google.com/js/api.js"></script>
     <script src="./assets/require.js" data-main="./index.js"></script>
