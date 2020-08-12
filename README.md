@@ -68,3 +68,4 @@ html-playground
 - [svg editor](https://ca0v.github.io/html-playground/playground/svg/svgeditor/index.html)
 - [fireworks](https://ca0v.github.io/html-playground/playground/svg/svg-keywords.html)
 - [collage](https://ca0v.github.io/html-playground/index.html)
+- [clippath](https://ca0v.github.io/html-playground/playground/svg/clippath.html)

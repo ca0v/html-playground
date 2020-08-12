@@ -158,10 +158,10 @@ class Effects {
     // these are the _╔╗_╔╗_╔╗_ on a castle wall
     createCrenelationPath(args) {
         let { sections, dx, dy, width, height } = args;
-        sections = (sections !== null && sections !== void 0 ? sections : ["top"]);
-        dx = (dx !== null && dx !== void 0 ? dx : Math.floor(width / 9));
-        height = (height !== null && height !== void 0 ? height : width);
-        dy = (dy !== null && dy !== void 0 ? dy : Math.floor(height / 9));
+        sections = sections !== null && sections !== void 0 ? sections : ["top"];
+        dx = dx !== null && dx !== void 0 ? dx : Math.floor(width / 9);
+        height = height !== null && height !== void 0 ? height : width;
+        dy = dy !== null && dy !== void 0 ? dy : Math.floor(height / 9);
         let pattern = [[0.5, 0], [0, 1], [1, 0], [0, -1]].map(v => ({ x: v[0] * dx, y: v[1] * dy }));
         return this.createPatternPath({ pattern, sections, width, height });
     }
@@ -177,7 +177,7 @@ class Effects {
     createBartPath(args) {
         let { sections, width, dx, dy } = args;
         let pattern = [{ x: dx, y: dy }, { x: dx, y: -dy }];
-        sections = (sections !== null && sections !== void 0 ? sections : ["top"]);
+        sections = sections !== null && sections !== void 0 ? sections : ["top"];
         return this.createPatternPath({ pattern, sections, width, height: width });
     }
 }

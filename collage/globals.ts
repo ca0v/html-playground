@@ -28,6 +28,7 @@ import { OpenAlbumsCommand } from "./commands/OpenAlbumsCommand";
 import { MultiSelector } from "./behavior/MultiSelector";
 import { NotificationBehavior } from "./behavior/NotificationBehavior";
 import { ScalePanelCommand, ScaleImageCommand } from "./commands/ChangeScaleCommand";
+import {CropToStateCommand} from "./commands/CropToState";
 
 /** global variables */
 const toaster = new Toaster(document.querySelector(".toaster") as HTMLElement);
@@ -96,6 +97,7 @@ commands.add(new OpenAlbumsCommand(), "open");
 
 commands.add(new AspectRatioCommand(), "aspect");
 commands.add(new BorderCommand(), "border");
+commands.add(new CropToStateCommand(), "clip");
 commands.add(new GotoCommand(), "goto");
 commands.add(new HiResCommand(), "hires");
 commands.add(new MarginCommand(), "margin");

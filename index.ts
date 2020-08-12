@@ -19,6 +19,7 @@ async function run() {
         repl.eval("bw 1em");
         repl.eval("bc white");
         repl.eval("bgc silver");
+        repl.eval("clip heart 1");
         // repl.eval("scale 1 0.75");
         // repl.eval("border 1 3 silver");
         // repl.eval("rotate 1 -2");
