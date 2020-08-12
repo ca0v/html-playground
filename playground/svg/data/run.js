@@ -9,7 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { Normalizer } from "./Normalizer.js";
 function stateUrl(stateCode) {
-    return `http://localhost:3002/mock/sampleserver6/arcgis/rest/services/USA/MapServer/2/query?where=state_abbr%3D%27${stateCode}%27&f=pjson`;
+    //return `http://localhost:3002/mock/sampleserver6/arcgis/rest/services/USA/MapServer/2/query?where=state_abbr%3D%27${stateCode}%27&f=pjson`;
+    return `https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer/2/query?where=state_abbr%3D%27${stateCode}%27&f=json`;
 }
 const normalizer = new Normalizer();
 function getStateShape(stateCode) {
