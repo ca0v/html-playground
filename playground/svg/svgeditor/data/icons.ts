@@ -1,4 +1,4 @@
-export = {
+export default {
   zoomin: `M 14 15
 A 8 8 0 1 1 17 12
 L 22 17

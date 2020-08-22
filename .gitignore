@@ -1,6 +1,8 @@
 web/**
 node_modules
+built
 credentials.json
 *.png
 *.js
+*.js.map
 *.tsbuildinfo

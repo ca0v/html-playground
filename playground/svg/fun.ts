@@ -1,3 +1,7 @@
+interface SVGAnimateElement extends SVGAnimationElement {
+    beginElementAt(arg0: number): void;
+}
+
 const GRAVITY = { x: 0, y: 5, z: 0 };
 const LIFESPAN = 10.2;
 const REFRESH_RATE = 0;
@@ -340,7 +344,7 @@ async function run() {
             let vy = - Math.sqrt((0.1 + Math.random()) * MAXPOWER * MAXPOWER - vx * vx);
             let animator = new Fractal({
                 canvas: <any>clone,
-                lifespan: { ticks: Date.now() + (0.1 * + 0.9 * Math.random()) *LIFESPAN * TICKS_PER_SECOND },
+                lifespan: { ticks: Date.now() + (0.1 * + 0.9 * Math.random()) * LIFESPAN * TICKS_PER_SECOND },
                 offspringRange: [1 + Math.pow(2, Math.round(Math.random() * 3)), 2], // this means 7! = 5040 nodes created in last two cycles
                 position: { x: 0, y: 0, z: 0 },
                 velocity: { x: vx, y: vy, z: 0 }

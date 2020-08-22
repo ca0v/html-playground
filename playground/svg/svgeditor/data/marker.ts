@@ -1,4 +1,4 @@
-export = {
+export default {
   marker1: `M 0 -20
 C 0 -20 -6 -20 -6 -12
 C -6 -9 0 0 0 0
