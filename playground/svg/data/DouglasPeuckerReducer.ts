@@ -1,4 +1,4 @@
-type Point = [number, number];
+export type Point = [number, number];
 
 export class DouglasPeuckerReducer {
 
@@ -34,8 +34,10 @@ export class DouglasPeuckerReducer {
      * @param delta maximum length difference before selecting a point 
      */
     private *alixPolylineSimplification(coordinate: Point[], delta: number) {
-        if (coordinate.length < 3 || delta <= 0)
-            return coordinate;
+        if (coordinate.length < 3 || delta <= 0) {
+            yield* coordinate;
+            return;
+        }
 
         const end = coordinate.length - 1;
         yield coordinate[0];
@@ -47,6 +49,8 @@ export class DouglasPeuckerReducer {
                 i++;
                 d += this.distance(coordinate[i - 1], coordinate[i]);
             }
+            if (i >= end) break;
+
             k = i - 1;
             yield coordinate[k];
         }
@@ -55,13 +59,6 @@ export class DouglasPeuckerReducer {
 
     public reduce(points: Array<Point>, precision: number) {
         //return this.ramerDouglasPeucker(points, precision);
-        const stream = this.alixPolylineSimplification(points, precision);
-        const result = [] as Point[];
-        while (true) {
-            const point = stream.next();
-            if (point.done) break;
-            result.push(point.value);
-        }
-        return result;
+        return this.alixPolylineSimplification(points, precision);
     }
 }

@@ -1,8 +1,9 @@
 import { Normalizer, State } from "./data/Normalizer.js";
 import countries from "./data/countries.js";
+import states from "./data/ussates.js";
 
 function stateUrl(stateCode: string) {
-    return `http://localhost:3002/mock/sampleserver6/arcgis/rest/services/USA/MapServer/2/query?where=state_abbr%3D%27${stateCode}%27&f=json&geometryPrecision=0.001&outsr=4326`;
+    return `http://localhost:3002/mock/sampleserver6/arcgis/rest/services/USA/MapServer/2/query?where=state_abbr%3D%27${stateCode}%27&f=json&geometryPrecision=1&outsr=3857`;
     //return `https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer/2/query?where=state_abbr%3D%27${stateCode}%27&f=json`;
 }
 
@@ -11,15 +12,6 @@ function countryUrl(countryCode: string) {
 }
 
 const normalizer = new Normalizer();
-
-async function getStateShape(stateCode: string) {
-    const url = stateUrl(stateCode);
-    console.log(url);
-    const response = await fetch(url);
-    const data = await response.json();
-    console.log(data);
-    return data;
-}
 
 async function buildAsianFlashCards(countryCodes: string[]) {
 
@@ -52,25 +44,37 @@ async function buildUnitedStatesFlashCards(states: string[]) {
     return await Promise.all(svg);
 }
 
-export async function run() {
+export async function run(options: { mode: "usstates" | "continents", filter: string[] }) {
     const target = document.querySelector("svg");
     if (!target) return;
 
-    //["CC", "CN", "CX", "CY", "EG"]
-    let countryCodes = countries.features
-        .filter(f => 0 > ["South America", "North America", "Europe", "Asia", "Africa"].indexOf(f.attributes.CONTINENT))
-        .sort((a, b) => a.attributes.CONTINENT.localeCompare(b.attributes.CONTINENT))
-        .map(f => f.attributes.ISO_CC);
+    switch (options.mode) {
+        case "continents": {
+            let countryCodes = countries.features
+                .filter(f => 0 > ["South America", "North America", "Europe", "Asia", "Africa"].indexOf(f.attributes.CONTINENT))
+                .sort((a, b) => a.attributes.CONTINENT.localeCompare(b.attributes.CONTINENT))
+                .map(f => f.attributes.ISO_CC);
 
-    // distinct
-    countryCodes = [...new Set(countryCodes)];
-    console.log(countryCodes);
+            // distinct
+            countryCodes = [...new Set(countryCodes)];
+            const html = await buildAsianFlashCards(countryCodes);
+            target.innerHTML = html.map(v => v.outerHTML).join("");
+            renderUi(countryCodes);
+            break;
+        }
+        case "usstates":
+            {
+                const stateCodes = states.features.map(f => f.attributes.state_abbr);
+                const codes = options.filter || stateCodes
+                const html = await buildUnitedStatesFlashCards(codes);
+                target.innerHTML = html.map(v => v.outerHTML).join("");
+                renderUi(codes);
+                break;
+            }
+    }
+}
 
-    countryCodes = ["US"];//"NO", "SE", "FI"];
-    const html = await buildAsianFlashCards(countryCodes);
-
-    target.innerHTML = html.map(v => v.outerHTML).join("");
-
+function renderUi(countryCodes: string[]) {
     countryCodes.forEach(stateCode => {
         const wrapper = document.createElement("div");
         document.body.appendChild(wrapper);
@@ -85,3 +89,4 @@ export async function run() {
         label.textContent = stateCode;
     });
 }
+

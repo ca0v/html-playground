@@ -3,9 +3,9 @@ import { describe, it } from "mocha";
 import { assert } from "chai";
 import "./reducer";
 
-describe("describe", () => {
-    it("it", () => {
+describe("Describe", () => {
+    it("It", () => {
         console.log(chai);
-        assert.fail("sorry");
+        assert.isOk("sorry");
     });
 })

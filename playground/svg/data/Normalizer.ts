@@ -29,9 +29,7 @@ export class Normalizer {
 
     private normalize(shape: State): Array<Array<Point>> {
         const rings = shape.features.map(f => f.geometry.rings) as Array<Array<Array<Point>>>;
-        let result = [] as Array<Array<Point>>;
-        rings.forEach(r => { result = result.concat(r) });
-        return result;
+        return rings.flat();
     }
 
     private scale(path: Array<Array<Point>>) {
@@ -46,8 +44,10 @@ export class Normalizer {
                 bbox.ymax = Math.max(bbox.ymax, y);
             });
         });
-        console.log(bbox);
+        if (0 === this.bboxArea(bbox)) throw "not enough dimensional data to scale, bounding box must contain some area";
+
         const [dx, dy] = [-bbox.xmin, -bbox.ymin];
+
         const [sx, sy] = [1.0 / (bbox.xmax - bbox.xmin), 1.0 / (bbox.ymax - bbox.ymin)];
         const scale = Math.min(sx, sy);
         return path.map(ring => {
@@ -58,17 +58,23 @@ export class Normalizer {
         });
     }
 
-    private asPath(points: Array<Point>) {
-        let p0: null | number[] = null;
-        return points.map(p1 => {
-            if (null === p0) {
-                p0 = p1;
-                return p1;
+    bboxArea(bbox: { xmin: number; ymin: number; xmax: number; ymax: number; }) {
+        const [w, h] = [bbox.xmax - bbox.xmin, bbox.ymax - bbox.ymin];
+        return w * h;
+    }
+
+    private *asPath(points: Generator<Point>) {
+        let p0 = points.next();
+        if (p0.done) return;
+        yield p0.value;
+        while (!p0.done) {
+            let v = p0.value;
+            p0 = points.next();
+            if (p0.done) {
+                return;
             }
-            const result = [p1[0] - p0[0], p1[1] - p0[1]] as Point;
-            p0 = p1;
-            return result;
-        });
+            yield [p0.value[0] - v[0], p0.value[1] - v[1]] as Point
+        }
     }
 
     private round(points: Array<Point>, precision = 3) {
@@ -97,16 +103,12 @@ export class Normalizer {
 
     public process(shape: State) {
         const paths = this.scale(this.normalize(shape));
-        let savings = { before: 0, after: 0 };
         const deltaPaths = paths.map(path => {
-            const reducedPath = this.reduce(path, 0.005);
-            savings.before += path.reduce((a, b) => a + b.length, 0);
-            savings.after += reducedPath.reduce((a, b) => a + b.length, 0);
+            const reducedPath = this.reduce(path, 0.0001);
             return this.asPath(reducedPath);
         });
-        console.log(savings, Math.round(100 * (savings.before / savings.after - 1)));
         const svgPaths = deltaPaths.map(path => {
-            const d = this.asSvgPath(this.round(path, 5));
+            const d = this.asSvgPath(this.round([...path], 4));
             return `<path d="${d}"/>`;
         });
         return svgPaths.join("\n");

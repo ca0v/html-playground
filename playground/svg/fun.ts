@@ -391,7 +391,7 @@ async function run() {
 
 }
 
-(function () {
+false && (function () {
 
     function zoomTarget(selector: string, points: number) {
         let offset = 0.5 * points % 2;
