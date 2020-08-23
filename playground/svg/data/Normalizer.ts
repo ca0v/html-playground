@@ -77,12 +77,12 @@ export class Normalizer {
         }
     }
 
-    private round(points: Array<Point>, precision = 3) {
+    private *round(points: Generator<Point>, precision = 3) {
         const scale = Math.pow(10, precision);
-        return points.map(point => {
+        for (let point of points) {
             const [x, y] = point;
-            return [Math.round(x * scale) / scale, Math.round(y * scale) / scale] as Point;
-        });
+            yield [Math.round(x * scale) / scale, Math.round(y * scale) / scale] as Point;
+        }
     }
 
     private asSvgPath(points: Array<Point>) {
@@ -108,7 +108,7 @@ export class Normalizer {
             return this.asPath(reducedPath);
         });
         const svgPaths = deltaPaths.map(path => {
-            const d = this.asSvgPath(this.round([...path], 4));
+            const d = this.asSvgPath([...this.round(path, 4)]);
             return `<path d="${d}"/>`;
         });
         return svgPaths.join("\n");

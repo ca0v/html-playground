@@ -28,12 +28,12 @@ describe("DouglasPeuckerReducer", () => {
     it("reduce sc", () => {
         const reducer = new DouglasPeuckerReducer();
         const savings = { before: 0, after: 0 };
-        const points = sc.features[0].geometry.rings.map(ring => {
+        sc.features[0].geometry.rings.forEach(ring => {
             const result = [...reducer.reduce(<Array<[number, number]>>ring, 0.01)];
             savings.before += ring.length;
             savings.after += result.length;
             return result;
-        }).map(v => v.length);
+        });
         assert.equal(248, savings.before);
         assert.equal(116, savings.after);
     });
