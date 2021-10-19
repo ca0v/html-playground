@@ -536,7 +536,7 @@ define("widgets/KeyboardShortcuts", ["require", "exports", "fun/keys", "widgets/
             this.shortcuts = { key: "", ops: [], subkeys: {}, parent: null };
             this.currentState = this.shortcuts;
             this.firstLetter = (word) => word[0];
-            this.tokenize = (words) => words.split(/[ ]/).map(v => (isAtomic(v) ? v : this.firstLetter(v).toUpperCase()));
+            this.tokenize = (words) => words.split(/[ ]/).map((v) => (isAtomic(v) ? v : this.firstLetter(v).toUpperCase()));
             this.forceNode = (node, shortcuts) => {
                 if (!shortcuts.length)
                     return node;
@@ -548,7 +548,7 @@ define("widgets/KeyboardShortcuts", ["require", "exports", "fun/keys", "widgets/
                     parent: node,
                     subkeys: {},
                     title: key,
-                    ops: []
+                    ops: [],
                 };
                 return this.forceNode(node.subkeys[key], shortcuts);
             };
@@ -562,7 +562,7 @@ define("widgets/KeyboardShortcuts", ["require", "exports", "fun/keys", "widgets/
         help(terse = true, root = this.currentState) {
             const visitEach = (node, cb) => {
                 cb(node);
-                keys_1.keys(node.subkeys).forEach(key => visitEach(node.subkeys[key], cb));
+                keys_1.keys(node.subkeys).forEach((key) => visitEach(node.subkeys[key], cb));
             };
             const visitUp = (node, cb) => {
                 cb(node);
@@ -570,12 +570,12 @@ define("widgets/KeyboardShortcuts", ["require", "exports", "fun/keys", "widgets/
             };
             const allNodes = (node) => {
                 const nodes = [];
-                visitEach(node, node => nodes.push(node));
+                visitEach(node, (node) => nodes.push(node));
                 return nodes;
             };
             const fullPath = (node) => {
                 const nodes = [];
-                visitUp(node, node => nodes.push(node));
+                visitUp(node, (node) => nodes.push(node));
                 return nodes;
             };
             if (terse) {
@@ -583,13 +583,13 @@ define("widgets/KeyboardShortcuts", ["require", "exports", "fun/keys", "widgets/
             }
             const markup = allNodes(root.parent || root)
                 //.filter(node => 1 === node.ops.length)
-                .filter(node => node.parent === root || node.parent === root.parent)
-                .filter(node => !node.options?.onlyIf || node.options.onlyIf())
-                .map(node => {
+                .filter((node) => node.parent === root || node.parent === root.parent)
+                .filter((node) => !node.options?.onlyIf || node.options.onlyIf())
+                .map((node) => {
                 const path = fullPath(node).reverse();
                 // const deleteCount = path.indexOf(root);
                 // path.splice(0, deleteCount);
-                return `${path.map(node => node.key.replace("Slash", "/")).join("")} - ${node.title}`;
+                return `${path.map((node) => node.key.replace("Slash", "/")).join("")} - ${node.title}`;
             });
             return markup.join("\n");
         }
@@ -597,7 +597,7 @@ define("widgets/KeyboardShortcuts", ["require", "exports", "fun/keys", "widgets/
             this.log = callbacks.log;
             let lastStatefulState;
             // move into keyboard shortcuts
-            root.addEventListener("keydown", event => {
+            root.addEventListener("keydown", (event) => {
                 if (event.altKey)
                     return; // reserved for the browser
                 //if (event.ctrlKey) return; // app constrained not to use ctrl
@@ -633,7 +633,7 @@ define("widgets/KeyboardShortcuts", ["require", "exports", "fun/keys", "widgets/
                     return;
                 }
                 if (!event.repeat && lastStatefulState !== nextState) {
-                    this.log(`${nextState.title}`);
+                    this.log(`${nextState.title} (${nextState.key})`);
                     keys_1.keys(nextState.subkeys).length && this.log(`${this.help(true, nextState)}`);
                 }
                 this.execute(nextState);
@@ -646,12 +646,12 @@ define("widgets/KeyboardShortcuts", ["require", "exports", "fun/keys", "widgets/
             });
         }
         execute(nextState) {
-            nextState.ops.forEach(op => {
+            nextState.ops.forEach((op) => {
                 try {
                     this.undos.run(op);
                 }
                 catch (ex) {
-                    this.log(ex);
+                    this.log(ex + "");
                 }
             });
         }

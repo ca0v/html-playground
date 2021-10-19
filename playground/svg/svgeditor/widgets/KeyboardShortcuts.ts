@@ -5,12 +5,13 @@ import { Channel } from "./Channel";
 import { ShortcutOptions } from "../typings/ShortcutOptions";
 
 // do not use Alt
-const atomicTokens = "ArrowLeft ArrowRight ArrowUp ArrowDown Control Delete End Enter Escape Home Minus PageUp PageDown Plus Shift Slash Space".split(
-  " "
-);
+const atomicTokens =
+  "ArrowLeft ArrowRight ArrowUp ArrowDown Control Delete End Enter Escape Home Minus PageUp PageDown Plus Shift Slash Space".split(
+    " "
+  );
 const isAtomic = (v: string) => 0 <= atomicTokens.indexOf(v);
 
-export type Callback = (() => void) | (() => { redo?: () => void; undo?: () => void; });
+export type Callback = (() => void) | (() => { redo?: () => void; undo?: () => void });
 
 export type KeyboardShortcuts = Dictionary<KeyboardShortcut>;
 
@@ -40,7 +41,7 @@ export class ShortcutManager {
 
   private firstLetter = (word: string) => word[0];
   private tokenize = (words: string) =>
-    words.split(/[ ]/).map(v => (isAtomic(v) ? v : this.firstLetter(v).toUpperCase()));
+    words.split(/[ ]/).map((v) => (isAtomic(v) ? v : this.firstLetter(v).toUpperCase()));
 
   private forceNode = (node: KeyboardShortcut, shortcuts: string[]): KeyboardShortcut => {
     if (!shortcuts.length) return node;
@@ -51,7 +52,7 @@ export class ShortcutManager {
       parent: node,
       subkeys: {},
       title: key,
-      ops: []
+      ops: [],
     };
     return this.forceNode(node.subkeys[key], shortcuts);
   };
@@ -59,25 +60,25 @@ export class ShortcutManager {
   public help(terse = true, root = this.currentState): string {
     const visitEach = (node: KeyboardShortcut, cb: (node: KeyboardShortcut) => void) => {
       cb(node);
-      keys(node.subkeys).forEach(key => visitEach(node.subkeys[key], cb));
-    }
+      keys(node.subkeys).forEach((key) => visitEach(node.subkeys[key], cb));
+    };
 
     const visitUp = (node: KeyboardShortcut, cb: (node: KeyboardShortcut) => void) => {
       cb(node);
       node.parent && visitUp(node.parent, cb);
-    }
+    };
 
     const allNodes = (node: KeyboardShortcut) => {
       const nodes = <Array<KeyboardShortcut>>[];
-      visitEach(node, node => nodes.push(node));
+      visitEach(node, (node) => nodes.push(node));
       return nodes;
-    }
+    };
 
     const fullPath = (node: KeyboardShortcut) => {
       const nodes = <Array<KeyboardShortcut>>[];
-      visitUp(node, node => nodes.push(node));
+      visitUp(node, (node) => nodes.push(node));
       return nodes;
-    }
+    };
 
     if (terse) {
       return Object.keys(root.subkeys).join("|");
@@ -85,26 +86,24 @@ export class ShortcutManager {
 
     const markup = allNodes(root.parent || root)
       //.filter(node => 1 === node.ops.length)
-      .filter(node => node.parent === root || node.parent === root.parent)
-      .filter(node => !node.options?.onlyIf || node.options.onlyIf())
-      .map(node => {
+      .filter((node) => node.parent === root || node.parent === root.parent)
+      .filter((node) => !node.options?.onlyIf || node.options.onlyIf())
+      .map((node) => {
         const path = fullPath(node).reverse();
         // const deleteCount = path.indexOf(root);
         // path.splice(0, deleteCount);
-        return `${path.map(node => node.key.replace("Slash", "/")).join("")} - ${node.title}`;
+        return `${path.map((node) => node.key.replace("Slash", "/")).join("")} - ${node.title}`;
       });
 
     return markup.join("\n");
-
   }
-
 
   public watchKeyboard(root: HTMLElement, callbacks: { log: (message: string) => void }) {
     this.log = callbacks.log;
     let lastStatefulState: KeyboardShortcut;
 
     // move into keyboard shortcuts
-    root.addEventListener("keydown", event => {
+    root.addEventListener("keydown", (event) => {
       if (event.altKey) return; // reserved for the browser
       //if (event.ctrlKey) return; // app constrained not to use ctrl
 
@@ -145,8 +144,8 @@ export class ShortcutManager {
       }
 
       if (!event.repeat && lastStatefulState !== nextState) {
-        this.log(`${nextState.title}`);
-        keys(nextState.subkeys).length && this.log(`${this.help(true, nextState)}`)
+        this.log(`${nextState.title} (${nextState.key})`);
+        keys(nextState.subkeys).length && this.log(`${this.help(true, nextState)}`);
       }
       this.execute(nextState);
       if (!nextState.options?.stateless) {
@@ -159,11 +158,11 @@ export class ShortcutManager {
   }
 
   public execute(nextState: KeyboardShortcut) {
-    nextState.ops.forEach(op => {
+    nextState.ops.forEach((op) => {
       try {
         this.undos.run(op);
       } catch (ex) {
-        this.log(ex);
+        this.log(ex + "");
       }
     });
   }

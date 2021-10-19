@@ -135,3 +135,71 @@ body.svgeditor {
 .svgeditor section label {
   display: block;
 }
+
+:root {
+  --light-marker-stroke: rgba(20, 20, 20, 0.8);
+  --light-marker-fill: rgba(20, 20, 200, 0.8);
+  --dark-marker-stroke: rgba(200, 200, 200, 0.8);
+  --dark-marker-fill: rgba(100, 20, 20, 0.8);
+}
+
+body {
+  background-color: black;
+}
+
+div.F1 {
+  position: absolute;
+  top: 4em;
+}
+
+.toolbar button.F1 {
+  width: 4em;
+  height: 4em;
+  padding: 0;
+  background: black;
+  border: 1px solid darkgray;
+  border-radius: 0.5em;
+  fill: var(--dark-marker-fill);
+  stroke: var(--dark-marker-stroke);
+}
+
+.toolbar button.F1:hover,
+.toolbar button.F1:focus {
+  background: darkgray;
+  fill: var(--light-marker-fill);
+  stroke: var(--light-marker-stroke);
+}
+
+.toolbar button.F1 svg {
+  stroke-width: 1;
+}
+
+.toolbar button.F1.marker svg path,
+.toolbar button.F1.marker svg use {
+  transform: translate(0, 25%);
+}
+
+.toolbar button.F1.icon svg path {
+  transform: translate(6px, 6px);
+}
+
+.inset {
+  background-color: white;
+  width: 32px;
+  height: 32px;
+  opacity: 0.8;
+  padding: 0;
+  margin: 0;
+}
+
+.svgeditor .pixels-to-digitize {
+  display: none;
+}
+
+.svgeditor.digitizer .pixels-to-digitize {
+  display: block;
+  transform-origin: top left;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
