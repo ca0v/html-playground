@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body {
+        background-color: black;
+        color: white;
+      }
+
+      .menu1 {
+        display: inline-block;
+        border: 1px dashed blue;
+        margin: 1em;
+        padding: 1em;
+        background-color: gray;
+        color: white;
+      }
+
+      .menu-items {
+        color: blue;
+      }
+
+      .menu-items > button {
+        display: block;
+      }
+
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <label class="menu1" tabindex="1">
+      Right Click for Context Menu or use the Context Menu key
+      <div class="menu-items hidden">
+        <button>Menu Item 1</button>
+        <button>Menu Item 2</button>
+        <button>Menu Item 3</button>
+      </div>
+    </label>
+
+    <script>
+      const app = {
+        oncontextmenu: (event) => {
+          event.target.querySelector(".menu-items")?.classList.remove("hidden");
+          console.log("oncontextmenu");
+          event.preventDefault();
+          return false;
+        },
+        onexecute: (event) => {
+          {
+            console.log(event.target.innerText);
+            event.target.parentElement.classList.add("hidden");
+            event.target.parentElement.parentElement.focus();
+          }
+        },
+      };
+
+      document.querySelector("label.menu1").addEventListener("contextmenu", app.oncontextmenu);
+
+      document
+        .querySelectorAll(".menu-items > button")
+        .forEach((item) => item.addEventListener("click", app.onexecute));
+    </script>
+  </body>
+</html>
