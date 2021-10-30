@@ -4,14 +4,19 @@
   "description": "",
   "main": "worker.js",
   "dependencies": {
-    "almond": "^0.3.3"
+    "almond": "^0.3.3",
+    "npm-run-all": "^4.1.5"
   },
   "devDependencies": {
     "@types/dom-mediacapture-record": "^1.0.3",
-    "typescript": "^3.9.0-dev.20200212"
+    "typescript": "^4.4.4"
   },
   "scripts": {
-    "tsc": "start tsc -p tsconfig.json -w && start tsc -p app/tsconfig.json -w && start tsc -p app/version_004/tsconfig.json -w"
+    "build:worker": "tsc -p tsconfig.json -w",
+    "build:app": "tsc -p app/tsconfig.json -w",
+    "build:v004": "tsc -p app/version_004/tsconfig.json -w",
+    "build:v005": "tsc -p app/version_005/tsconfig.json -w",
+    "build": "npm-run-all -p build:worker build:app build:v004 build:v005"
   },
   "keywords": [],
   "author": "",

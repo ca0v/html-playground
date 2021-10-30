@@ -6,7 +6,8 @@
     "allowJs": false,
     "lib": ["ESNext", "DOM"] /* Specify library files to be included in the compilation. */,
     "strict": true /* Enable all strict type-checking options. */,
-    "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
   },
   "files": ["./index.ts"]
 }

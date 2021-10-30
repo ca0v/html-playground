@@ -1,12 +1,4 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
+"use strict";
 const DATABASE_NAME = "service_worker";
 const WORKER_VERSION = "2";
 class IndexDb {
@@ -14,22 +6,20 @@ class IndexDb {
         this.name = name;
         this.db = null;
     }
-    init() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return new Promise((good, bad) => {
-                const handle = indexedDB.open(this.name, 2);
-                handle.onerror = () => {
-                    this.err(handle.error);
-                    bad(handle.error);
-                };
-                handle.onsuccess = () => {
-                    this.success(handle.result);
-                    good();
-                };
-                handle.onupgradeneeded = () => {
-                    this.upgrade(handle.result);
-                };
-            });
+    async init() {
+        return new Promise((good, bad) => {
+            const handle = indexedDB.open(this.name, 2);
+            handle.onerror = () => {
+                this.err(handle.error);
+                bad(handle.error);
+            };
+            handle.onsuccess = () => {
+                this.success(handle.result);
+                good();
+            };
+            handle.onupgradeneeded = () => {
+                this.upgrade(handle.result);
+            };
         });
     }
     err(info) {
@@ -39,16 +29,14 @@ class IndexDb {
         console.log(db);
         this.db = db;
     }
-    asPromise(query) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return new Promise((good, bad) => {
-                query.onsuccess = e => {
-                    good(query.result);
-                };
-                query.onerror = e => {
-                    bad(query.error);
-                };
-            });
+    async asPromise(query) {
+        return new Promise((good, bad) => {
+            query.onsuccess = e => {
+                good(query.result);
+            };
+            query.onerror = e => {
+                bad(query.error);
+            };
         });
     }
     readable(name) {
@@ -65,35 +53,28 @@ class IndexDb {
         const store = this.readable(name);
         const cursor = store.openCursor();
         cursor.onsuccess = () => {
-            var _a, _b;
-            if (true === cb((_a = cursor.result) === null || _a === void 0 ? void 0 : _a.value))
-                (_b = cursor.result) === null || _b === void 0 ? void 0 : _b.continue();
+            if (true === cb(cursor.result?.value))
+                cursor.result?.continue();
         };
         cursor.onerror = () => this.err(cursor.error);
     }
 }
 class DbStore extends IndexDb {
-    put(id, data) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.asPromise(this.writeable(this.name).put(Object.assign({ id }, data)));
-        });
+    async put(id, data) {
+        return this.asPromise(this.writeable(this.name).put({ id, ...data }));
     }
-    get(id) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.asPromise(this.readable(this.name).get(id));
-        });
+    async get(id) {
+        return this.asPromise(this.readable(this.name).get(id));
     }
-    upgrade(db) {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log(db);
-            return new Promise((good, bad) => {
-                const store = db.createObjectStore(this.name, { keyPath: "id", autoIncrement: false });
-                store.createIndex("primary", "id", { unique: true });
-                store.transaction.oncomplete = () => {
-                    good();
-                };
-                store.transaction.onerror = () => bad();
-            });
+    async upgrade(db) {
+        console.log(db);
+        return new Promise((good, bad) => {
+            const store = db.createObjectStore(this.name, { keyPath: "id", autoIncrement: false });
+            store.createIndex("primary", "id", { unique: true });
+            store.transaction.oncomplete = () => {
+                good();
+            };
+            store.transaction.onerror = () => bad();
         });
     }
 }
@@ -109,21 +90,21 @@ class AppManager {
          * This fires once the old service worker is gone, and your new service worker is able to control clients.
          * Happens next time page opens after worker changes (browser must go completely offline)
          */
-        worker.addEventListener("activate", event => {
+        worker.addEventListener("activate", (event) => {
             p.then(() => {
                 store.put("activate", { name: "activate", state: new Date().toISOString() });
             });
-            event.waitUntil(() => __awaiter(this, void 0, void 0, function* () { }));
+            event.waitUntil(async () => { });
         });
         /**
          * Happens every time brower loads for 1st time
          * or when worker changes
          */
-        worker.addEventListener("install", (event) => {
+        worker.addEventListener("install", event => {
             p.then(() => {
                 store.put("install", { name: "install", state: new Date().toISOString() });
             });
-            event.waitUntil(() => __awaiter(this, void 0, void 0, function* () { }));
+            event.waitUntil(async () => { });
         });
         worker.addEventListener("fetch", event => {
             p.then(() => {
@@ -137,11 +118,11 @@ class AppManager {
         });
     }
     fetchFromCacheFirst(cacheName, event) {
-        return (() => __awaiter(this, void 0, void 0, function* () {
-            const cache = yield caches.open(cacheName);
-            let response = yield cache.match(event.request);
+        return (async () => {
+            const cache = await caches.open(cacheName);
+            let response = await cache.match(event.request);
             if (!response) {
-                response = yield fetch(event.request);
+                response = await fetch(event.request);
                 cache.put(event.request, response.clone());
                 return response;
             }
@@ -152,16 +133,14 @@ class AppManager {
                 });
             });
             return response;
-        }))();
+        })();
     }
     unicast(port, message) {
         port.postMessage(message);
     }
-    broadcast(message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const clients = yield worker.clients.matchAll();
-            yield Promise.all(clients.map(client => client.postMessage(message)));
-        });
+    async broadcast(message) {
+        const clients = await worker.clients.matchAll();
+        await Promise.all(clients.map(client => client.postMessage(message)));
     }
 }
 new AppManager();

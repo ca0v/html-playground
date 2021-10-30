@@ -1,33 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <title>NodePad</title>
+    <link href="./index.css" rel="stylesheet" />
+  </head>
 
-<head>
-  <title>NodePad</title>
-  <link href="./index.css" rel="stylesheet" />
-</head>
-
-<body class="theme">
-  <grid>
-    <div class="toolbar">
-      <div class="record-audio">A</div>
-      <div class="append-audio">B</div>
-      <div class="concatinate-audio">C</div>
-      <div>D</div>
-      <div >E</div>
-    </div>
-    <textarea class="theme" id="notebook">NOTEBOOK</textarea>
-  </grid>
-  <script src="../../static/almond.js"></script>
-  <script src="./index.js"></script>
-  <script>
-    require(["version_005/index"], (app) => {
-      try {
-        app.run();
-      } catch (ex) {
-        document.write("error: " + ex);
-      }
-    });
-  </script>
-</body>
-
+  <body class="theme">
+    <grid>
+      <div class="toolbar">
+        <div title="record track" class="record-audio">record</div>
+        <div title="push track" class="append-audio">save</div>
+        <div title="persist all tracks" class="concatinate-audio">store</div>
+        <div title="play" class="play-audio">play</div>
+        <div title="clear" class="clear-audio">clear</div>
+      </div>
+      <textarea class="theme" id="notebook" placeholder="Stick Notes"></textarea>
+    </grid>
+    <div class="status-area"></div>
+    <script src="../../static/almond.js"></script>
+    <script src="./index.js"></script>
+    <script>
+      require(["version_005/index"], (app) => {
+        try {
+          app.run();
+        } catch (ex) {
+          document.write("error: " + ex);
+        }
+      });
+    </script>
+  </body>
 </html>

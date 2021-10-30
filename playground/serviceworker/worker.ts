@@ -1,13 +1,17 @@
+/// <reference no-default-lib="true"/>
+/// <reference lib="es2020" />
+/// <reference lib="WebWorker" />
+
 const DATABASE_NAME = "service_worker";
 const WORKER_VERSION = "2";
 
 abstract class IndexDb {
   public db: IDBDatabase | null = null;
 
-  constructor(public name: string) {}
+  constructor(public name: string) { }
 
   async init() {
-    return new Promise((good, bad) => {
+    return new Promise<void>((good, bad) => {
       const handle = indexedDB.open(this.name, 2);
 
       handle.onerror = () => {
@@ -79,7 +83,7 @@ class DbStore<T> extends IndexDb {
 
   async upgrade(db: IDBDatabase) {
     console.log(db);
-    return new Promise((good, bad) => {
+    return new Promise<void>((good, bad) => {
       const store = db.createObjectStore(this.name, { keyPath: "id", autoIncrement: false });
       store.createIndex("primary", "id", { unique: true });
       store.transaction.oncomplete = () => {
@@ -93,11 +97,11 @@ class DbStore<T> extends IndexDb {
 class DebugStore extends DbStore<{
   name: string;
   state: string;
-}> {}
+}> { }
 
 const store = new DebugStore(DATABASE_NAME);
 const p = store.init();
-const worker = (self as any) as ServiceWorkerGlobalScope;
+const worker = (self as any) as ServiceWorker;
 
 class AppManager {
   constructor() {
@@ -107,23 +111,23 @@ class AppManager {
      * This fires once the old service worker is gone, and your new service worker is able to control clients.
      * Happens next time page opens after worker changes (browser must go completely offline)
      */
-    worker.addEventListener("activate", event => {
+    worker.addEventListener("activate", (event: ExtendableEvent) => {
       p.then(() => {
         store.put("activate", { name: "activate", state: new Date().toISOString() });
       });
-      event.waitUntil(async () => {});
+      event.waitUntil(async () => { });
     });
 
     /**
      * Happens every time brower loads for 1st time
      * or when worker changes
      */
-    worker.addEventListener("install", (event: ExtendableEvent) => {
+    worker.addEventListener("install", event => {
       p.then(() => {
         store.put("install", { name: "install", state: new Date().toISOString() });
       });
 
-      event.waitUntil(async () => {});
+      event.waitUntil(async () => { });
     });
 
     worker.addEventListener("fetch", event => {
@@ -149,7 +153,7 @@ class AppManager {
         return response;
       }
       fetch(event.request).then(response => {
-        cache.put(event.request,response);
+        cache.put(event.request, response);
         p.then(() => {
           store.put("fetchFromCacheFirst", { name: "fetchFromCacheFirst", state: new Date().toISOString() });
         });

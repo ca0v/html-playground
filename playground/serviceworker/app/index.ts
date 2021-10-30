@@ -6,7 +6,7 @@ abstract class IndexDb {
   constructor(public name: string) { }
 
   async init() {
-    return new Promise((good, bad) => {
+    return new Promise<void>((good, bad) => {
       const handle = indexedDB.open(this.name, 2);
 
       handle.onerror = () => {
@@ -78,7 +78,7 @@ class DbStore<T> extends IndexDb {
 
   async upgrade(db: IDBDatabase) {
     console.log(db);
-    return new Promise((good, bad) => {
+    return new Promise<void>((good, bad) => {
       const store = db.createObjectStore(this.name, { keyPath: "id", autoIncrement: false });
       store.createIndex("primary", "id", { unique: true });
       store.transaction.oncomplete = () => {

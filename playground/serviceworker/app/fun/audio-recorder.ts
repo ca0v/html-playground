@@ -8,7 +8,7 @@ export class AudioRecorder {
     }
 
     private async canRecordAudio() {
-        const permission = await navigator.permissions.query({ name: 'microphone' });
+        const permission = await navigator.permissions.query({ name: <any>'microphone' });
         switch (permission.state) {
             case "granted":
             case "prompt":
@@ -56,7 +56,7 @@ export class AudioRecorder {
     }
 
     async playback(audio: Blob) {
-        return new Promise((good, bad) => {
+        return new Promise<void>((good, bad) => {
             const url = URL.createObjectURL(audio);
             this.player.src = url;
             this.player.play();
