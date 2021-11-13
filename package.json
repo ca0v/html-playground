@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test:svg": "cd playground && mocha",
-    "watch": "tsc -p tsconfig.json -w",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "npx esbuild --watch --bundle --minify --sourcemap --outfile=index.js index.ts",
     "pg": "tsc -p playground/tsconfig.json -w",
     "pg:svg": "tsc -p playground/svg/tsconfig.json -w",
     "copy:chai": "cp ./node_modules/chai/chai.js ./built/svg/test/",
@@ -31,6 +32,7 @@
     "typescript": "^3.9.5"
   },
   "dependencies": {
+    "esbuild": "^0.13.13",
     "requirejs": "^2.3.6"
   }
 }
